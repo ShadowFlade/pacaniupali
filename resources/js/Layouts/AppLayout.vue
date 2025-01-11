@@ -340,7 +340,7 @@ const logout = () => {
             </header>
 
             <!-- Page Content -->
-            <main class="flex-1">
+            <main class="flex flex-col flex-1">
                 <slot/>
             </main>
             <footer class="py-16 text-center text-sm text-black dark:text-white/70">

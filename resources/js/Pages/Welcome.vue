@@ -1,6 +1,7 @@
 <script setup>
 import {Head, Link} from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import SideMenu from "@/Components/SideMenu.vue";
 
 
 defineProps({
@@ -31,5 +32,6 @@ function handleImageError() {
 <template>
     <AppLayout>
         <Head title="Welcome"/>
+        <SideMenu/>
     </AppLayout>
 </template>
