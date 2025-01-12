@@ -25,6 +25,7 @@ const page = usePage();
 const addTeamMemberForm = useForm({
     email: '',
     role: null,
+    invitation:'',
 });
 
 const updateRoleForm = useForm({
@@ -116,13 +117,32 @@ const displayableRole = (role) => {
 
                     <!-- Member Email -->
                     <div class="col-span-6 sm:col-span-4">
-                        <InputLabel for="email" value="Email" />
-                        <TextInput
-                            id="email"
-                            v-model="addTeamMemberForm.email"
-                            type="email"
-                            class="mt-1 block w-full"
-                        />
+                        <InputLabel for="email" label="Email">
+                            <TextInput
+                                id="email"
+                                v-model="addTeamMemberForm.email"
+                                type="email"
+                                class="mt-1 block w-full"
+                                :disabled="!!addTeamMemberForm.invitation"
+                            />
+                        </InputLabel>
+
+                        <InputError :message="addTeamMemberForm.errors.email" class="mt-2" />
+                    </div>
+
+                    <span class="text-white">или</span>
+
+                    <div class="col-span-6 sm:col-span-4">
+                        <InputLabel label="Приглашение">
+                            <TextInput
+                                id="invitation"
+                                v-model="addTeamMemberForm.invitation"
+                                type="text"
+                                class="mt-1 block w-full"
+                                :disabled="!!addTeamMemberForm.email"
+                            />
+                        </InputLabel>
+
                         <InputError :message="addTeamMemberForm.errors.email" class="mt-2" />
                     </div>
 
