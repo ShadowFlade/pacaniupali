@@ -1,11 +1,14 @@
-import React from 'react'
-import { Sidebar, SidebarContent, SidebarHeader, SidebarProvider } from '@/components/ui/sidebar'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarHeader,
+    SidebarProvider,
+} from '@/components/ui/sidebar';
 // import PhotoWall from '@/components/photo-wall'
 import { PageProps } from '@/types';
-import { Head, Link } from '@inertiajs/react';
 
 export default function Welcome({
     auth,
@@ -33,16 +36,27 @@ export default function Welcome({
                     <SidebarContent className="p-4">
                         <div className="space-y-4">
                             <div>
-                                <Label htmlFor="username">Имя пользователя</Label>
-                                <Input id="username" placeholder="Введите имя" />
+                                <Label htmlFor="username">
+                                    Имя пользователя
+                                </Label>
+                                <Input
+                                    id="username"
+                                    placeholder="Введите имя"
+                                />
                             </div>
                             <div>
                                 <Label htmlFor="password">Пароль</Label>
-                                <Input id="password" type="password" placeholder="Введите пароль" />
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    placeholder="Введите пароль"
+                                />
                             </div>
                             <Button className="w-full">Войти</Button>
                             <div className="text-center">или</div>
-                            <Button variant="outline" className="w-full">Присоединиться к группе</Button>
+                            <Button variant="outline" className="w-full">
+                                Присоединиться к группе
+                            </Button>
                         </div>
                     </SidebarContent>
                 </Sidebar>
@@ -51,5 +65,5 @@ export default function Welcome({
                 </main>
             </div>
         </SidebarProvider>
-    )
+    );
 }
