@@ -12,6 +12,8 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        login: '',
+        nickname: '',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -28,24 +30,44 @@ export default function Register() {
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="name" value="Логин" />
 
                     <TextInput
-                        id="name"
-                        name="name"
-                        value={data.name}
+                        id="login"
+                        name="login"
+                        value={data.login}
                         className="mt-1 block w-full"
-                        autoComplete="name"
+                        autoComplete="login"
                         isFocused={true}
-                        onChange={(e) => setData('name', e.target.value)}
+                        onChange={(e) => setData('login', e.target.value)}
                         required
                     />
 
+                    <InputError message={errors.login} className="mt-2" />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="name" value="Никнейм" />
+
+                    <TextInput
+                        id="nickname"
+                        name="nickname"
+                        value={data.nickname}
+                        className="mt-1 block w-full"
+                        autoComplete="nickname"
+                        isFocused={true}
+                        onChange={(e) => setData('nickname', e.target.value)}
+                        required
+                    />
+                    <p className="text-xs text-gray-500 opacity-25">
+                        Под этим именем вас будут видеть другие игроки. Его
+                        можно будет сменить позже.
+                    </p>
                     <InputError message={errors.name} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="Почта" />
 
                     <TextInput
                         id="email"
@@ -62,7 +84,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Пароль" />
 
                     <TextInput
                         id="password"
@@ -81,7 +103,7 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
+                        value="Подтвердить пароль"
                     />
 
                     <TextInput
@@ -108,11 +130,11 @@ export default function Register() {
                         href={route('login')}
                         className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
                     >
-                        Already registered?
+                        Уже зарегестрированы?
                     </Link>
 
                     <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
+                        Зарегестрироваться
                     </PrimaryButton>
                 </div>
             </form>
