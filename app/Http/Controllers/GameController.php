@@ -2,15 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreGroupRequest;
-use App\Http\Requests\UpdateGroupRequest;
+use App\Http\Requests\StoreGameRequest;
+use App\Http\Requests\UpdateGameRequest;
 use App\Models\Game;
-use App\Models\Group;
-use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
 
-class GroupController extends Controller
+class GameController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -31,7 +27,7 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreGroupRequest $request)
+    public function store(StoreGameRequest $request)
     {
         //
     }
@@ -39,20 +35,15 @@ class GroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Game $game)
     {
-        $user = Auth::user();
-        return Inertia::render('Group/GroupDetail', [
-            'last_games' => Game::with(['user','player','winner'])
-                ->where('player.id', $user['id'])
-                ->get()
-        ]);
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Group $group)
+    public function edit(Game $game)
     {
         //
     }
@@ -60,7 +51,7 @@ class GroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateGroupRequest $request, Group $group)
+    public function update(UpdateGameRequest $request, Game $game)
     {
         //
     }
@@ -68,7 +59,7 @@ class GroupController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Group $group)
+    public function destroy(Game $game)
     {
         //
     }

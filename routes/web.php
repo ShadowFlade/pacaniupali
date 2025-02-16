@@ -1,9 +1,8 @@
 <?php
 
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\TeamController;
 use App\Models\setting;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -25,9 +24,9 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get('/team', [TeamController::class, 'index'])->name('team.index');
-    Route::patch('/team', [TeamController::class, 'update'])->name('team.update');
-    Route::delete('/team', [TeamController::class, 'destroy'])->name('team.destroy');
+    Route::get('/group', [GroupController::class, 'index'])->name('group.index');
+    Route::patch('/group', [GroupController::class, 'update'])->name('group.update');
+    Route::delete('/group', [GroupController::class, 'destroy'])->name('group.destroy');
 });
 
 

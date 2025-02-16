@@ -1,12 +1,14 @@
 import AuthenticatedLayout from '@/Layouts/General';
 import { Head } from '@inertiajs/react';
 import General from '@/Layouts/General';
-import { Sidebar } from 'lucide-react';
+import SidebarCustom from '@/Components/SidebarCustom';
 
-export default function TeamDetail() {
+
+export default function GroupDetail() {
     return (
         <General>
-            <Sidebar />
+            <SidebarCustom />
+            <div className={''}></div>
         </General>
     )
 }

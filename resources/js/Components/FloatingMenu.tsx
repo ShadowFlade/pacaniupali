@@ -60,9 +60,9 @@ export function FloatingMenu({ username, userEmail }) {
                             <Users className="mr-2 h-4 w-4" />
                             <NavLink
                                 className={' pl-0'}
-                                href={route('team.index')}
-                                active={route().current('team')}
-                            >Team</NavLink>
+                                href={route('group.index')}
+                                active={route().current('group.index')}
+                            >Группа</NavLink>
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                             <User className="mr-2 h-4 w-4" />

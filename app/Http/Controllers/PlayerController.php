@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTeamRequest;
-use App\Http\Requests\UpdateTeamRequest;
-use App\Models\Team;
-use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use App\Http\Requests\StorePlayerRequest;
+use App\Http\Requests\UpdatePlayerRequest;
+use App\Models\Player;
 
-class TeamController extends Controller
+class PlayerController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-
+        //
     }
 
     /**
@@ -29,7 +27,7 @@ class TeamController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreTeamRequest $request)
+    public function store(StorePlayerRequest $request)
     {
         //
     }
@@ -37,18 +35,15 @@ class TeamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Team $team, Auth $auth)
+    public function show(Player $player)
     {
-
-        Inertia::render('Team/TeamDetail', [
-
-        ]);
+        //
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Team $team)
+    public function edit(Player $player)
     {
         //
     }
@@ -56,7 +51,7 @@ class TeamController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateTeamRequest $request, Team $team)
+    public function update(UpdatePlayerRequest $request, Player $player)
     {
         //
     }
@@ -64,7 +59,7 @@ class TeamController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Team $team)
+    public function destroy(Player $player)
     {
         //
     }

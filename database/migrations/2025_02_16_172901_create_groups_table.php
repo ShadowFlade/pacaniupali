@@ -18,7 +18,6 @@ return new class extends Migration
             $table->char('description', 100);
             $table->char('logo_path', 255);
             $table->char('code', 255);
-
         });
     }
 
