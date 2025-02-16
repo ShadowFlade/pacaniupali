@@ -30,21 +30,25 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        //do we have to validate it even though we have validation on create ? its defined on mysql level (check create_user_name migration)
         $request->validate([
-            'name' => 'required|string|max:255',
+            'login' => 'required|string|max:255|unique:'.User::class,
+            'username' => 'required|string|max:255|unique:'.User::class,
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'login' => $request->login,
             'email' => $request->email,
+            'username' => $request->username,
             'password' => Hash::make($request->password),
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
+
 
         return redirect(route('dashboard', absolute: false));
     }

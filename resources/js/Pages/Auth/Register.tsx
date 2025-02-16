@@ -12,7 +12,7 @@ export default function Register() {
         password: '',
         password_confirmation: '',
         login: '',
-        nickname: '',
+        username: '',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -29,7 +29,7 @@ export default function Register() {
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value="Логин" />
+                    <InputLabel htmlFor="login" value="Логин" />
 
                     <TextInput
                         id="login"
@@ -46,16 +46,16 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="name" value="Никнейм" />
+                    <InputLabel htmlFor="username" value="Никнейм" />
 
                     <TextInput
-                        id="nickname"
-                        name="nickname"
-                        value={data.nickname}
+                        id="username"
+                        name="username"
+                        value={data.username}
                         className="mt-1 block w-full"
-                        autoComplete="nickname"
+                        autoComplete="username"
                         isFocused={true}
-                        onChange={(e) => setData('nickname', e.target.value)}
+                        onChange={(e) => setData('username', e.target.value)}
                         required
                     />
                     <p className="text-xs text-gray-500 opacity-25">
