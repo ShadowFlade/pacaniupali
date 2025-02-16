@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Game extends Model
 {
@@ -14,13 +17,14 @@ class Game extends Model
         'winner_id',
         'game_id',
     ];
-    public function winner() : BelongsTo
+    public function winner() : HasOne
     {
-        return $this->belongsTo(Winner::class);
+        //TODO: hasOneThrough?
+        return $this->hasOne(Winner::class);
     }
 
-    public function player() : BelongsTo
+    public function players() : HasMany
     {
-        return $this->belongsTo(Player::class);
+        return $this->hasMany(Player::class);
     }
 }

@@ -23,5 +23,17 @@ class Player extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function game()
+    {
+        return $this->belongsTo(Game::class);
+    }
+
+
+    //TODO: разница между hasOne и belongsTo ??
+    public function winner()
+    {
+        return $this->hasOne(Winner::class);
+    }
+
 
 }

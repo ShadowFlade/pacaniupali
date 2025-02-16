@@ -25,7 +25,8 @@ return new class extends Migration
             $table
                 ->foreign('game_id', 'games_game_id')
                 ->references('id')
-                ->on('games');
+                ->on('games')
+                ->onDelete('cascade');
 
             $table->boolean('is_host')->default(false);
             $table->integer('points');
