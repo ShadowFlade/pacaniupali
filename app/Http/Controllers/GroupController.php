@@ -7,8 +7,10 @@ use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Game;
 use App\Models\Group;
 use App\Models\User;
+use App\Models\UserGroup;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
 
 class GroupController extends Controller
 {
@@ -17,7 +19,14 @@ class GroupController extends Controller
      */
     public function index()
     {
-        //
+        $user = Auth::user();
+        $userGroup = UserGroup::with(['User', 'Group'])
+            ->where('user_id', $user['id'])
+            ->first();
+
+        return Inertia::render('Group/GroupDetail',[
+            'user_group' => $userGroup,
+        ]);
     }
 
     /**
@@ -41,12 +50,9 @@ class GroupController extends Controller
      */
     public function show()
     {
+
         $user = Auth::user();
-        return Inertia::render('Group/GroupDetail', [
-            'last_games' => Game::with(['user','player','winner'])
-                ->where('player.id', $user['id'])
-                ->get()
-        ]);
+        return Inertia::render('Group/GroupDetail');
     }
 
     /**

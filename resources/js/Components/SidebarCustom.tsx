@@ -6,9 +6,9 @@ import { CustomLink } from '@/Components/CustomLink';
 
 export default function SidebarCustom({ loggedIn }) {
     return (
-        <SidebarProvider>
-            <div className="flex h-screen">
-                <Sidebar className="w-2/5 max-w-[400px]">
+        <SidebarProvider className={'w-auto'}>
+            <div className="flex h-screen w-auto">
+                <Sidebar className="p-4 bg-sidebar">
                     <SidebarHeader className="p-4">
                         <h2 className="text-2xl font-bold">Своя игра</h2>
                     </SidebarHeader>
@@ -59,7 +59,7 @@ export default function SidebarCustom({ loggedIn }) {
                     {
                         // if in team ? last game : null (winner, your place, participants (show only avatars))
                     }
-                    <SidebarContent className="p-4">
+                    <SidebarContent className="">
 
                     </SidebarContent>
                 </Sidebar>

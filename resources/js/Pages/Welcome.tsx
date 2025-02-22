@@ -7,7 +7,7 @@ import SidebarCustom from '@/Components/SidebarCustom';
 export default function Welcome({
                                     auth
                                 }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
-    const [loggedIn, setLoggedIn] = useState(!!auth.user.id);
+    const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
     const handleImageError = () => {
         document
             .getElementById('screenshot-container')

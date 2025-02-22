@@ -11,16 +11,18 @@ export default function General({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user;
-    console.log(user,' user');
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
     return (
         <>
-            <FloatingMenu username={user.username} userEmail={user.email} />
-            {children}
+            <FloatingMenu username={user?.username} userEmail={user?.email} className={"h-[70px]"}/>
+            <div className={'flex align-start mt-[70px]'}>
+                {children}
+            </div>
         </>
+
 
         // <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         //     <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">
