@@ -1,15 +1,15 @@
 import type React from 'react';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown, ChevronUp, ImageIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp, ImageIcon, FileImage, X } from 'lucide-react';
 import SidebarCustom from '@/Components/SidebarCustom';
-import { usePage, router, useForm } from '@inertiajs/react';
+import { usePage, router, useForm, Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import General from '@/Layouts/General';
 
@@ -34,6 +34,8 @@ export default function GroupsPage({auth}) {
         logo: '',
         description: '',
     });
+    const [dragActive, setDragActive] = useState(false)
+    const [preview, setPreview] = useState<string | null>(null)
     const searchParams = new URLSearchParams(window.location.search);
     const [showFormState,setShowFormState] = useState<boolean>(searchParams.get('creating') === 'true');
 
@@ -63,7 +65,13 @@ export default function GroupsPage({auth}) {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        post(route())
+        post(route('group.store'), {
+            onFinish: (is) => {
+                console.log(is,' is');
+                reset();
+                setShowForm(false)
+            },
+        })
         const formData = new FormData(e.currentTarget);
         const newGroup = {
             id: Date.now().toString(),
@@ -75,6 +83,26 @@ export default function GroupsPage({auth}) {
         setShowForm(false);
     };
 
+    const handleFile = useCallback((file: File | undefined) => {
+        if (!file) return
+
+        if (!file.type.startsWith("image/")) {
+            alert("Please upload an image file")
+            return
+        }
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("File size must be less than 2MB")
+            return
+        }
+
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setPreview(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+    }, [])
+
     return (
         <General>
             <SidebarCustom loggedIn={loggedIn} />
@@ -84,7 +112,7 @@ export default function GroupsPage({auth}) {
                         <h2 className="text-2xl font-semibold mb-4">
                             Looks like вы не состоите ни в какой группе. Давайте создадим вашу первую группу!
                         </h2>
-                        <Button onClick={() => setShowForm(true)}>Create Group</Button>
+                        <Button onClick={() => setShowForm(true)}>Создать группу</Button>
                     </div>
                 ) : null}
 
@@ -107,26 +135,98 @@ export default function GroupsPage({auth}) {
                                     <form onSubmit={handleSubmit} className="space-y-6">
                                         <div className="space-y-2">
                                             <Label htmlFor="name">Название группы</Label>
-                                            <Input id="name" name="name" required />
+                                            <Input id="name" name="name" required onChange={e => setData('name',e.target.value)}/>
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="logo">Логотип группы</Label>
-                                            <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors">
-                                                <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
-                                                <p className="mt-2 text-sm text-muted-foreground">Нажмите чтобы загурзить логотип</p>
+                                            <Label htmlFor="logo">Group Logo</Label>
+                                            <div
+                                                className={`
+                        border-2 border-dashed rounded-lg transition-all duration-200 ease-in-out
+                        ${dragActive ? "border-primary bg-primary/5 scale-102" : "border-muted-foreground/25"}
+                        ${preview ? "p-2" : "p-8"}
+                      `}
+                                                onDragOver={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    setDragActive(true)
+                                                }}
+                                                onDragLeave={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    setDragActive(false)
+                                                }}
+                                                onDrop={(e) => {
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                    setDragActive(false)
+                                                    const file = e.dataTransfer.files?.[0]
+                                                    handleFile(file)
+                                                }}
+                                            >
+                                                <input
+                                                    id="logo"
+                                                    name="logo"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    className="hidden"
+                                                    onChange={(e) => {
+                                                        handleFile(e.target.files?.[0]);
+                                                        setData('logo', e.target.files?.[0]);
+                                                    }}
+                                                />
+                                                {preview ? (
+                                                    <div className="relative group">
+                                                        <img
+                                                            src={preview || "/placeholder.svg"}
+                                                            alt="Preview"
+                                                            className="w-full h-48 object-cover rounded-md"
+                                                        />
+                                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-md flex items-center justify-center">
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="text-white hover:text-white hover:bg-white/20"
+                                                                onClick={() => {
+                                                                    setPreview(null)
+                                                                    const input = document.getElementById("logo") as HTMLInputElement
+                                                                    if (input) input.value = ""
+                                                                }}
+                                                            >
+                                                                <X className="h-5 w-5" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <label htmlFor="logo" className="flex flex-col items-center gap-2 cursor-pointer">
+                                                        <div className="p-3 rounded-full bg-primary/10 text-primary">
+                                                            <FileImage className="h-6 w-6" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-sm font-medium text-muted-foreground">
+                                                                Click to upload or drag and drop
+                                                            </p>
+                                                            <p className="text-xs text-muted-foreground">SVG, PNG, JPG or GIF (max. 2MB)</p>
+                                                        </div>
+                                                    </label>
+                                                )}
                                             </div>
                                         </div>
 
                                         <div className="space-y-2">
                                             <Label htmlFor="description">Описание</Label>
-                                            <Textarea id="description" name="description" required />
+                                            <Textarea id="description"
+                                                      name="description"
+                                                      required
+                                                      onChange={e => setData('description',e.target.value)}
+                                            />
                                             <p className="mt-2 text-sm text-muted-foreground">Сюда вы можете записать свой лозунг!</p>
 
                                         </div>
 
                                         <div className="flex gap-4">
-                                            <Button type="submit">Создать группу</Button>
+                                            <Button disabled={processing} type="submit">Создать группу</Button>
                                             <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
                                                 Отменить
                                             </Button>
