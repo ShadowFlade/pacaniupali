@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Player extends Model
 {
@@ -17,6 +18,8 @@ class Player extends Model
         'is_host',
         'points'
     ];
+    protected $appends = ['position'];
+
 
     public function user(): BelongsTo
     {
@@ -33,6 +36,14 @@ class Player extends Model
     public function winner()
     {
         return $this->hasOne(Winner::class);
+    }
+
+    public function getPositionAttribute()
+    {
+        return DB::table('players as p')
+                ->where('p.game_id', $this->game_id)
+                ->where('p.points', '>', $this->points)
+                ->count() + 1;
     }
 
 

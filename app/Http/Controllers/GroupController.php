@@ -10,6 +10,7 @@ use App\Models\Player;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Winner;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -38,17 +39,13 @@ class GroupController extends Controller
 //            ->groupBy('games.id')
 //            ->get()->toArray(); //this is shit
 
-        $gamesDB = Game::query()
-            ->join('players','games.id','=','players.game_id')
-            ->whereIn('games.group_id', array_map(fn($item) => $item['id'], $groups))
-            ->get(['games.id','games.group_id','players.id','']);
-
-        $games = [];
-
-        foreach($gamesDB as $gameDB){
-            $game = $gameDB->toArray();
-            $games[$game['group_id']][] = $game;
+        if(empty($groups)) {
+            return Inertia::render('Group/GroupDetail', [
+                'groups' => [],
+            ]);
         }
+
+        $games = Game::with(['player'])->get()->toArray();
 
         return Inertia::render('Group/GroupDetail', [
             'groups' => $groups,
