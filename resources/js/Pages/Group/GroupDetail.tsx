@@ -12,6 +12,7 @@ import SidebarCustom from '@/Components/SidebarCustom';
 import { usePage, router, useForm, Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 import General from '@/Layouts/General';
+import RecentGamesList from '@/Components/RecentGamesList';
 
 interface Group {
     id: string;
@@ -27,9 +28,10 @@ interface Game {
     score: string;
 }
 
-export default function GroupsPage({auth, groups: userGroups}) {
+export default function GroupsPage({auth, groups: userGroups, games}) {
     const page = usePage();
     console.log(page,' page');
+    console.log(games,' SUPER GAMES')
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         logo: '',
@@ -291,15 +293,13 @@ export default function GroupsPage({auth, groups: userGroups}) {
                                                     <div className="mt-4 pt-4 border-t">
                                                         <h3 className="font-semibold mb-3">Recent Games</h3>
                                                         <div className="space-y-2">
-                                                            {mockGames.map((game) => (
-                                                                <div
-                                                                    key={game.id}
-                                                                    className="flex justify-between items-center p-2 rounded-lg bg-muted/50"
-                                                                >
-                                                                    <span>{game.teams}</span>
-                                                                    <span className="font-medium">{game.score}</span>
-                                                                </div>
-                                                            ))}
+                                                            {
+                                                                games.length && (<RecentGamesList games={games.filter(game => game.group_id == group.id)}
+                                                                                                  currentUserID={auth.user.id}
+                                                                                                  groupID={group.id}
+                                                                />)
+                                                            }
+
                                                         </div>
                                                     </div>
                                                 </motion.div>

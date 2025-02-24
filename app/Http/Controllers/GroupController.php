@@ -30,14 +30,7 @@ class GroupController extends Controller
             ->get()->toArray();
 
 
-//        $groups = Group::query()
-//            ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
-//            ->join('users', 'users.id', '=', 'user_groups.user_id')
-//            ->join('players', 'players.user_id', '=', 'users.id')
-//            ->join('games', 'games.id', '=', 'players.game_id')
-//            ->where('user_groups.user_id', $user['id'])
-//            ->groupBy('games.id')
-//            ->get()->toArray(); //this is shit
+
 
         if(empty($groups)) {
             return Inertia::render('Group/GroupDetail', [
@@ -45,7 +38,9 @@ class GroupController extends Controller
             ]);
         }
 
-        $games = Game::with(['player'])->get()->toArray();
+        $games = Game::with(['player','winner'])
+            ->where('games.group_id', $groups[0]['id'])
+            ->get()->toArray();
 
         return Inertia::render('Group/GroupDetail', [
             'groups' => $groups,
