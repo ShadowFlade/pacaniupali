@@ -14,8 +14,9 @@ class Game extends Model
     /** @use HasFactory<\Database\Factories\GameFactory> */
     use HasFactory;
     protected $fillable = [
-        'winner_id',
-        'game_id',
+        'game_start',
+        'game_end',
+        'group_id'
     ];
     public function winner() : HasOne
     {
@@ -23,7 +24,7 @@ class Game extends Model
         return $this->hasOne(Winner::class);
     }
 
-    public function players() : HasMany
+    public function player() : HasMany
     {
         return $this->hasMany(Player::class);
     }

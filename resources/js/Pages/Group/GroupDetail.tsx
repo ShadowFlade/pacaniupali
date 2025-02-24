@@ -27,9 +27,9 @@ interface Game {
     score: string;
 }
 
-export default function GroupsPage({auth, user_group}) {
+export default function GroupsPage({auth, groups: userGroups}) {
     const page = usePage();
-    console.log(user_group,' groups', page, ' page');
+    console.log(page,' page');
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         logo: '',
@@ -39,6 +39,9 @@ export default function GroupsPage({auth, user_group}) {
     const [preview, setPreview] = useState<string | null>(null)
     const searchParams = new URLSearchParams(window.location.search);
     const [showFormState,setShowFormState] = useState<boolean>(searchParams.get('creating') === 'true');
+    const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
+    const [groups, setGroups] = useState<Group[]>(userGroups || []);
+    const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
     //TODO:mb refactor it into custom hook like nextjs searchParams to detect url changes
     const setShowForm = (show: boolean) => {
@@ -52,10 +55,8 @@ export default function GroupsPage({auth, user_group}) {
         window.history.replaceState(null, '', page.url + '/?' + params.toString());
 
     }
-    const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
 
-    const [groups, setGroups] = useState<Group[]>(user_group);
-    const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+
 
     // Mock games data - replace with real data
     const mockGames: Game[] = [
@@ -253,7 +254,7 @@ export default function GroupsPage({auth, user_group}) {
                                     <CardContent className="p-6">
                                         <div className="flex items-start gap-4">
                                             <img
-                                                src={group.logo || "/placeholder.svg"}
+                                                src={group.logo_path || "/placeholder.svg"}
                                                 alt={`${group.name} logo`}
                                                 className="w-16 h-16 rounded-lg object-cover"
                                             />

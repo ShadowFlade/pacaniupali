@@ -45,15 +45,16 @@ class GroupController extends Controller
     public function store(\Illuminate\Http\Request $request) : Response
     {
         $file = $request->file("logo");
-        $ext = $file->getClientOriginalExtension();
+
+        $ext = $file->extension();
         $logoFilename = $file->getClientOriginalName() . date('dmYHis') . "." . $ext;
-        $file->storeAs('group_logos', $logoFilename, 'public');
+        $file->storeAs('/group_logos', $logoFilename, 'public');
 
         $group = Group::create([
             'name'        => $request['name'],
             'code'        => str_slug($request['name']),
             'description' => $request['description'],
-            'logo_path'   => 'group_logos/' . $logoFilename,
+            'logo_path'   => '/storage/group_logos/' . $logoFilename,
         ]);
 
         $userGroup = UserGroup::create([
