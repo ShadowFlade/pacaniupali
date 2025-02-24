@@ -38,7 +38,7 @@ class GroupController extends Controller
             ]);
         }
 
-        $games = Game::with(['player','winner'])
+        $games = Game::with(['player','winner','player.user'])
             ->where('games.group_id', $groups[0]['id'])
             ->get()->toArray();
 

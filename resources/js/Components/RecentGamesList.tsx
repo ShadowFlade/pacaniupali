@@ -1,12 +1,8 @@
 import type React from 'react';
 
 export default function RecentGamesList({ games, currentUserID, groupID }) {
-    console.log(groupID, ' GROUP ID');
-    console.log(games, ' games');
     return games.map((game) => {
-
         const yourPlayer = game.player && game.player.length && game.player.find((player) => player && player.user_id === currentUserID) || null;
-        console.log(game, ' GAME');
         if (!game) return null;
         return (
             <table
