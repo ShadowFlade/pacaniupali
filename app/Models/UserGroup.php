@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserGroup extends Pivot
+
+class UserGroup extends Model
 {
     protected $table = 'user_groups';
     protected $fillable = [
@@ -13,13 +14,13 @@ class UserGroup extends Pivot
         'group_id',
     ];
 
-    public function user(): HasMany
+    public function user(): BelongsTo
     {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(User::class,'user_id');
     }
 
-    public function groups(): HasMany
+    public function group(): BelongsTo
     {
-        return $this->hasMany(Group::class);
+        return $this->belongsTo(Group::class,'group_id');
     }
 }

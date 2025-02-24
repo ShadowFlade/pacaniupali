@@ -27,8 +27,9 @@ interface Game {
     score: string;
 }
 
-export default function GroupsPage({auth}) {
+export default function GroupsPage({auth, user_group}) {
     const page = usePage();
+    console.log(user_group,' groups', page, ' page');
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         logo: '',
@@ -53,7 +54,7 @@ export default function GroupsPage({auth}) {
     }
     const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
 
-    const [groups, setGroups] = useState<Group[]>([]);
+    const [groups, setGroups] = useState<Group[]>(user_group);
     const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
     // Mock games data - replace with real data
@@ -73,13 +74,13 @@ export default function GroupsPage({auth}) {
             },
         })
         const formData = new FormData(e.currentTarget);
-        const newGroup = {
-            id: Date.now().toString(),
-            name: formData.get('name') as string,
-            logo: '/placeholder.svg?height=100&width=100',
-            description: formData.get('description') as string
-        };
-        setGroups([...groups, newGroup]);
+        // const newGroup = {
+        //     id: Date.now().toString(),
+        //     name: formData.get('name') as string,
+        //     logo: '/placeholder.svg?height=100&width=100',
+        //     description: formData.get('description') as string
+        // };
+        // setGroups([...groups, newGroup]);
         setShowForm(false);
     };
 

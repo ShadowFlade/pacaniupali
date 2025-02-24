@@ -21,12 +21,13 @@ class GroupController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $userGroup = UserGroup::with(['User', 'Group'])
-            ->where('user_id', $user['id'])
+        $groups = Group::query()
+            ->join('user_groups', 'groups.id', '=', 'user_groups.group_id')
+            ->where('user_groups.user_id', $user['id'])
             ->get();
 
-        return Inertia::render('Group/GroupDetail',[
-            'user_group' => $userGroup,
+        return Inertia::render('Group/GroupDetail', [
+            'groups' => $groups,
         ]);
     }
 
@@ -46,7 +47,7 @@ class GroupController extends Controller
         $file = $request->file("logo");
         $ext = $file->getClientOriginalExtension();
         $logoFilename = $file->getClientOriginalName() . date('dmYHis') . "." . $ext;
-        $file->storeAs('group_logos', $logoFilename, 'local');
+        $file->storeAs('group_logos', $logoFilename, 'public');
 
         $group = Group::create([
             'name'        => $request['name'],
