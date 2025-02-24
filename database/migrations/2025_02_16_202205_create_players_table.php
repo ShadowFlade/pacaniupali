@@ -30,6 +30,7 @@ return new class extends Migration
 
             $table->boolean('is_host')->default(false);
             $table->integer('points');
+
         });
     }
 

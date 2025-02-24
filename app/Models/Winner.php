@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Winner extends Pivot
 {
+    protected $table = 'winners';
     public $incrementing = true;    // Отношение "один к одному" с игрой
     public function game()
     {

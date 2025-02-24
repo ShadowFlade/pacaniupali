@@ -6,8 +6,10 @@ use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Game;
 use App\Models\Group;
+use App\Models\Player;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Models\Winner;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
@@ -22,12 +24,35 @@ class GroupController extends Controller
     {
         $user = Auth::user();
         $groups = Group::query()
-            ->join('user_groups', 'groups.id', '=', 'user_groups.group_id')
+            ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
             ->where('user_groups.user_id', $user['id'])
-            ->get();
+            ->get()->toArray();
+
+
+//        $groups = Group::query()
+//            ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
+//            ->join('users', 'users.id', '=', 'user_groups.user_id')
+//            ->join('players', 'players.user_id', '=', 'users.id')
+//            ->join('games', 'games.id', '=', 'players.game_id')
+//            ->where('user_groups.user_id', $user['id'])
+//            ->groupBy('games.id')
+//            ->get()->toArray(); //this is shit
+
+        $gamesDB = Game::query()
+            ->join('players','games.id','=','players.game_id')
+            ->whereIn('games.group_id', array_map(fn($item) => $item['id'], $groups))
+            ->get(['games.id','games.group_id','players.id','']);
+
+        $games = [];
+
+        foreach($gamesDB as $gameDB){
+            $game = $gameDB->toArray();
+            $games[$game['group_id']][] = $game;
+        }
 
         return Inertia::render('Group/GroupDetail', [
             'groups' => $groups,
+            'games' => $games,
         ]);
     }
 

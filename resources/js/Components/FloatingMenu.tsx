@@ -17,7 +17,8 @@ import NavLink from '@/Components/NavLink';
 
 export function FloatingMenu({ username, userEmail, className }) {
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white p-4 shadow-md ` + className}>
+        <nav
+            className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white p-4 shadow-md ` + className}>
             <div className="flex shrink-0 items-center">
                 <Link href="/">
                     <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
@@ -88,14 +89,17 @@ export function FloatingMenu({ username, userEmail, className }) {
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                <Link
-                    href={route('logout')}
-                    method="post"
-                    as="button"
-                    className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                >
-                    Log Out
-                </Link>
+                {
+                    username ? <Link
+                        href={route('logout')}
+                        method="post"
+                        as="button"
+                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                    >
+                        Log Out
+                    </Link> : null
+                }
+
             </div>
 
         </nav>

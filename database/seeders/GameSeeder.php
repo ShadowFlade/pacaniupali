@@ -16,9 +16,11 @@ class GameSeeder extends Seeder
      */
     public function run(): void
     {
+        User::factory()->count(10)->create();
         $users = User::take(10)->get();
 
         for ($i = 0; $i < 5; $i++) {
+
             $game = Game::create([
                 'game_start' => date('Y-m-d H:i:s'),
                 'game_end'   => date(
@@ -29,11 +31,14 @@ class GameSeeder extends Seeder
             ]);
 
             $players = [];
+            $userCount = 0;
+
             foreach ($users as $user) {
+                $userCount++;
                 $player = Player::create([
                     'user_id' => $user['id'],
                     'game_id' => $game->id,
-                    'is_host' => true,
+                    'is_host' => $userCount == count($users),
                     'points'  => random_int(100, 10000),
                 ]);
                 $players[] = $player;
@@ -41,7 +46,7 @@ class GameSeeder extends Seeder
             }
             $winner = Winner::create([
                 'game_id' => $game->id,
-                'player_id' => array_rand($players)['id'],
+                'player_id' => $players[array_rand($players)]['id'],
             ]);
             unset($players);
         }

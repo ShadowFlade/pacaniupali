@@ -21,7 +21,7 @@ return new class extends Migration
             $table
                 ->foreign('group_id', 'games_group_id')
                 ->references('id')
-                ->on('groups');
+                ->on('group_list');
 
             //TODO:потом можно будет добавить calculated поле total_points
         });

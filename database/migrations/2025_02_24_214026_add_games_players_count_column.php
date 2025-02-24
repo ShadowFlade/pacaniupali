@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('group_list', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-            $table->char('name', 100);
-            $table->char('description', 100);
-            $table->char('logo_path', 255);
-            $table->char('code', 255);
+        Schema::table('games', function (Blueprint $table) {
+            $table->integer('players_count');
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('group_list');
+        Schema::table('games', function (Blueprint $table) {
+            $table->dropColumn('players_count');
+        });
     }
 };

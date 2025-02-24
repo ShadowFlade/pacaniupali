@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Group extends Model
 {
+    protected $table = 'group_list';
     /** @use HasFactory<\Database\Factories\GroupFactory> */
     use HasFactory;
     protected $fillable = [
