@@ -17,15 +17,16 @@ import FileInput from '@/Components/FileInput';
 interface Group {
     id: string;
     name: string;
-    logo: string;
+    code: string;
+    logo_path: string;
     description: string;
 }
 
 interface Game {
     id: string;
     date: string;
-    teams: string;
-    score: string;
+    group: Group[];
+    points: number;
 }
 
 export default function GroupsPage({ auth, groups: userGroups, games }) {
@@ -54,7 +55,6 @@ export default function GroupsPage({ auth, groups: userGroups, games }) {
         }
         setShowFormState(true);
         window.history.replaceState(null, '', page.url + '/?' + params.toString());
-
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -173,7 +173,9 @@ export default function GroupsPage({ auth, groups: userGroups, games }) {
                                                         )}
                                                     </Button>) : null}
                                                 </div>
-                                                <p className="text-muted-foreground mt-1">{group.description}</p>
+                                                <p className="text-muted-foreground mt-1">
+                                                    {group.description}
+                                                </p>
                                             </div>
                                         </div>
 
