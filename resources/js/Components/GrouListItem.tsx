@@ -60,6 +60,10 @@ export default function GroupListItem(
                         </div>
                     </div>
 
+                    <div>
+                        <span>Игр: </span> {games.length}
+                    </div>
+
                     <div className="flex justify-between gap-2 mt-6">
                         <div className="flex items-center gap-2">
                             <Button variant="outline" size="sm" asChild>

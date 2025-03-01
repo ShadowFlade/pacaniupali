@@ -109,6 +109,182 @@ export function AddGameModal({ groups, players, currUserID, showSelectGroup, sel
         });
     };
 
+    const renderWinnerField = () => {
+        return (
+            <FormField
+                control={form.control}
+                name="winner_id"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Winner</FormLabel>
+                        <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            disabled={selectedPlayers.length === 0}
+                        >
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select winner" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {players
+                                    .filter((player) => selectedPlayers.includes(player.id.toString()))
+                                    .map((player, index, array) => {
+                                            console.log(array, ' array');
+                                            return (
+                                                <SelectItem key={player.id}
+                                                            value={player.id.toString()}>
+                                                    {player.login}
+                                                </SelectItem>
+                                            );
+                                        }
+                                    )}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        );
+    };
+
+    const renderGameStartField = () => {
+        return (
+            <FormField
+                control={form.control}
+                name="game_start"
+                render={({ field }) => (
+                    <FormItem className="space-y-2 flex flex-col">
+                        <FormLabel>Game Start</FormLabel>
+                        <FormControl>
+                            <DatePicker
+                                selected={field.value}
+                                onChange={(date: Date) => field.onChange(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                customInput={
+                                    <CustomDatePickerInput
+                                        label="start time"
+                                        value={field.value
+                                            ? format(field.value, 'MMM d, yyyy h:mm aa')
+                                            : undefined
+                                        }
+                                    />
+                                }
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        );
+    };
+
+    const renderGameEndField = () => {
+        return (
+            <FormField
+                control={form.control}
+                name="game_end"
+                render={({ field }) => (
+                    <FormItem className="space-y-2 flex flex-col">
+                        <FormLabel>Game End</FormLabel>
+                        <FormControl>
+                            <DatePicker
+                                className="mt-0"
+                                selected={field.value}
+                                onChange={(date: Date) => field.onChange(date)}
+                                showTimeSelect
+                                timeFormat="HH:mm"
+                                timeIntervals={15}
+                                dateFormat="MMMM d, yyyy h:mm aa"
+                                customInput={
+                                    <CustomDatePickerInput
+                                        label="start time"
+                                        value={field.value
+                                            ? format(field.value, 'MMM d, yyyy h:mm aa')
+                                            : undefined
+                                        }
+                                    />
+                                }
+                            />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        );
+    };
+
+    const renderGroupField = () => {
+        return (
+            <FormField
+                control={form.control}
+                name="group_id"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Group</FormLabel>
+                        <Select
+                            onValueChange={(value) => {
+                                field.onChange(value);
+                                handleGroupChange(value);
+                            }}
+                            value={field.value}
+                        >
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select a group" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {groups.map((group) => (
+                                    <SelectItem key={group.id} value={group.id.toString()}>
+                                        {group.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        );
+    };
+
+    const renderSelectPlayersField = () => {
+        return (
+            <FormField
+                control={form.control}
+                name="players"
+                render={() => (
+                    <FormItem>
+                        <FormLabel>Players</FormLabel>
+                        <div className="grid grid-cols-2 gap-2">
+                            {players.map((player) => (
+                                <div key={player.id} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        checked={selectedPlayers.includes(player.id.toString())}
+                                        onCheckedChange={() => handlePlayerToggle(player.id.toString())}
+                                        id={`player-${player.id}`}
+                                    />
+                                    <label
+                                        htmlFor={`player-${player.id}`}
+                                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                    >
+                                        {player.login}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+        );
+    };
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -123,171 +299,24 @@ export function AddGameModal({ groups, players, currUserID, showSelectGroup, sel
             </DialogTrigger>
             <DialogContent className="max-w-[42rem] h-[420px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Game</DialogTitle>
+                    <DialogTitle>Добавить новую игру</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="game_start"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-2 flex flex-col">
-                                        <FormLabel>Game Start</FormLabel>
-                                        <FormControl>
-                                            <DatePicker
-                                                selected={field.value}
-                                                onChange={(date: Date) => field.onChange(date)}
-                                                showTimeSelect
-                                                timeFormat="HH:mm"
-                                                timeIntervals={15}
-                                                dateFormat="MMMM d, yyyy h:mm aa"
-                                                customInput={
-                                                    <CustomDatePickerInput
-                                                        label="start time"
-                                                        value={field.value
-                                                            ? format(field.value, 'MMM d, yyyy h:mm aa')
-                                                            : undefined
-                                                        }
-                                                    />
-                                                }
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="game_end"
-                                render={({ field }) => (
-                                    <FormItem className="space-y-2 flex flex-col">
-                                        <FormLabel>Game End</FormLabel>
-                                        <FormControl>
-                                            <DatePicker
-                                                className="mt-0"
-                                                selected={field.value}
-                                                onChange={(date: Date) => field.onChange(date)}
-                                                showTimeSelect
-                                                timeFormat="HH:mm"
-                                                timeIntervals={15}
-                                                dateFormat="MMMM d, yyyy h:mm aa"
-                                                customInput={
-                                                    <CustomDatePickerInput
-                                                        label="start time"
-                                                        value={field.value
-                                                            ? format(field.value, 'MMM d, yyyy h:mm aa')
-                                                            : undefined
-                                                        }
-                                                    />
-                                                }
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {renderGameStartField()}
+                            {renderGameEndField()}
                         </div>
 
                         {
-                            showSelectGroup && <FormField
-                                control={form.control}
-                                name="group_id"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Group</FormLabel>
-                                        <Select
-                                            onValueChange={(value) => {
-                                                field.onChange(value);
-                                                handleGroupChange(value);
-                                            }}
-                                            value={field.value}
-                                        >
-                                            <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select a group" />
-                                                </SelectTrigger>
-                                            </FormControl>
-                                            <SelectContent>
-                                                {groups.map((group) => (
-                                                    <SelectItem key={group.id} value={group.id.toString()}>
-                                                        {group.name}
-                                                    </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            showSelectGroup && renderGroupField()
                         }
 
 
                         {selectedGroup && (
                             <>
-                                <FormField
-                                    control={form.control}
-                                    name="players"
-                                    render={() => (
-                                        <FormItem>
-                                            <FormLabel>Players</FormLabel>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {players.map((player) => (
-                                                    <div key={player.id} className="flex items-center space-x-2">
-                                                        <Checkbox
-                                                            checked={selectedPlayers.includes(player.id.toString())}
-                                                            onCheckedChange={() => handlePlayerToggle(player.id.toString())}
-                                                            id={`player-${player.id}`}
-                                                        />
-                                                        <label
-                                                            htmlFor={`player-${player.id}`}
-                                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                                        >
-                                                            {player.login}
-                                                        </label>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-
-                                <FormField
-                                    control={form.control}
-                                    name="winner_id"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Winner</FormLabel>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                                disabled={selectedPlayers.length === 0}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="Select winner" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    {players
-                                                        .filter((player) => selectedPlayers.includes(player.id.toString()))
-                                                        .map((player, index, array) => {
-                                                                console.log(array,' array');
-                                                                return (
-                                                                    <SelectItem key={player.id}
-                                                                                value={player.id.toString()}>
-                                                                        {player.login}
-                                                                    </SelectItem>
-                                                                );
-                                                            }
-                                                        )}
-                                                </SelectContent>
-                                            </Select>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                                {renderSelectPlayersField()}
+                                {renderWinnerField()}
                             </>
                         )}
 
@@ -295,7 +324,7 @@ export function AddGameModal({ groups, players, currUserID, showSelectGroup, sel
                             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                                 Cancel
                             </Button>
-                            <Button type="submit">Add Game</Button>
+                            <Button type="submit">Добавить игру</Button>
                         </div>
                     </form>
                 </Form>

@@ -10,6 +10,8 @@
 * php artisan inertia:start-ssr
 * npm run dev
 * composer run dev
+* php artisan db:seed --class=GameSeeder
+  (GameSeeder is the main seeder where all entities are created)
 
 
 # TODO
