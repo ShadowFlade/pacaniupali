@@ -16,7 +16,8 @@ class Game extends Model
     protected $fillable = [
         'game_start',
         'game_end',
-        'group_id'
+        'group_id',
+        'players_count',
     ];
     public function winner() : HasOne
     {

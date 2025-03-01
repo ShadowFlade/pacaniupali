@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
 use App\Models\setting;
@@ -30,7 +31,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/group', [GroupController::class, 'update'])->name('group.update');
     Route::delete('/group', [GroupController::class, 'destroy'])->name('group.destroy');
     Route::post('/group', [GroupController::class, 'store'])->name('group.store');
-
 });
 
 
@@ -40,5 +40,14 @@ Route::middleware('auth')->group(function () {
     Route::delete('/setting', [setting::class, 'destroy'])->name('setting.destroy');
 });
 
+//Route::resource('/games', GameController::class)->middleware('auth');
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/game', [GameController::class, 'index'])->name('game.index');
+    Route::patch('/game', [GameController::class, 'update'])->name('game.update');
+    Route::delete('/game', [GameController::class, 'destroy'])->name('game.destroy');
+    Route::post('/game', [GameController::class, 'store'])->name('game.store');
+});
 
 require __DIR__.'/auth.php';

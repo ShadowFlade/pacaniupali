@@ -8,9 +8,10 @@ export default function AvatarSmall({ picture, username }) {
             <AvatarImage
                 src={picture || DEFAULT_AVATAR_PATH}
                 alt={username}
+                title={username}
                 className=""
             />
-            <AvatarFallback>
+            <AvatarFallback title={username}>
                 {username
                     .split(' ')
                     .map((n) => n[0])

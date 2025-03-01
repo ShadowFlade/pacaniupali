@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { AvatarList } from '@/Components/AvatarList';
 import AvatarSmall from '@/Components/AvatarSmall';
 
-export default function RecentGamesList({ games, currentUserID, groupID }) {
+export default function RecentGamesList({ games, currentUserID }) {
     return games.map((game) => {
         const yourPlayer = game.player && game.player.length && game.player.find((player) => player && player.user_id === currentUserID) || null;
         const userWinner = game.player.find(item => item.id == game.winner.player_id);

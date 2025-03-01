@@ -29,7 +29,13 @@ class GameController extends Controller
      */
     public function store(StoreGameRequest $request)
     {
-        //
+        $game = Game::create([
+            'game_start' => $request['game_start'],
+            'game_end' => $request['game_end'],
+            'group_id' => $request['group_id'],
+            'players_count' => $request['players_count'],
+        ]);
+        return $game;
     }
 
     /**

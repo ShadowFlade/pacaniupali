@@ -15,36 +15,27 @@ import { format } from 'date-fns';
 import './AddGameModal.css';
 import * as z from 'zod';
 
-// Mock data - replace with your actual data fetching
-const mockGroups = [
-    {
-        id: 1,
-        name: 'Team Alpha',
-        players: [
-            { id: 1, name: 'John Doe' },
-            { id: 2, name: 'Jane Smith' },
-            { id: 3, name: 'Bob Johnson' }
-        ]
-    },
-    {
-        id: 2,
-        name: 'Casual Players',
-        players: [
-            { id: 4, name: 'Alice Brown' },
-            { id: 5, name: 'Charlie Wilson' }
-        ]
-    }
-];
 
-const formSchema = z.object({
+const groupListGameSchema = z.object({
     game_start: z.date({
         required_error: 'Game start time is required'
     }),
     game_end: z.date({
         required_error: 'Game end time is required'
     }),
-    group_id: z.string().min(1, 'Please select a group'),
-    winner_id: z.string().min(1, 'Please select a winner'),
+    winner_id: z.string().min(1, 'Выберите победителя'),
+    players: z.array(z.string()).min(1, 'Please select at least one player')
+});
+
+const profileAddGameSchema = z.object({
+    game_start: z.date({
+        required_error: 'Game start time is required'
+    }),
+    game_end: z.date({
+        required_error: 'Game end time is required'
+    }),
+    group_id: z.string().min(1, 'Выберите группу').optional(),
+    winner_id: z.string().min(1, 'Выберите победителя'),
     players: z.array(z.string()).min(1, 'Please select at least one player')
 });
 
@@ -58,14 +49,15 @@ const CustomDatePickerInput = ({ value, onClick, label }: { value?: string; onCl
     </div>
 );
 
-export function AddGameModal({ groups, players, currUserID, showSelectGroup, selectedGroupID }) {
+export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID }) {
+    const schema = selectedGroupID ? groupListGameSchema : profileAddGameSchema
     console.log({ showSelectGroup, selectedGroupID, players }, ' sdfslkjdflksjdf');
     const [open, setOpen] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<(typeof groups)[0] | null>(groups.find(item => item.id == selectedGroupID));
     const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
     const form = useForm({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(schema),
         defaultValues: {
             game_start: undefined,
             game_end: undefined,
@@ -76,8 +68,17 @@ export function AddGameModal({ groups, players, currUserID, showSelectGroup, sel
     });
 
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const onSubmit = async (values: z.infer<typeof schema>) => {
+        console.log('values', values);
         console.log(values);
+        const resp = await fetch(route('game.store'),{
+            method: 'POST',
+            body: JSON.stringify(values),
+        });
+        const data = await resp.json();
+        console.log(data,' DATA');
+
+
         // Here you would typically send the data to your API
         setOpen(false);
         form.reset();
@@ -302,7 +303,7 @@ export function AddGameModal({ groups, players, currUserID, showSelectGroup, sel
                     <DialogTitle>Добавить новую игру</DialogTitle>
                 </DialogHeader>
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(onSubmit,(e) => {console.log(e)})} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             {renderGameStartField()}
                             {renderGameEndField()}

@@ -18,3 +18,6 @@
 * profile page - update all available fields
 * group detail page - all games of the groups (thats all for now looks like)
 * player - your last games, total points, best games and so on
+
+# LEFT OFF ON
+419 when tyring to create a game
