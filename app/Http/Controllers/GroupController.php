@@ -24,16 +24,14 @@ class GroupController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $groups = Group::query()
+        $groups = Group::with(['users'])
             ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
             ->where('user_groups.user_id', $user['id'])
             ->get()->toArray();
 
 
-
-
         if(empty($groups)) {
-            return Inertia::render('Group/GroupDetail', [
+            return Inertia::render('Group/GroupList', [
                 'groups' => [],
             ]);
         }
@@ -42,7 +40,9 @@ class GroupController extends Controller
             ->where('games.group_id', $groups[0]['id'])
             ->get()->toArray();
 
-        return Inertia::render('Group/GroupDetail', [
+
+
+        return Inertia::render('Group/GroupList', [
             'groups' => $groups,
             'games' => $games,
         ]);
