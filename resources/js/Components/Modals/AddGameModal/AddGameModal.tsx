@@ -72,7 +72,10 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
 
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        post(route('game.store'));
+        e.preventDefault()
+        post(route('game.store'), {
+            onFinish:(smth) => console.log(smth),
+        });
 
         // Here you would typically send the data to your API
         setOpen(false);
@@ -110,7 +113,7 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
             <div>
                 <label htmlFor={'winner_id'}>Winner</label>
                 <Select
-                    // onValueChange={}
+                    onValueChange={e=> setData('winner_id',e)}
                     value={data.winner_id}
                     disabled={selectedPlayers.length === 0}
                     name="winner_id"
@@ -143,7 +146,7 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                 <label>Game Start</label>
                 <DatePicker
                     selected={data.game_start}
-                    // onChange={}
+                    onChange={date => setData('game_start', date)}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
@@ -170,7 +173,9 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                 <DatePicker
                     className="mt-0"
                     selected={data.game_end}
-                    // onChange={}
+                    onChange={data => {
+                        setData('game_end', data);
+                    }}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}

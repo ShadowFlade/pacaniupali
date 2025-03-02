@@ -27,7 +27,7 @@ class GameController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreGameRequest $request)
+    public function store(\Illuminate\Http\Request $request)
     {
         $game = Game::create([
             'game_start' => $request['game_start'],
