@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import './AddGameModal.css';
 import { router } from '@inertiajs/react';
 import * as z from 'zod';
+import { DATE_FORMAT } from '@/utility/const';
 
 type FormValues = {
     game_end: Date
@@ -72,9 +73,9 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
 
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+        e.preventDefault();
         post(route('game.store'), {
-            onFinish:(smth) => console.log(smth),
+            onFinish: (smth) => console.log(smth)
         });
 
         // Here you would typically send the data to your API
@@ -113,7 +114,7 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
             <div>
                 <label htmlFor={'winner_id'}>Winner</label>
                 <Select
-                    onValueChange={e=> setData('winner_id',e)}
+                    onValueChange={e => setData('winner_id', e)}
                     value={data.winner_id}
                     disabled={selectedPlayers.length === 0}
                     name="winner_id"
@@ -150,12 +151,12 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
-                    dateFormat="MMMM d, yyyy h:mm aa"
+                    dateFormat={DATE_FORMAT}
                     customInput={
                         <CustomDatePickerInput
                             label="start time"
                             value={data.game_start
-                                ? format(data.game_start, 'MMM d, yyyy h:mm aa')
+                                ? format(data.game_start, DATE_FORMAT)
                                 : undefined
                             }
                         />
@@ -179,12 +180,12 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
-                    dateFormat="MMMM d, yyyy h:mm aa"
+                    dateFormat={DATE_FORMAT}
                     customInput={
                         <CustomDatePickerInput
                             label="start time"
                             value={data.game_end
-                                ? format(data.game_end, 'MMM d, yyyy h:mm aa')
+                                ? format(data.game_end, DATE_FORMAT)
                                 : undefined
                             }
                         />
