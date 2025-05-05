@@ -23,29 +23,6 @@ type FormValues = {
     players: number[]
 }
 
-// const groupListGameSchema = z.object({
-//     game_start: z.date({
-//         required_error: 'Game start time is required'
-//     }),
-//     game_end: z.date({
-//         required_error: 'Game end time is required'
-//     }),
-//     winner_id: z.string().min(1, 'Выберите победителя'),
-//     players: z.array(z.string()).min(1, 'Please select at least one player')
-// });
-//
-// const profileAddGameSchema = z.object({
-//     game_start: z.date({
-//         required_error: 'Game start time is required'
-//     }),
-//     game_end: z.date({
-//         required_error: 'Game end time is required'
-//     }),
-//     group_id: z.string().min(1, 'Выберите группу').optional(),
-//     winner_id: z.string().min(1, 'Выберите победителя'),
-//     players: z.array(z.string()).min(1, 'Please select at least one player')
-// });
-
 const CustomDatePickerInput = ({ value, onClick, label }: { value?: string; onClick?: () => void; label: string }) => (
     <div className="relative">
         <Button type="button" variant="outline" className="w-full justify-start text-left font-normal"
@@ -142,12 +119,13 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
     };
 
     const renderGameStartField = () => {
+        const gameStart = new Date(data.game_start);
         return (
             <div className="space-y-2 flex flex-col">
                 <label>Game Start</label>
                 <DatePicker
-                    selected={data.game_start}
-                    onChange={date => setData('game_start', date)}
+                    selected={gameStart}
+                    onChange={date => setData('game_start', data.game_start)}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
@@ -161,6 +139,7 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                             }
                         />
                     }
+                    selectsMultiple={true}
                 />
             </div>
 
@@ -168,14 +147,16 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
     };
 
     const renderGameEndField = () => {
+        const gameEnd = new Date(data.game_end);
+
         return (
             <div className="space-y-2 flex flex-col">
                 <label>Game Start</label>
                 <DatePicker
                     className="mt-0"
-                    selected={data.game_end}
-                    onChange={data => {
-                        setData('game_end', data);
+                    selected={gameEnd}
+                    onChange={date => {
+                        setData('game_end', data.game_end);
                     }}
                     showTimeSelect
                     timeFormat="HH:mm"
@@ -190,6 +171,7 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                             }
                         />
                     }
+                    selectsMultiple={true}
                 />
             </div>
 

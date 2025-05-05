@@ -167,6 +167,7 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
                                                setExpandedGroup={setExpandedGroup}
                                                games={games}
                                                currUserID={auth.user?.id}
+                                               players={[]}
                                 />
                             </motion.div>
                         ))}

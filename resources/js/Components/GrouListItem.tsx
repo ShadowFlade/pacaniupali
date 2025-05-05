@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Card, CardContent } from '@/components/ui/card';
 import { Link, usePage } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';

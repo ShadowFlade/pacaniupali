@@ -67,7 +67,7 @@ export default function Register() {
                         Под этим именем вас будут видеть другие игроки. Его
                         можно будет сменить позже.
                     </p>
-                    <InputError message={errors.name} className="mt-2" />
+                    <InputError message={errors.username} className="mt-2" />
                 </div>
 
                 <div className="mt-4">
