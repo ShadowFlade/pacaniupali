@@ -1,15 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Users;
 
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
 use App\Models\Game;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Log\Logger;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 
-class GameController extends Controller
+class UserController extends \App\Http\Controllers\Controller
 {
     /**
      * Display a listing of the resource.
@@ -32,25 +34,7 @@ class GameController extends Controller
      */
     public function store(\Illuminate\Http\Request $request)
     {
-        $dbFormat = config('datetime.formats.database');
-        $gameStart = new \DateTime($request->input('game_start'));
-        $gameStart = $gameStart->format($dbFormat);
-        $gameEnd = new \DateTime($request->input('game_end'));
-        $gameEnd = $gameEnd->format($dbFormat);
-        $players = $request->input('players');
-        \Illuminate\Support\Facades\Log::channel('single')->info(
-            [$players]
-        );
 
-        $game = Game::create([
-            'game_start' => $gameStart,
-            'game_end' => $gameEnd,
-            'group_id' => $request['group_id'],
-            'players_count' => count($players),
-        ]);
-        return Redirect::back()->with([
-            'data' => $game
-        ]);
     }
 
     /**
@@ -83,5 +67,20 @@ class GameController extends Controller
     public function destroy(Game $game)
     {
         //
+    }
+
+    public function playedWithUsers(\Illuminate\Http\Request $request)
+    {
+        $user = Auth::user();
+        $currentUserId = $user['id'];
+        $playedWith = User::whereHas('players.game.players', function ($query) use ($currentUserId) {
+            $query->where('user_id', '!=', $currentUserId)->where('user_id', $currentUserId);
+        })
+            ->distinct()
+            ->get();
+
+        return Redirect::back()->with(['data' => $playedWith]);
+
+
     }
 }
