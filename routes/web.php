@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
-    Route::get(
+    Route::post(
         '/played_with_users',
         [\App\Http\Controllers\Users\UserController::class, 'playedWithUsers']
     )->name('user.playedWithUsers');

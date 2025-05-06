@@ -21,6 +21,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const { auth } = usePage();
 
     const [players, setPlayers] = useState([]);
+    console.log(players,' players');
     const [selectedPlayers, setSelectedPlayers] = useState([]);
     const { post, data, setData, reset } = useForm({
         players: selectedPlayers,
@@ -37,13 +38,11 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     };
 
     if (open) {
-        router.visit(route('user.playedWithUsers'), {
-            method: 'get',
-            preserveState: true,
-            onSuccess: (page) => {
-                console.log(page.props.users, page);
-            },
-        });
+        // const resp = fetch(route("user.playedWithUsers"), {
+        //     method: "POST",
+        //     body: JSON.stringify({ groupId }),
+        // }).then(resp => console.log(resp.json()));
+        router.get(route('user.playedWithUsers'));
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>

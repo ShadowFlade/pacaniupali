@@ -9,6 +9,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 
 class UserController extends \App\Http\Controllers\Controller
@@ -73,13 +74,17 @@ class UserController extends \App\Http\Controllers\Controller
     {
         $user = Auth::user();
         $currentUserId = $user['id'];
-        $playedWith = User::whereHas('players.game.players', function ($query) use ($currentUserId) {
-            $query->where('user_id', '!=', $currentUserId)->where('user_id', $currentUserId);
-        })
+        $playedWithIds = DB::table('players as p1')
+            ->join('players as p2', 'p1.game_id', '=', 'p2.game_id')
+            ->where('p1.user_id', auth()->id())
+            ->where('p2.user_id', '!=', auth()->id())
             ->distinct()
-            ->get();
+            ->pluck('p2.user_id');
+        $playedWithUsers = User::whereIn('id', $playedWithIds)->get();
 
-        return Redirect::back()->with(['data' => $playedWith]);
+        return response()->json([
+            'test' => 'test'
+        ]);
 
 
     }
