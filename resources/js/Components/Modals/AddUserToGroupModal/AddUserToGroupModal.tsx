@@ -18,7 +18,7 @@ type IAddUserToGroupModal = {
 
 export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const [open, setOpen] = useState(false);
-    const { auth } = usePage();
+    const { auth, props } = usePage();
 
     const [players, setPlayers] = useState([]);
     console.log(players,' players');
@@ -42,7 +42,15 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         //     method: "POST",
         //     body: JSON.stringify({ groupId }),
         // }).then(resp => console.log(resp.json()));
-        router.get(route('user.playedWithUsers'));
+        console.log(usePage(),' page');
+        fetch(route('user.playedWithUsers'), {
+            method:'POST',
+            headers: {
+                'X-CSRF-TOKEN' : props.csrf,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({groupId})
+        });
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>

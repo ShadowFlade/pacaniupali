@@ -70,22 +70,15 @@ class UserController extends \App\Http\Controllers\Controller
         //
     }
 
+    /**
+     * Также сюда включаются юзеры из твоей группы
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function playedWithUsers(\Illuminate\Http\Request $request)
     {
-        $user = Auth::user();
-        $currentUserId = $user['id'];
-        $playedWithIds = DB::table('players as p1')
-            ->join('players as p2', 'p1.game_id', '=', 'p2.game_id')
-            ->where('p1.user_id', auth()->id())
-            ->where('p2.user_id', '!=', auth()->id())
-            ->distinct()
-            ->pluck('p2.user_id');
-        $playedWithUsers = User::whereIn('id', $playedWithIds)->get();
-
-        return response()->json([
-            'test' => 'test'
-        ]);
-
-
+        $userService = new \App\Service\User();
+        $users = $userService->getPlayedWith(20);
+        return response()->json($users);
     }
 }
