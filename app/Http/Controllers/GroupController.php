@@ -31,9 +31,10 @@ class GroupController extends Controller
 
 
         if(empty($groups)) {
-            return Inertia::render('Group/GroupList', [
-                'groups' => [],
-            ]);
+            return Inertia::render(
+                'Group/GroupList',
+                ['groups' => []]
+            );
         }
 
         $games = Game::with(['player','winner','player.user'])
