@@ -1,19 +1,19 @@
 'use client';
-import type React from 'react';
+import React, { useEffect } from 'react';
 
-import { useState } from 'react';
+import FileInput from '@/Components/FileInput';
+import GroupListItem from '@/Components/GrouListItem';
+import SidebarCustom from '@/Components/SidebarCustom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { AnimatePresence, motion } from 'framer-motion';
-import SidebarCustom from '@/Components/SidebarCustom';
-import { usePage, router, useForm, Link } from '@inertiajs/react';
 import General from '@/Layouts/General';
-import FileInput from '@/Components/FileInput';
-import GroupListItem from '@/Components/GrouListItem';
 import { PageProps } from '@/types';
+import { useForm, usePage } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useState } from 'react';
 
 interface Group {
     id: string;
@@ -32,35 +32,40 @@ interface Game {
 
 export default function GroupsList({ auth, groups: userGroups, games }) {
     const page = usePage<PageProps>();
+
     console.log(page, ' page');
-    console.log(games, ' SUPER GAMES');
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { setData, post, processing, reset } = useForm({
         name: '',
         logo: '',
-        description: ''
+        description: '',
     });
+    useEffect(() => {
+        setGroups(page.props.groups);
+    }, []);
 
-    const [showFormState, setShowFormState] = useState(page.props.creating || false);
+    const [showFormState, setShowFormState] = useState(
+        page.props.creating || false,
+    );
     const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
     const [groups, setGroups] = useState<Group[]>(userGroups || []);
     const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
-    //TODO:mb refactor it into custom hook like nextjs searchParams to detect url changes
     const setShowForm = (show: boolean) => {
-        setShowFormState(true);
-        window.history.replaceState(null, '', page.url);
+        setShowFormState(show);
+        console.log('set show form!!');
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         post(route('group.store'), {
-            onFinish: (is) => {
-                console.log(is, ' is');
+            onFinish: (data) => {
                 reset();
                 setShowForm(false);
-            }
+            },
+            onSuccess: (data) => {
+                setGroups(data.props.groups);
+            },
         });
-        const formData = new FormData(e.currentTarget);
         setShowForm(false);
     };
 
@@ -69,55 +74,70 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
                     <Label htmlFor="name">Название группы</Label>
-                    <Input id="name" name="name" required
-                           onChange={e => setData('name', e.target.value)} />
+                    <Input
+                        id="name"
+                        name="name"
+                        required
+                        onChange={(e) => setData('name', e.target.value)}
+                    />
                 </div>
 
-                <FileInput label="Лого группы"
-                           setData={setData}
-                           inputName="logo"
+                <FileInput
+                    label="Лого группы"
+                    setData={setData}
+                    inputName="logo"
                 />
 
                 <div className="space-y-2">
                     <Label htmlFor="description">Описание</Label>
-                    <Textarea id="description"
-                              name="description"
-                              required
-                              onChange={e => setData('description', e.target.value)}
+                    <Textarea
+                        id="description"
+                        name="description"
+                        required
+                        onChange={(e) => setData('description', e.target.value)}
                     />
-                    <p className="mt-2 text-sm text-muted-foreground">Сюда вы можете записать
-                        свой лозунг!</p>
-
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        Сюда вы можете записать свой лозунг!
+                    </p>
                 </div>
 
                 <div className="flex gap-4">
-                    <Button disabled={processing} type="submit">Создать группу</Button>
-                    <Button type="button" variant="outline" onClick={() => setShowForm(false)}>
+                    <Button disabled={processing} type="submit">
+                        Создать группу
+                    </Button>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowForm(false)}
+                    >
                         Отменить
                     </Button>
                 </div>
             </form>
-
         );
     };
-
 
     return (
         <General>
             <SidebarCustom loggedIn={loggedIn} />
-            <div className="container mx-auto py-8 px-4">
+            <div className="container mx-auto px-4 py-8">
                 {groups.length === 0 && !showFormState ? (
                     <div className="text-center">
-                        <h2 className="text-2xl font-semibold mb-4">
-                            Looks like вы не состоите ни в какой группе. Давайте создадим вашу первую группу!
+                        <h2 className="mb-4 text-2xl font-semibold">
+                            Looks like вы не состоите ни в какой группе. Давайте
+                            создадим вашу первую группу!
                         </h2>
-                        <Button onClick={() => setShowForm(true)}>Создать группу</Button>
+                        <Button onClick={() => setShowForm(true)}>
+                            Создать группу
+                        </Button>
                     </div>
                 ) : null}
 
                 {groups.length > 0 && !showFormState && (
                     <div className="mt-6 text-center">
-                        <Button onClick={() => setShowForm(true)}>Создать группу</Button>
+                        <Button onClick={() => setShowForm(true)}>
+                            Создать группу
+                        </Button>
                     </div>
                 )}
 
@@ -129,10 +149,10 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
                             exit={{ opacity: 0, y: -20 }}
                             transition={{
                                 duration: 0.3,
-                                ease: [0.4, 0, 0.2, 1]
+                                ease: [0.4, 0, 0.2, 1],
                             }}
                         >
-                            <Card className="max-w-2xl mx-auto mb-8">
+                            <Card className="mx-auto mb-8 max-w-2xl">
                                 <CardHeader>
                                     <h2 className="text-2xl font-semibold">
                                         Создать группу
@@ -146,7 +166,7 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
                     )}
                 </AnimatePresence>
 
-                <div className="grid gap-6 mt-6">
+                <div className="mt-6 grid gap-6">
                     <AnimatePresence>
                         {groups.map((group) => (
                             <motion.div
@@ -156,22 +176,20 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.2 }}
                             >
-                                <GroupListItem group={group}
-                                               groups={groups}
-                                               expandedGroup={expandedGroup}
-                                               setExpandedGroup={setExpandedGroup}
-                                               games={games}
-                                               currUserID={auth.user?.id}
-                                               players={[]}
+                                <GroupListItem
+                                    group={group}
+                                    groups={groups}
+                                    expandedGroup={expandedGroup}
+                                    setExpandedGroup={setExpandedGroup}
+                                    games={games}
+                                    currUserID={auth.user?.id}
+                                    players={[]}
                                 />
                             </motion.div>
                         ))}
                     </AnimatePresence>
                 </div>
-
-
             </div>
         </General>
     );
 }
-

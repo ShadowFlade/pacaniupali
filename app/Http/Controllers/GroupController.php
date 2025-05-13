@@ -11,7 +11,9 @@ use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Winner;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Response;
@@ -63,31 +65,32 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(\Illuminate\Http\Request $request) : Response
+    public function store(\Illuminate\Http\Request $request) : RedirectResponse
     {
         $file = $request->file("logo");
+        $logoFilename = null;
 
-        $ext = $file->extension();
-        $logoFilename = $file->getClientOriginalName() . date('dmYHis') . "." . $ext;
-        $file->storeAs('/group_logos', $logoFilename, 'public');
+        if ($file) {
+            $ext = $file->extension();
+            $logoFilename = hash('sha256', time() . uniqid()) . "." . $ext;
+            $file->storeAs('/group_logos', $logoFilename, 'public');
+        }
 
-        $group = Group::create([
-            'name'        => $request['name'],
-            'code'        => str_slug($request['name']),
+        $newGroup = [
+            'name' => $request['name'],
+            'code' => str_slug($request['name']),
             'description' => $request['description'],
-            'logo_path'   => '/storage/group_logos/' . $logoFilename,
-        ]);
+            'logo_path' => '/storage/group_logos/' . $logoFilename
+        ];
+
+        $group = Group::create($newGroup);
 
         $userGroup = UserGroup::create([
             'user_id'  => Auth::id(),
             'group_id' => $group['id'],
         ]);
 
-        return Inertia::render('Group/GroupDetail',[
-            'user_group' => $userGroup,
-            'group' => $group,
-        ]);
-
+        return Redirect::back(301);
     }
 
     /**
