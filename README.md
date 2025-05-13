@@ -22,6 +22,5 @@
 * profile page - update all available fields
 * group detail page - all games of the groups (thats all for now looks like)
 * player - your last games, total points, best games and so on
+* replace string table names with smth like Model\User::table_name if it exists (across whole project)
 
-# LEFT OFF ON
-419 when tyring to create a game
