@@ -1,3 +1,4 @@
+'use client';
 import type React from 'react';
 
 import { useState } from 'react';
@@ -12,6 +13,7 @@ import { usePage, router, useForm, Link } from '@inertiajs/react';
 import General from '@/Layouts/General';
 import FileInput from '@/Components/FileInput';
 import GroupListItem from '@/Components/GrouListItem';
+import { PageProps } from '@/types';
 
 interface Group {
     id: string;
@@ -29,7 +31,7 @@ interface Game {
 }
 
 export default function GroupsList({ auth, groups: userGroups, games }) {
-    const page = usePage();
+    const page = usePage<PageProps>();
     console.log(page, ' page');
     console.log(games, ' SUPER GAMES');
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -38,22 +40,15 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
         description: ''
     });
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const [showFormState, setShowFormState] = useState<boolean>(searchParams.get('creating') === 'true');
+    const [showFormState, setShowFormState] = useState(page.props.creating || false);
     const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
     const [groups, setGroups] = useState<Group[]>(userGroups || []);
     const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
     //TODO:mb refactor it into custom hook like nextjs searchParams to detect url changes
     const setShowForm = (show: boolean) => {
-        const params = new URLSearchParams(searchParams);
-        if (show) {
-            params.set('creating', 'true');
-        } else {
-            params.delete('creating');
-        }
         setShowFormState(true);
-        window.history.replaceState(null, '', page.url + '/?' + params.toString());
+        window.history.replaceState(null, '', page.url);
     };
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

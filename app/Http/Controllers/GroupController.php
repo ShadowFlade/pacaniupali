@@ -33,7 +33,10 @@ class GroupController extends Controller
         if(empty($groups)) {
             return Inertia::render(
                 'Group/GroupList',
-                ['groups' => []]
+                [
+                    'groups' => [],
+                    'creating' => request()->has('creating')
+                ]
             );
         }
 
