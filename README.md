@@ -24,3 +24,6 @@
 * player - your last games, total points, best games and so on
 * replace string table names with smth like Model\User::table_name if it exists (across whole project)
 
+# BUGS
+* показывает неправильное количество игр у групп на /group (показывает количество у первой группы для всех групп)
+
