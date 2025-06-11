@@ -3,7 +3,7 @@
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\ProfileController;
-use App\Models\setting;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -35,9 +35,9 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/setting', [setting::class, 'index'])->name('setting.index');
-    Route::patch('/setting', [setting::class, 'update'])->name('setting.update');
-    Route::delete('/setting', [setting::class, 'destroy'])->name('setting.destroy');
+    Route::get('/setting', [SettingController::class, 'index'])->name('setting.index');
+    Route::patch('/setting', [SettingController::class, 'update'])->name('setting.update');
+    Route::delete('/setting', [SettingController::class, 'destroy'])->name('setting.destroy');
 });
 
 //Route::resource('/games', GameController::class)->middleware('auth');

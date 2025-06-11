@@ -40,8 +40,19 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+        \Illuminate\Support\Facades\Log::channel('local')->info(
+            [$this->only('email', 'password')]
+        );
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        if (
+            ! Auth::attempt(
+                $this->only('email', 'password'),
+                $this->boolean('remember')
+            ) && !             ! Auth::attempt(
+                $this->only('login', 'password'),
+                $this->boolean('remember')
+            )
+        ) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

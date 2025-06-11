@@ -16,6 +16,8 @@ import { Link } from '@inertiajs/react';
 import NavLink from '@/Components/NavLink';
 
 export function FloatingMenu({ username, userEmail, className }) {
+    const isLoggedIn = !!username;
+    console.log(isLoggedIn,' is logge3d in ');
     return (
         <nav
             className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white p-4 shadow-md ` + className}>
@@ -58,6 +60,7 @@ export function FloatingMenu({ username, userEmail, className }) {
                                     Dashboard
                                 </NavLink>
                             </DropdownMenuItem>
+
                             <DropdownMenuItem>
                                 <Users className="mr-2 h-4 w-4" />
                                 <NavLink
@@ -86,6 +89,16 @@ export function FloatingMenu({ username, userEmail, className }) {
                                     Настройки
                                 </NavLink>
                             </DropdownMenuItem>
+                            {
+                                isLoggedIn && (     <DropdownMenuItem>
+                                    <Users className="mr-2 h-4 w-4" />
+                                    <NavLink
+                                        className={' pl-0'}
+                                        href={route('logout')}
+                                        active={route().current('group.index')}
+                                    >Выйти</NavLink>
+                                </DropdownMenuItem>)
+                            }
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>

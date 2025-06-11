@@ -16,10 +16,10 @@ export default function UpdateProfileInformation({
     className?: string;
 }) {
     const user = usePage().props.auth.user;
-
+    console.log(user,' user');
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
-            name: user.username,
+            username: user.username,
             email: user.email,
         });
 
@@ -41,21 +41,26 @@ export default function UpdateProfileInformation({
                 </p>
             </header>
 
+
+            <p className="mt-4 text-lg text-gray-900 dark:text-gray-400">
+                Your login: {user.login}
+            </p>
+
             <form onSubmit={submit} className="mt-6 space-y-6">
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="username" value="Username" />
 
                     <TextInput
-                        id="name"
+                        id="username"
                         className="mt-1 block w-full"
-                        value={data.name}
-                        onChange={(e) => setData('name', e.target.value)}
+                        value={data.username}
+                        onChange={(e) => setData('username', e.target.value)}
                         required
                         isFocused
-                        autoComplete="name"
+                        autoComplete="username"
                     />
 
-                    <InputError className="mt-2" message={errors.name} />
+                    <InputError className="mt-2" message={errors.username} />
                 </div>
 
                 <div>
