@@ -2,19 +2,38 @@
 
 namespace App\Providers;
 
+use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Contracts\Auth\UserProvider as BaseUserProvider;
+use Illuminate\Contracts\Auth\Authenticatable;
 
-class UserProvider
+class UserProvider implements BaseUserProvider
 {
+    public function retrieveById($identifier)
+    {
+        // Реализуй логику получения пользователя по ID
+    }
+
+    public function retrieveByToken($identifier, $token)
+    {
+        // Реализуй, если используешь "remember me"
+    }
+
+    public function updateRememberToken(Authenticatable $user, $token)
+    {
+        // Обновление токена "remember me"
+    }
+
     public function retrieveByCredentials(array $credentials)
     {
+
 
         if ($this->validateCredentials($credentials) === false) {
             return null;
         }
 
         return new GenericUser([
-            'id' => $credentials['id'],
+            'id' => $credentials['`id'],
             'email' => $credentials['email'],
             'login' => $credentials['login'],
         ]);
@@ -30,4 +49,14 @@ class UserProvider
             return false;
         }
     }
+
+    public function rehashPasswordIfRequired(
+        UserContract                 $user,
+        #[\SensitiveParameter] array $credentials,
+        bool                         $force = false
+    )
+    {
+
+    }
+
 }

@@ -2,7 +2,6 @@
 
 namespace App\Providers;
 
-use App\Providers\UserProvider;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +14,9 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
-
+        \Illuminate\Support\Facades\Log::channel('local')->info(
+            ['test']
+        );
         Auth::provider('user_provider', function ($app, array $config) {
             return new UserProvider();
         });
