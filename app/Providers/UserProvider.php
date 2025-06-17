@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Auth\GenericUser;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Contracts\Auth\UserProvider as BaseUserProvider;
@@ -28,7 +29,7 @@ class UserProvider implements BaseUserProvider
     {
 
 
-        if ($this->validateCredentials($credentials) === false) {
+        if ($this->isCredentialsValid($credentials) === false) {
             return null;
         }
 
@@ -41,6 +42,11 @@ class UserProvider implements BaseUserProvider
 
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
+        return $this->isCredentialsValid($credentials);
+    }
+
+    public function isCredentialsValid(array $credentials): bool
+    {
         $isHasPassword = array_key_exists('password', $credentials);
         $isHasEmail = array_key_exists('email', $credentials);
         $isHasLogin = array_key_exists('login', $credentials);
@@ -48,6 +54,7 @@ class UserProvider implements BaseUserProvider
         if (!$isHasPassword || !($isHasEmail || $isHasLogin)) {
             return false;
         }
+        return true;
     }
 
     public function rehashPasswordIfRequired(

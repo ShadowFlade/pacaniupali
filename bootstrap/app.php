@@ -6,9 +6,8 @@ use Illuminate\Foundation\Configuration\Middleware;
 use App\Providers\AuthServiceProvider;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->withProviders([ // ✅ Регистрация сервис-провайдеров
+    ->withProviders([
         AuthServiceProvider::class,
-        // Можно добавить другие провайдеры сюда
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
