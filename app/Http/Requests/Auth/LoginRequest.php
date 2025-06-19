@@ -41,17 +41,27 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
         \Illuminate\Support\Facades\Log::channel('local')->info(
-            [$this->only('email', 'password')]
+            [$this->get('email'),$this->get('password')]
         );
-
+        $attempt1 = Auth::attempt(
+            [
+                'email' => $this->get('email'),
+                'password' => $this->get('password')
+            ],
+            $this->boolean('remember')
+        );
+        $attempt2 = Auth::attempt(
+            [
+                'login' => $this->get('email'),
+                'password' => $this->get('password')
+            ],
+            $this->boolean('remember')
+        );
+        \Illuminate\Support\Facades\Log::channel('local')->info(
+            [$attempt1, $attempt2]
+        );
         if (
-            ! Auth::attempt(
-                $this->only('email', 'password'),
-                $this->boolean('remember')
-            ) && !             ! Auth::attempt(
-                $this->only('login', 'password'),
-                $this->boolean('remember')
-            )
+            !$attempt1  && !$attempt2
         ) {
             RateLimiter::hit($this->throttleKey());
 
@@ -70,7 +80,7 @@ class LoginRequest extends FormRequest
      */
     public function ensureIsNotRateLimited(): void
     {
-        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+        if (!RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
             return;
         }
 
@@ -91,6 +101,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower($this->string('email')) . '|' . $this->ip());
     }
 }

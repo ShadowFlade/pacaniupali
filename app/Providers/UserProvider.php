@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Auth\GenericUser;
 use Illuminate\Contracts\Auth\Authenticatable as UserContract;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Contracts\Auth\UserProvider as BaseUserProvider;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -27,17 +29,30 @@ class UserProvider implements BaseUserProvider
 
     public function retrieveByCredentials(array $credentials)
     {
-
-
         if ($this->isCredentialsValid($credentials) === false) {
             return null;
         }
+//        $credentials['password'] = Hash::make($credentials['password']);
+//        $userData1 = User::query()->where($credentials)->get()->toArray();
+//        $userData = User::where([
+//            'email' => $credentials['email'],
+//            'password' => $credentials['password']
+//        ])->get()->toArray();
+//        dd($userData1);
+//        dd($credentials['email']);
+//        if (!is_null($userData)) {
+//        $credentials['login'] = $credentials['email'];
+//        dd(isset($credentials['email']));
+//        dd(empty($credentials['email']));
 
-        return new GenericUser([
-            'id' => $credentials['`id'],
-            'email' => $credentials['email'],
-            'login' => $credentials['login'],
-        ]);
+        $genUser = new GenericUser([
+                'email' => $credentials['email'],
+                'id' => $credentials['email'],
+                'password' => $credentials['password'],
+            ]);
+            return $genUser;
+//        }
+
     }
 
     public function validateCredentials(Authenticatable $user, array $credentials)
