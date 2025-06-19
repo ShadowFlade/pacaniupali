@@ -11,11 +11,13 @@ class LoginController extends Controller
 
     public function doLogin()
     {
+        $emailAttempt = Auth::attempt(request()->only('email', 'password'), true);
+        $loginAttempt = Auth::attempt(request()->only('login', 'password'), true);
         if (
-            Auth::attempt(request()->only('email', 'password'))
-            || Auth::attempt(request()->only('login', 'password'))
+            $emailAttempt || $loginAttempt
         ) {
-//            return redirect('secret');
+            dd(auth()->user());
+            return redirect('dashboard');
         }
 
         return back()->withErrors([

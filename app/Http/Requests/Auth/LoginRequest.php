@@ -45,6 +45,7 @@ class LoginRequest extends FormRequest
         );
         $attempt1 = Auth::attempt(
             [
+                'id' => $this->get('email'),
                 'email' => $this->get('email'),
                 'password' => $this->get('password')
             ],
@@ -52,11 +53,14 @@ class LoginRequest extends FormRequest
         );
         $attempt2 = Auth::attempt(
             [
+                'id' => $this->get('email'),
                 'login' => $this->get('email'),
                 'password' => $this->get('password')
             ],
             $this->boolean('remember')
         );
+        dd($attempt1, $attempt2);
+
         \Illuminate\Support\Facades\Log::channel('local')->info(
             [$attempt1, $attempt2]
         );
@@ -68,6 +72,8 @@ class LoginRequest extends FormRequest
             throw ValidationException::withMessages([
                 'email' => trans('auth.failed'),
             ]);
+        } else {
+            dd(auth()->user());
         }
 
         RateLimiter::clear($this->throttleKey());

@@ -14,11 +14,16 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
-        \Illuminate\Support\Facades\Log::channel('local')->info(
-            ['test']
-        );
+//        \Illuminate\Support\Facades\Log::channel('local')->info(
+//            ['test']
+//        );
         Auth::provider('user_provider', function ($app, array $config) {
-            return new UserProvider();
+//            dd($config);
+            return new UserProvider(
+                $this->app['db']->connection($config['connection'] ?? null),
+                $this->app['hash'],
+                'users',
+            );
         });
     }
 }
