@@ -75,6 +75,7 @@ class UserProvider implements BaseUserProvider
             $this->connection->table($this->table)->find($identifier)
         );
 
+        dd($user);
         return $user && $user->getRememberToken() && hash_equals($user->getRememberToken(), $token)
             ? $user : null;
     }

@@ -59,7 +59,7 @@ class LoginRequest extends FormRequest
             ],
             $this->boolean('remember')
         );
-        dd($attempt1, $attempt2);
+//        dd($attempt1, $attempt2);
 
         \Illuminate\Support\Facades\Log::channel('local')->info(
             [$attempt1, $attempt2]
