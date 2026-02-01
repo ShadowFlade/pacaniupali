@@ -1,23 +1,28 @@
 // @ts-nocheck
-import { Card, CardContent } from '@/components/ui/card';
-import { Link, usePage } from '@inertiajs/react';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, PlusCircle } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
-import RecentGamesList from '@/Components/RecentGamesList';
-import React from 'react';
 import { AddGameModal } from '@/Components/Modals/AddGameModal/AddGameModal';
 import { AddUserToGroupModal } from '@/Components/Modals/AddUserToGroupModal/AddUserToGroupModal';
+import RecentGamesList from '@/Components/RecentGamesList';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Link } from '@inertiajs/react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown, ChevronUp, PlusCircle } from 'lucide-react';
 
-
-export default function GroupListItem(
-    { group, games, expandedGroup, setExpandedGroup, currUserID, players, groups }
-) {
-
+export default function GroupListItem({
+    group,
+    games,
+    expandedGroup,
+    setExpandedGroup,
+    currUserID,
+    players,
+    groups,
+}) {
     const AddGameButton = ({ groupId }: { groupId: number }) => {
         return (
-            <Button variant="secondary" size="sm"
-                    className="flex items-center gap-1 hover:bg-secondary-foreground hover:text-secondary transition-colors duration-200 active:scale-95"
+            <Button
+                variant="secondary"
+                size="sm"
+                className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
             >
                 <PlusCircle className="h-4 w-4" />
                 <span>Add Game</span>
@@ -27,8 +32,10 @@ export default function GroupListItem(
 
     const AddUserButton = ({ groupId }: { groupId: number }) => {
         return (
-            <Button variant="secondary" size="sm"
-                    className="flex items-center gap-1 hover:bg-secondary-foreground hover:text-secondary transition-colors duration-200 active:scale-95"
+            <Button
+                variant="secondary"
+                size="sm"
+                className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
             >
                 <PlusCircle className="h-4 w-4" />
                 <span>Add User</span>
@@ -98,7 +105,7 @@ export default function GroupListItem(
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <AddUserToGroupModal groupId={group.id}/>
+                            <AddUserToGroupModal groupId={group.id} />
                             <AddGameModal
                                 players={group.users}
                                 groups={groups}

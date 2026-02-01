@@ -18,7 +18,6 @@ class AuthServiceProvider extends ServiceProvider
 //            ['test']
 //        );
         Auth::provider('user_provider', function ($app, array $config) {
-//            dd($config);
             return new UserProvider(
                 $this->app['db']->connection($config['connection'] ?? null),
                 $this->app['hash'],

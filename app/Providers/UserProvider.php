@@ -52,8 +52,7 @@ class UserProvider implements BaseUserProvider
 
     public function retrieveById($identifier)
     {
-        $user = $this->connection->table($this->table)->find($identifier);
-        return $this->getGenericUser($user);
+        return User::find($identifier);
     }
 
     /**
@@ -64,6 +63,7 @@ class UserProvider implements BaseUserProvider
      */
     protected function getGenericUser($user)
     {
+
         if (!is_null($user)) {
             return new GenericUser((array)$user);
         }
@@ -74,8 +74,6 @@ class UserProvider implements BaseUserProvider
         $user = $this->getGenericUser(
             $this->connection->table($this->table)->find($identifier)
         );
-
-        dd($user);
         return $user && $user->getRememberToken() && hash_equals($user->getRememberToken(), $token)
             ? $user : null;
     }
@@ -89,7 +87,6 @@ class UserProvider implements BaseUserProvider
 
     public function retrieveByCredentials(array $credentials)
     {
-//        dd($credentials);
         if ($this->isCredentialsValid($credentials) === false) {
             return null;
         }

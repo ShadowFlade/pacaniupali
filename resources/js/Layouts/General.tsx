@@ -1,10 +1,6 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
-import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
-import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { Link, usePage } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode, useState } from 'react';
 import { FloatingMenu } from '@/Components/FloatingMenu';
+import { usePage } from '@inertiajs/react';
+import { PropsWithChildren, ReactNode, useState } from 'react';
 
 export default function General({
     header,
@@ -17,12 +13,13 @@ export default function General({
 
     return (
         <>
-            <FloatingMenu username={user?.username} userEmail={user?.email} className={"h-[70px]"}/>
-            <div className={'flex align-start mt-[70px]'}>
-                {children}
-            </div>
+            <FloatingMenu
+                username={user?.username}
+                userEmail={user?.email}
+                className={'h-[70px]'}
+            />
+            <div className={'align-start mt-[70px] flex'}>{children}</div>
         </>
-
 
         // <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
         //     <nav className="border-b border-gray-100 bg-white dark:border-gray-700 dark:bg-gray-800">

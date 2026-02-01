@@ -66,6 +66,7 @@ return [
         ],
         'custom_users' => [
             'driver' => 'user_provider',
+            'connection' => env('DB_CONNECTION', 'sqlite')
         ],
 
         // 'users' => [

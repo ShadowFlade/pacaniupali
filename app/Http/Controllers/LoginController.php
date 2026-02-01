@@ -10,7 +10,7 @@ class LoginController extends Controller
 
     public function doLogin()
     {
-//        dd(request());
+
         $emailAttempt = Auth::attempt(
             request()->only('email', 'password'),
             request()->boolean('remember')

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Auth\GenericUser;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 use Tighten\Ziggy\Ziggy;
@@ -30,11 +31,17 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        if ($user instanceof GenericUser) {
+            $userData = $user->getAttributes(); // This returns the raw array
+        } else {
+            $userData = $user; // Eloquent model — will serialize properly
+        }
         return [
             ...parent::share($request),
             'csrf' => csrf_token(),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $userData,
             ],
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),

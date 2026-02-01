@@ -47,9 +47,10 @@ export function CustomLink({
     variant,
     size,
     ...props
-}: InertiaLinkProps & { active?: boolean; } & VariantProps<
+}: InertiaLinkProps & { active?: boolean } & VariantProps<
         typeof buttonVariants
-    > &  Omit<InertiaLinkProps, 'className' | 'size'> ) {
+    > &
+    Omit<InertiaLinkProps, 'className' | 'size'>) {
     return (
         <Link
             className={cn(buttonVariants({ variant, size, className }))}

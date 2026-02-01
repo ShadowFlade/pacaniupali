@@ -16,7 +16,7 @@ export default function UpdateProfileInformation({
     className?: string;
 }) {
     const user = usePage().props.auth.user;
-    console.log(user,' user');
+    console.log(user, ' user');
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             username: user.username,
@@ -40,7 +40,6 @@ export default function UpdateProfileInformation({
                     Update your account's profile information and email address.
                 </p>
             </header>
-
 
             <p className="mt-4 text-lg text-gray-900 dark:text-gray-400">
                 Your login: {user.login}

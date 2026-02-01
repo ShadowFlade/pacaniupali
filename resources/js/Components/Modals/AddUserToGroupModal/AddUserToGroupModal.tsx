@@ -41,7 +41,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
 
     const [selectedPlayers, setSelectedPlayers] = useState([]);
-    const { post, data, setData, reset } = useForm({
+    const { post, setData, reset } = useForm({
         players: selectedPlayers,
         group_id: groupId,
     });
@@ -87,9 +87,15 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             .then((resp) => resp.json())
             .then((players) => {
                 isFetched = true;
-                setGroupUsers(players.group_users ? Object.values(players.group_users) : []);
+                setGroupUsers(
+                    players.group_users
+                        ? Object.values(players.group_users)
+                        : [],
+                );
                 setPlayedWithUsers(
-                    players.played_with ? Object.values(players.played_with) : []
+                    players.played_with
+                        ? Object.values(players.played_with)
+                        : [],
                 );
             });
     }
@@ -111,7 +117,8 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         const entries = Object.entries(list);
         return entries && entries.length ? (
             <ul className="mt-8">
-                {Object.entries(list).map(([id, player]) => {
+                {Object.entries(list).map(([_, player]) => {
+                    console.log(player,' player');
                     return (
                         <div
                             key={player.id}
@@ -163,8 +170,8 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                     onSubmit={addUserFormHandler}
                     className="flex h-full flex-col justify-between"
                 >
-                    {(Object.entries(groupUsers).length ||
-                        Object.entries(playedWithUsers).length) && (
+                    {Object.entries(groupUsers).length ||
+                    Object.entries(playedWithUsers).length ? (
                         <Tabs
                             defaultValue="played_with"
                             className="w-[400px]"
@@ -191,6 +198,8 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                                 идиот
                             </TabsContent>
                         </Tabs>
+                    ) : (
+                        'Пользователей не найдено'
                     )}
                     <Button
                         variant="secondary"

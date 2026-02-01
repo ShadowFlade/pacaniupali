@@ -1,3 +1,4 @@
+import FileInput from '@/Components/FileInput';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -5,7 +6,6 @@ import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler } from 'react';
-import FileInput from '@/Components/FileInput';
 
 export default function Register() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -14,7 +14,7 @@ export default function Register() {
         password_confirmation: '',
         login: '',
         username: '',
-        picture: ''
+        picture: '',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -31,9 +31,13 @@ export default function Register() {
 
             <form onSubmit={submit}>
                 <div>
-                    <FileInput setData={setData} inputName='picture' label={'Профиль'}/>
+                    <FileInput
+                        setData={setData}
+                        inputName="picture"
+                        label={'Профиль'}
+                    />
                 </div>
-                <div className='mt-4'>
+                <div className="mt-4">
                     <InputLabel htmlFor="login" value="Логин" />
 
                     <TextInput

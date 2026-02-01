@@ -2,58 +2,85 @@
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PlusCircle, CalendarIcon } from 'lucide-react';
-import React, { useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { DATE_FORMAT } from '@/utility/const';
 import { useForm } from '@inertiajs/react';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { format } from 'date-fns';
+import { CalendarIcon, PlusCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { format } from 'date-fns';
 import './AddGameModal.css';
-import { router } from '@inertiajs/react';
-import * as z from 'zod';
-import { DATE_FORMAT } from '@/utility/const';
 
 type FormValues = {
-    game_end: Date
-    game_start: Date
-    winner_id: number
-    players: number[]
-}
+    game_end: Date;
+    game_start: Date;
+    winner_id: number;
+    players: number[];
+};
 
-const CustomDatePickerInput = ({ value, onClick, label }: { value?: string; onClick?: () => void; label: string }) => (
+const CustomDatePickerInput = ({
+    value,
+    onClick,
+    label,
+}: {
+    value?: string;
+    onClick?: () => void;
+    label: string;
+}) => (
     <div className="relative">
-        <Button type="button" variant="outline" className="w-full justify-start text-left font-normal"
-                onClick={onClick}>
+        <Button
+            type="button"
+            variant="outline"
+            className="w-full justify-start text-left font-normal"
+            onClick={onClick}
+        >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {value || `Select ${label}`}
         </Button>
     </div>
 );
 
-export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID }) {
+export function AddGameModal({
+    groups,
+    players,
+    showSelectGroup,
+    selectedGroupID,
+}) {
     const [open, setOpen] = useState(false);
-    const [selectedGroup, setSelectedGroup] = useState<(typeof groups)[0] | null>(groups.find(item => item.id == selectedGroupID));
+    const [selectedGroup, setSelectedGroup] = useState<
+        (typeof groups)[0] | null
+    >(groups.find((item) => item.id == selectedGroupID));
     const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
-
-    const { data, setData, post, transform, processing, errors, reset } = useForm({
-        game_start: null,
-        game_end: null,
-        winner_id: '',
-        players: selectedPlayers,
-        group_id: selectedGroup.id
-    });
-
+    const { data, setData, post, transform, processing, errors, reset } =
+        useForm({
+            game_start: null,
+            game_end: null,
+            winner_id: '',
+            players: selectedPlayers,
+            group_id: selectedGroup.id,
+        });
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         post(route('game.store'), {
-            onSuccess: (data) => console.log(data,' success'),
-            onFinish: (smth) => console.log(smth)
+            onSuccess: (data) => console.log(data, ' success'),
+            onFinish: (smth) => console.log(smth),
         });
 
         setOpen(false);
@@ -90,7 +117,7 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
             <div>
                 <label htmlFor={'winner_id'}>Winner</label>
                 <Select
-                    onValueChange={e => setData('winner_id', e)}
+                    onValueChange={(e) => setData('winner_id', e)}
                     value={data.winner_id}
                     disabled={selectedPlayers.length === 0}
                     name="winner_id"
@@ -100,31 +127,32 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                     </SelectTrigger>
                     <SelectContent>
                         {players
-                            .filter((player) => selectedPlayers.includes(player.id.toString()))
+                            .filter((player) =>
+                                selectedPlayers.includes(player.id.toString()),
+                            )
                             .map((player, index, array) => {
-                                    return (
-                                        <SelectItem key={player.id}
-                                                    value={player.id.toString()}>
-                                            {player.login}
-                                        </SelectItem>
-                                    );
-                                }
-                            )}
+                                return (
+                                    <SelectItem
+                                        key={player.id}
+                                        value={player.id.toString()}
+                                    >
+                                        {player.login}
+                                    </SelectItem>
+                                );
+                            })}
                     </SelectContent>
                 </Select>
             </div>
-
         );
     };
 
     const renderGameStartField = () => {
-
         return (
-            <div className="space-y-2 flex flex-col">
+            <div className="flex flex-col space-y-2">
                 <label>Game Start</label>
                 <DatePicker
                     selected={data.game_start}
-                    onChange={date => setData('game_start', date)}
+                    onChange={(date) => setData('game_start', date)}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
@@ -132,28 +160,27 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                     customInput={
                         <CustomDatePickerInput
                             label="start time"
-                            value={data.game_start
-                                ? format(data.game_start, DATE_FORMAT)
-                                : undefined
+                            value={
+                                data.game_start
+                                    ? format(data.game_start, DATE_FORMAT)
+                                    : undefined
                             }
                         />
                     }
                     selectsMultiple={undefined}
                 />
             </div>
-
         );
     };
 
     const renderGameEndField = () => {
-
         return (
-            <div className="space-y-2 flex flex-col">
+            <div className="flex flex-col space-y-2">
                 <label>Game Start</label>
                 <DatePicker
                     className="mt-0"
                     selected={data.game_end}
-                    onChange={date => {
+                    onChange={(date) => {
                         setData('game_end', date);
                     }}
                     showTimeSelect
@@ -163,16 +190,16 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                     customInput={
                         <CustomDatePickerInput
                             label="start time"
-                            value={data.game_end
-                                ? format(data.game_end, DATE_FORMAT)
-                                : undefined
+                            value={
+                                data.game_end
+                                    ? format(data.game_end, DATE_FORMAT)
+                                    : undefined
                             }
                         />
                     }
                     selectsMultiple={undefined}
                 />
             </div>
-
         );
     };
 
@@ -180,24 +207,22 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
         return (
             <div>
                 <label>Group</label>
-                <Select
-                    onValueChange={(value) => {
-                    }}
-                    value={''}
-                >
+                <Select onValueChange={(value) => {}} value={''}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select a group" />
                     </SelectTrigger>
                     <SelectContent>
                         {groups.map((group) => (
-                            <SelectItem key={group.id} value={group.id.toString()}>
+                            <SelectItem
+                                key={group.id}
+                                value={group.id.toString()}
+                            >
                                 {group.name}
                             </SelectItem>
                         ))}
                     </SelectContent>
                 </Select>
             </div>
-
         );
     };
 
@@ -207,25 +232,30 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                 <label>Players</label>
                 <div className="grid grid-cols-2 gap-2">
                     {players.map((player) => (
-                        <div key={player.id} className="flex items-center space-x-2">
+                        <div
+                            key={player.id}
+                            className="flex items-center space-x-2"
+                        >
                             <Checkbox
-                                checked={selectedPlayers.includes(player.id.toString())}
-                                onCheckedChange={() => handlePlayerToggle(player.id.toString())}
+                                checked={selectedPlayers.includes(
+                                    player.id.toString(),
+                                )}
+                                onCheckedChange={() =>
+                                    handlePlayerToggle(player.id.toString())
+                                }
                                 id={`player-${player.id}`}
                             />
                             <label
                                 htmlFor={`player-${player.id}`}
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                {player.login}
+                                {player.username}
                             </label>
                         </div>
                     ))}
                 </div>
             </div>
-
-        )
-            ;
+        );
     };
 
     return (
@@ -234,28 +264,23 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                 <Button
                     variant="secondary"
                     size="sm"
-                    className="flex items-center gap-1 hover:bg-secondary-foreground hover:text-secondary transition-colors duration-200 active:scale-95"
+                    className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
                 >
                     <PlusCircle className="h-4 w-4" />
                     <span>Add Game</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[42rem] h-[420px]">
+            <DialogContent className="h-[420px] max-w-[42rem]">
                 <DialogHeader>
                     <DialogTitle>Добавить новую игру</DialogTitle>
                 </DialogHeader>
-                <form
-                    onSubmit={onSubmit}
-                    className="space-y-4"
-                >
+                <form onSubmit={onSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         {renderGameStartField()}
                         {renderGameEndField()}
                     </div>
 
-                    {
-                        showSelectGroup && renderGroupField()
-                    }
+                    {showSelectGroup && renderGroupField()}
 
                     {selectedGroup && (
                         <>
@@ -265,7 +290,11 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
                     )}
 
                     <div className="flex justify-end space-x-2 pt-4">
-                        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => setOpen(false)}
+                        >
                             Cancel
                         </Button>
                         <Button type="submit">Добавить игру</Button>
@@ -275,4 +304,3 @@ export function AddGameModal({ groups, players, showSelectGroup, selectedGroupID
         </Dialog>
     );
 }
-

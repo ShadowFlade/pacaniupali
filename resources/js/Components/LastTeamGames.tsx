@@ -5,12 +5,9 @@ type LastTeamGame = {
     winner: string;
     participants: User[];
     totalPoints: number;
-}
+};
 type LastTeamGamesProps = LastTeamGame[];
 
 export default function LastTeamGames(games: LastTeamGamesProps) {
-    return (
-        <>
-        </>
-    );
+    return <></>;
 }

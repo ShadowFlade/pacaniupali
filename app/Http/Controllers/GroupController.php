@@ -28,16 +28,16 @@ class GroupController extends Controller
         $user = Auth::user();
         $groups = Group::with(['users'])
             ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
-            ->where('user_groups.user_id', $user['id'])
+            ->where('user_groups.user_id', $user->id)
             ->get()->toArray();
-
 
         if(empty($groups)) {
             return Inertia::render(
                 'Group/GroupList',
                 [
                     'groups' => [],
-                    'creating' => request()->has('creating')
+                    'creating' => request()->has('creating'),
+                    'auth' => ['user' => $user]
                 ]
             );
         }
@@ -47,10 +47,11 @@ class GroupController extends Controller
             ->get()->toArray();
 
 
-
         return Inertia::render('Group/GroupList', [
             'groups' => $groups,
             'games' => $games,
+            'many_games' => [],
+            'auth' => ['user' => request()->user()]
         ]);
     }
 

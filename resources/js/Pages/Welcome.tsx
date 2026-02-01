@@ -1,12 +1,12 @@
 // import PhotoWall from '@/components/photo-wall'
+import SidebarCustom from '@/Components/SidebarCustom';
+import General from '@/Layouts/General';
 import { PageProps } from '@/types';
 import { useState } from 'react';
-import General from '@/Layouts/General';
-import SidebarCustom from '@/Components/SidebarCustom';
 
 export default function Welcome({
-                                    auth
-                                }: PageProps<{ laravelVersion: string; phpVersion: string }>) {
+    auth,
+}: PageProps<{ laravelVersion: string; phpVersion: string }>) {
     const [loggedIn, setLoggedIn] = useState(!!auth.user?.id);
     const handleImageError = () => {
         document

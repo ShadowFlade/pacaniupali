@@ -32,6 +32,7 @@ interface Game {
 
 export default function GroupsList({ auth, groups: userGroups, games }) {
     const page = usePage<PageProps>();
+    console.log(auth, ' auth');
 
     console.log(page, ' page');
     const { setData, post, processing, reset } = useForm({
@@ -119,7 +120,7 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
 
     return (
         <General>
-            <SidebarCustom loggedIn={loggedIn} />
+            {!loggedIn && <SidebarCustom loggedIn={loggedIn} />}
             <div className="container mx-auto px-4 py-8">
                 {groups.length === 0 && !showFormState ? (
                     <div className="text-center">

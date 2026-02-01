@@ -20,8 +20,12 @@ export default function SidebarCustom({ loggedIn }) {
     const login: FormEventHandler = (e) => {
         e.preventDefault();
         post(route('login'), {
-            onFinish: (e) => {console.log(e, ' FINISH', errors)},
-            onSuccess:(e) => {console.log(e, ' SUCC', errors)}
+            onFinish: (e) => {
+                console.log(e, ' FINISH', errors);
+            },
+            onSuccess: (e) => {
+                console.log(e, ' SUCC', errors);
+            },
         });
     };
     return (
@@ -56,11 +60,10 @@ export default function SidebarCustom({ loggedIn }) {
                                     <Input
                                         id="email"
                                         placeholder="Введите имя"
-                                        name='email'
+                                        name="email"
                                         value={data.email}
-                                        onChange={(e) => setData(
-                                            'email',
-                                            e.target.value)
+                                        onChange={(e) =>
+                                            setData('email', e.target.value)
                                         }
                                     />
                                 </div>
@@ -71,15 +74,16 @@ export default function SidebarCustom({ loggedIn }) {
                                         type="password"
                                         placeholder="Введите пароль"
                                         autoComplete={''}
-                                        name='password'
+                                        name="password"
                                         value={data.password}
-                                        onChange={(e) => setData(
-                                            'password',
-                                            e.target.value
-                                        )}
+                                        onChange={(e) =>
+                                            setData('password', e.target.value)
+                                        }
                                     />
                                 </div>
-                                <Button type={'submit'} className="w-full">Войти</Button>
+                                <Button type={'submit'} className="w-full">
+                                    Войти
+                                </Button>
                                 <div className="text-center">или</div>
                                 <CustomLink
                                     variant="outline"
