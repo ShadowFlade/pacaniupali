@@ -31,25 +31,32 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $profilePicture = $request->file('picture');
-        $ext = $profilePicture->extension();
-        $pictureFilename = $profilePicture->getClientOriginalName() . date('dmYHis') . "." . $ext;
-        $profilePicture->storeAs('/profile_pictures', $pictureFilename, 'public');
+        if ($profilePicture) {
+            $ext = $profilePicture->extension();
+            $pictureFilename = $profilePicture->getClientOriginalName() . date('dmYHis') . "." . $ext;
+            $profilePicture->storeAs('/profile_pictures', $pictureFilename, 'public');
+        }
+
 
         //do we have to validate it even though we have validation on create ? its defined on mysql level (check create_user_name migration)
-        $request->validate([
-            'login' => 'required|string|max:255|unique:'.User::class,
-            'username' => 'required|string|max:255|unique:'.User::class,
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
-
-        $user = User::create([
-            'login' => $request->login,
-            'email' => $request->email,
+        $request->validate(
+            [
+                'login'    => 'required|string|max:255|unique:' . User::class,
+                'username' => 'required|string|max:255|unique:' . User::class,
+                'email'    => 'required|string|lowercase|email|max:255|unique:' . User::class,
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            ]
+        );
+        $userCreateFields = [
+            'login'    => $request->login,
+            'email'    => $request->email,
             'username' => $request->username,
             'password' => Hash::make($request->password),
-            'picture' => $pictureFilename,
-        ]);
+        ];
+        if (isset($pictureFilename)) {
+            $userCreateFields['picture'] = $pictureFilename;
+        }
+        $user = User::create($userCreateFields);
 
         event(new Registered($user));
 
