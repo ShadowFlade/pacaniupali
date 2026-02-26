@@ -130,7 +130,7 @@ export function AddGameModal({
                             .filter((player) =>
                                 selectedPlayers.includes(player.id.toString()),
                             )
-                            .map((player, index, array) => {
+                            .map((player) => {
                                 return (
                                     <SelectItem
                                         key={player.id}

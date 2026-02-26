@@ -4,13 +4,16 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
+use App\Http\Requests\UserSearchRequest;
 use App\Models\Game;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class UserController extends \App\Http\Controllers\Controller
 {
@@ -80,5 +83,17 @@ class UserController extends \App\Http\Controllers\Controller
         $userService = new \App\Service\User();
         $users = $userService->getPlayedWith(20);
         return response()->json($users);
+    }
+
+    public function searchByUserName(UserSearchRequest $request)
+    {
+        $text = $request->input('text');
+
+        $user = User::query()
+                    ->orWhereLike('username', "%$text%")
+                    ->get(['username', 'id'])
+                    ->all();
+
+        return response()->json($user);
     }
 }

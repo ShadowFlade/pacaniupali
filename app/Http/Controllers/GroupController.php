@@ -27,32 +27,35 @@ class GroupController extends Controller
     {
         $user = Auth::user();
         $groups = Group::with(['users'])
-            ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
-            ->where('user_groups.user_id', $user->id)
-            ->get()->toArray();
+                       ->join('user_groups', 'group_list.id', '=', 'user_groups.group_id')
+                       ->where('user_groups.user_id', $user->id)
+                       ->get()->toArray();
 
-        if(empty($groups)) {
+        if (empty($groups)) {
             return Inertia::render(
                 'Group/GroupList',
                 [
-                    'groups' => [],
+                    'groups'   => [],
                     'creating' => request()->has('creating'),
-                    'auth' => ['user' => $user]
+                    'auth'     => ['user' => $user]
                 ]
             );
         }
 
-        $games = Game::with(['player','winner','player.user'])
-            ->where('games.group_id', $groups[0]['id'])
-            ->get()->toArray();
+        $games = Game::with(['player', 'winner', 'player.user'])
+                     ->where('games.group_id', $groups[0]['id'])
+                     ->get()->toArray();
 
 
-        return Inertia::render('Group/GroupList', [
-            'groups' => $groups,
-            'games' => $games,
-            'many_games' => [],
-            'auth' => ['user' => request()->user()]
-        ]);
+        return Inertia::render(
+            'Group/GroupList',
+            [
+                'groups'     => $groups,
+                'games'      => $games,
+                'many_games' => [],
+                'auth'       => ['user' => request()->user()]
+            ]
+        );
     }
 
     /**
@@ -66,7 +69,7 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(\Illuminate\Http\Request $request) : RedirectResponse
+    public function store(\Illuminate\Http\Request $request): RedirectResponse
     {
         $file = $request->file("logo");
         $logoFilename = null;
@@ -78,18 +81,20 @@ class GroupController extends Controller
         }
 
         $newGroup = [
-            'name' => $request['name'],
-            'code' => str_slug($request['name']),
+            'name'        => $request['name'],
+            'code'        => str_slug($request['name']),
             'description' => $request['description'],
-            'logo_path' => '/storage/group_logos/' . $logoFilename
+            'logo_path'   => '/storage/group_logos/' . $logoFilename
         ];
 
         $group = Group::create($newGroup);
 
-        $userGroup = UserGroup::create([
-            'user_id'  => Auth::id(),
-            'group_id' => $group['id'],
-        ]);
+        $userGroup = UserGroup::create(
+            [
+                'user_id'  => Auth::id(),
+                'group_id' => $group['id'],
+            ]
+        );
 
         return Redirect::back(301);
     }

@@ -10,9 +10,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useState } from 'react';
 import { Button } from '../../../components/ui/button';
-
+import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Inertia } from '@inertiajs/inertia';
+import { sPost } from '@/utility/requests';
+import { SelectList } from '@/Components/SelectList';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -39,11 +44,13 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const [selectedGroupUsers, setSelectedGroupUsers] = useState([]);
     const [playedWithUsers, setPlayedWithUsers] = useState([]);
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
+    const [foundUsers, setFoundUsers] = useState([]);
 
     const [selectedPlayers, setSelectedPlayers] = useState([]);
     const { post, setData, reset } = useForm({
         players: selectedPlayers,
         group_id: groupId,
+        found_user_id: "0"
     });
 
     const addUserFormHandler = (e) => {
@@ -113,12 +120,17 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         }
     }
 
-    const playersList = (list: IPlayer[], selected, setFn) => {
+    const playersList = (
+        list: IPlayer[],
+        selected: string | any[],
+        setFn: Dispatch<SetStateAction<any[]>>,
+    ) => {
+        list = [{ login: "dickinson.aubrey", id: 5 }]
         const entries = Object.entries(list);
         return entries && entries.length ? (
             <ul className="mt-8">
                 {Object.entries(list).map(([_, player]) => {
-                    console.log(player,' player');
+                    console.log(player, ' player');
                     return (
                         <div
                             key={player.id}
@@ -148,7 +160,34 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             </ul>
         ) : null;
     };
-    console.log(groupUsers, playedWithUsers, ' UPDATE!!!');
+
+    const onSearchInputChange = async (e) => {
+        const resp = await sPost(
+            route('user.searchByUserName'),
+            { text: e.target.value },
+            props,
+        );
+        const data = await resp.json();
+        setFoundUsers(data)
+    };
+
+    const renderSearchField = (placeholder: string) => (
+        <div className="mt-4 w-full max-w-sm space-y-2">
+            <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    className="bg-background pl-9"
+                    id="search-input"
+                    placeholder={placeholder}
+                    type="search"
+                    onChange={onSearchInputChange}
+                />
+            </div>
+        </div>
+    );
+
+
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
@@ -164,6 +203,22 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             <DialogContent className="flex h-[420px] max-w-[42rem] flex-col">
                 <DialogHeader>
                     <DialogTitle>Добавить пользователя</DialogTitle>
+                    {renderSearchField('Поиск по всем пользователям')}
+                    {
+                        <SelectList
+                            label={'Пользователь'}
+                            name={'user_id'}
+                            initSelectValue={'0'}
+                            selectOptionValuePropCode={'id'}
+                            placeholder={'Выберите юзера'}
+                            optionList={foundUsers}
+                            isDisabled={foundUsers.length == 0}
+                            selectOptionValuePropToDisplay={'username'}
+                            onSelectValueChangeHandler={(e) =>
+                                setData('found_user_id', e.toString())
+                            }
+                        />
+                    }
                 </DialogHeader>
 
                 <form
