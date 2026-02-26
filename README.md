@@ -27,3 +27,5 @@
 # BUGS
 * показывает неправильное количество игр у групп на /group (показывает количество у первой группы для всех групп)
 
+# LEFT ON
+* do npm run build and fix SearchUserPopup error

@@ -12,12 +12,10 @@ import { useForm, usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Button } from '../../../components/ui/button';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Inertia } from '@inertiajs/inertia';
 import { sPost } from '@/utility/requests';
-import { SelectList } from '@/Components/SelectList';
+import {
+    SearchUserPopup,
+} from '@/Components/SearchBox';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -171,25 +169,9 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         setFoundUsers(data)
     };
 
-    const renderSearchField = (placeholder: string) => (
-        <div className="mt-4 w-full max-w-sm space-y-2">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                    className="bg-background pl-9"
-                    id="search-input"
-                    placeholder={placeholder}
-                    type="search"
-                    onChange={onSearchInputChange}
-                />
-            </div>
-        </div>
-    );
-
-
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
+
             <DialogTrigger asChild>
                 <Button
                     variant="secondary"
@@ -203,28 +185,14 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             <DialogContent className="flex h-[420px] max-w-[42rem] flex-col">
                 <DialogHeader>
                     <DialogTitle>Добавить пользователя</DialogTitle>
-                    {renderSearchField('Поиск по всем пользователям')}
-                    {
-                        <SelectList
-                            label={'Пользователь'}
-                            name={'user_id'}
-                            initSelectValue={'0'}
-                            selectOptionValuePropCode={'id'}
-                            placeholder={'Выберите юзера'}
-                            optionList={foundUsers}
-                            isDisabled={foundUsers.length == 0}
-                            selectOptionValuePropToDisplay={'username'}
-                            onSelectValueChangeHandler={(e) =>
-                                setData('found_user_id', e.toString())
-                            }
-                        />
-                    }
+                    <SearchUserPopup users={foundUsers}/>
                 </DialogHeader>
 
                 <form
                     onSubmit={addUserFormHandler}
                     className="flex h-full flex-col justify-between"
                 >
+
                     {Object.entries(groupUsers).length ||
                     Object.entries(playedWithUsers).length ? (
                         <Tabs

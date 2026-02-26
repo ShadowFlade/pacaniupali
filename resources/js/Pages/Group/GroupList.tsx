@@ -40,8 +40,10 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
         logo: '',
         description: '',
     });
+
     useEffect(() => {
-        setGroups(page.props.groups);
+        const groups: Group[] = page.props.groups as any;
+        setGroups(groups);
     }, []);
 
     const [showFormState, setShowFormState] = useState(
@@ -64,7 +66,8 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
                 setShowForm(false);
             },
             onSuccess: (data) => {
-                setGroups(data.props.groups);
+                const groups: Group[] = page.props.groups as any
+                setGroups(groups);
             },
         });
         setShowForm(false);
