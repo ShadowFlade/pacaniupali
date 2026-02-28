@@ -16,6 +16,7 @@ import { sPost } from '@/utility/requests';
 import {
     SearchUserPopup,
 } from '@/Components/SearchBox';
+import { ComboboxPopup } from '@/Components/SearchBox2';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -182,10 +183,18 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                     <span>Add User</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="flex h-[420px] max-w-[42rem] flex-col">
+            <DialogContent
+                className="flex h-[420px] max-w-[42rem] flex-col"
+            >
                 <DialogHeader>
                     <DialogTitle>Добавить пользователя</DialogTitle>
-                    <SearchUserPopup users={foundUsers}/>
+                    {/*<SearchUserPopup*/}
+                    {/*    users={foundUsers}*/}
+                    {/*    onSearchChange={(value) =>*/}
+                    {/*        onSearchInputChange({ target: { value } })*/}
+                    {/*    }*/}
+                    {/*/>*/}
+                    <ComboboxPopup/>
                 </DialogHeader>
 
                 <form

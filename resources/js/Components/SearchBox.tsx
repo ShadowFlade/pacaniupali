@@ -11,7 +11,6 @@ import {
 import {
     Item,
     ItemContent,
-    ItemDescription,
     ItemTitle,
 } from "@/components/ui/item"
 
@@ -68,32 +67,47 @@ const countries = [
     },
 ]
 
-export function SearchUserPopup({users}) {
+type UserItem = { id: number; username: string };
+
+export function SearchUserPopup({
+    users = [],
+    onSearchChange,
+}: {
+    users?: UserItem[];
+    onSearchChange?: (value: string) => void;
+}) {
+    const userList = Array.isArray(users) ? users : [];
     return (
-        <Combobox
-            items={countries.filter((country) => country.code !== "")}
-            itemToStringValue={(country: (typeof countries)[number]) => country.label}
-        >
-            <ComboboxInput placeholder="Search countries..." />
-            <ComboboxContent>
-                <ComboboxEmpty>No countries found.</ComboboxEmpty>
-                <ComboboxList>
-                    {(country) => (
-                        <ComboboxItem key={country.code} value={country}>
-                            <Item size="sm" className="p-0">
-                                <ItemContent>
-                                    <ItemTitle className="whitespace-nowrap">
-                                        {country.label}
-                                    </ItemTitle>
-                                    <ItemDescription>
-                                        {country.continent} ({country.code})
-                                    </ItemDescription>
-                                </ItemContent>
-                            </Item>
-                        </ComboboxItem>
-                    )}
-                </ComboboxList>
-            </ComboboxContent>
-        </Combobox>
+        <div className="w-full min-w-[16rem]">
+            <Combobox
+                items={userList}
+                itemToStringValue={(user: UserItem) => user.username}
+            >
+                <ComboboxInput
+                    placeholder="Search users..."
+                    className="w-full min-w-[16rem]"
+                    onChange={(e) => onSearchChange?.(e.target.value)}
+                />
+                <ComboboxContent
+                    align="center"
+                    className="min-w-[16rem] w-full max-w-[min(var(--available-width),24rem)]"
+                >
+                    <ComboboxEmpty>No users found.</ComboboxEmpty>
+                    <ComboboxList>
+                        {(user) => (
+                            <ComboboxItem key={user.id} value={user}>
+                                <Item size="sm" className="p-0">
+                                    <ItemContent>
+                                        <ItemTitle className="whitespace-nowrap">
+                                            {user.username}
+                                        </ItemTitle>
+                                    </ItemContent>
+                                </Item>
+                            </ComboboxItem>
+                        )}
+                    </ComboboxList>
+                </ComboboxContent>
+            </Combobox>
+        </div>
     )
 }

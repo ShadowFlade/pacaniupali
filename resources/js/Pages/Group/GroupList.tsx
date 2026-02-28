@@ -14,6 +14,8 @@ import { PageProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
+import { SearchUserPopup } from '@/Components/SearchBox';
+import { ComboboxPopup } from '@/Components/SearchBox2';
 
 interface Group {
     id: string;
@@ -123,6 +125,7 @@ export default function GroupsList({ auth, groups: userGroups, games }) {
 
     return (
         <General>
+           <ComboboxPopup/>
             {!loggedIn && <SidebarCustom loggedIn={loggedIn} />}
             <div className="container mx-auto px-4 py-8">
                 {groups.length === 0 && !showFormState ? (
