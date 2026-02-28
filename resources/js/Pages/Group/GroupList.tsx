@@ -14,8 +14,7 @@ import { PageProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
-import { SearchUserPopup } from '@/Components/SearchBox';
-import { ComboboxPopup } from '@/Components/SearchBox2';
+import { ComboboxPopup } from '@/Components/ComboboxPopup';
 
 interface Group {
     id: string;

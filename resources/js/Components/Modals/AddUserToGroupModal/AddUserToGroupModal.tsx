@@ -10,13 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
-import { Dispatch, SetStateAction, useState } from 'react';
+import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { sPost } from '@/utility/requests';
-import {
-    SearchUserPopup,
-} from '@/Components/SearchBox';
-import { ComboboxPopup } from '@/Components/SearchBox2';
+import { ComboboxPopup } from '@/Components/ComboboxPopup';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -36,6 +33,7 @@ const ITypeVariants = {
 
 export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const [open, setOpen] = useState(false);
+    const dialogContentRef = useRef<HTMLDivElement>(null);
     const { props } = usePage<PageProps>();
 
     //i really dont like this state duplicating - what if we have 10 diff states? how to deal with that situation? this is most likely okay HERE, but just curious (its not a todo (i think))
@@ -184,17 +182,12 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                 </Button>
             </DialogTrigger>
             <DialogContent
+                ref={dialogContentRef}
                 className="flex h-[420px] max-w-[42rem] flex-col"
             >
                 <DialogHeader>
                     <DialogTitle>Добавить пользователя</DialogTitle>
-                    {/*<SearchUserPopup*/}
-                    {/*    users={foundUsers}*/}
-                    {/*    onSearchChange={(value) =>*/}
-                    {/*        onSearchInputChange({ target: { value } })*/}
-                    {/*    }*/}
-                    {/*/>*/}
-                    <ComboboxPopup/>
+                    <ComboboxPopup container={dialogContentRef} />
                 </DialogHeader>
 
                 <form

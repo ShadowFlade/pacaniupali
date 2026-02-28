@@ -90,7 +90,12 @@ const countries = [
     },
 ];
 
-export function ComboboxPopup() {
+type ComboboxPopupProps = {
+    // когда мы внутри Dialos мы передаем реф чтобы dropdownlist рендерился внутри него а не в портале где-то там и клики отрабатывали корректно
+    container?: React.ComponentProps<typeof import('@/components/ui/combobox').ComboboxContent>['container'];
+};
+
+export function ComboboxPopup({ container }: ComboboxPopupProps = {}) {
     return (
         <>
             <Combobox items={countries} defaultValue={countries[0]}>
@@ -104,7 +109,7 @@ export function ComboboxPopup() {
                         </Button>
                     }
                 />
-                <ComboboxContent>
+                <ComboboxContent container={container}>
                     <ComboboxInput showTrigger={false} placeholder="Search" />
                     <ComboboxEmpty>No items found.</ComboboxEmpty>
                     <ComboboxList>
