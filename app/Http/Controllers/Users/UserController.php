@@ -88,12 +88,17 @@ class UserController extends \App\Http\Controllers\Controller
     public function searchByUserName(UserSearchRequest $request)
     {
         $text = $request->input('text');
+        $limit = (int) $request->input('limit', 20);
+        $offset = (int) $request->input('offset', 0);
 
-        $user = User::query()
-                    ->orWhereLike('username', "%$text%")
-                    ->get(['username', 'id'])
-                    ->all();
+        $query = User::query()->select(['username', 'id'])->orderBy('username');
 
-        return response()->json($user);
+        if ($text !== null && $text !== '') {
+            $query->orWhereLike('username', "%{$text}%");
+        }
+
+        $users = $query->offset($offset)->limit($limit)->get()->all();
+
+        return response()->json($users);
     }
 }

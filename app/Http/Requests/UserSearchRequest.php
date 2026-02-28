@@ -16,7 +16,9 @@ class UserSearchRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'text' => ['required', 'string', 'max:255'],
+            'text' => ['nullable', 'string', 'max:255'],
+            'limit' => ['sometimes', 'integer', 'min:1', 'max:100'],
+            'offset' => ['sometimes', 'integer', 'min:0'],
         ];
     }
 }

@@ -14,6 +14,7 @@ import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { sPost } from '@/utility/requests';
 import { ComboboxPopup } from '@/Components/ComboboxPopup';
+import { UserComboboxPopup } from '@/Components/UserComboboxPopup';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -187,7 +188,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             >
                 <DialogHeader>
                     <DialogTitle>Добавить пользователя</DialogTitle>
-                    <ComboboxPopup container={dialogContentRef} />
+                    <UserComboboxPopup container={dialogContentRef}/>
                 </DialogHeader>
 
                 <form
