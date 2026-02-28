@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageProps } from '@/types';
-import { useForm, usePage } from '@inertiajs/react';
+import { usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
@@ -42,21 +42,27 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
     const [foundUsers, setFoundUsers] = useState([]);
 
-    const [selectedPlayers, setSelectedPlayers] = useState([]);
-    const { post, setData, reset } = useForm({
-        players: selectedPlayers,
-        group_id: groupId,
-        found_user_id: '0',
-    });
+    const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
-    const addUserFormHandler = (e) => {
+    const addUserFormHandler = async (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('user_group.store'), {
-            onSuccess: (e) => {
-                console.log(e);
+        const csrf = (props as { csrf?: string }).csrf ?? '';
+        const res = await fetch(route('user_group.store'), {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': csrf,
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
             },
+            body: JSON.stringify({
+                players: selectedPlayers,
+                group_id: groupId,
+            }),
         });
-        reset();
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.success) {
+            setSelectedPlayers([]);
+        }
     };
 
     /**
@@ -64,13 +70,11 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
      * @param playerId
      * @param setFn Функция которая сетит состояние чекбоксов для плееров
      */
-    const handlePlayerToggle = (playerId: string, setFn) => {
+    const handlePlayerToggle = (playerId: string, setFn: Dispatch<SetStateAction<string[]>>) => {
         setFn((current) => {
             const updated = current.includes(playerId)
                 ? current.filter((id) => id !== playerId)
                 : [...current, playerId];
-
-            setData('players', updated);
             setSelectedPlayers(updated);
             return updated;
         });
@@ -231,6 +235,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                         size="sm"
                         className="hover:bg-secondary-foreground hover:text-secondary mt-4 flex items-center gap-1 transition-colors duration-200 active:scale-95"
                         disabled={selectedPlayers.length == 0}
+                        type={'submit'}
                     >
                         <span>Добавить пользователей</span>
                     </Button>
