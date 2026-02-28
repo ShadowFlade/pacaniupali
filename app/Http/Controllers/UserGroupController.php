@@ -29,17 +29,22 @@ class UserGroupController extends Controller
     public function store(Request $request)
     {
         $isSucc = true;
-        foreach($request->input('players') as $player){
-            $resp = \App\Models\UserGroup::create([
-                'user_id' => $player,
-                'group_id' => $request->input('group_id'),
-            ]);
-            if(!$resp && $isSucc) {
+        foreach ($request->input('players') as $player) {
+            $resp = \App\Models\UserGroup::create(
+                [
+                    'user_id'  => $player,
+                    'group_id' => $request->input('group_id'),
+                ]
+            );
+            if (!$resp && $isSucc) {
                 $isSucc = false;
             }
         }
-
-        return Redirect::back()->with($isSucc);
+        if ($isSucc) {
+            return $this->successResponse([$isSucc]);
+        } else {
+            return $this->errorResponse($isSucc);
+        }
     }
 
     /**
