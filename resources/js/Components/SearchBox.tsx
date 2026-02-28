@@ -68,7 +68,7 @@ const countries = [
     },
 ]
 
-export function SearchUserPopup() {
+export function SearchUserPopup({users}) {
     return (
         <Combobox
             items={countries.filter((country) => country.code !== "")}

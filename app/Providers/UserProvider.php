@@ -63,7 +63,6 @@ class UserProvider implements BaseUserProvider
      */
     protected function getGenericUser($user)
     {
-
         if (!is_null($user)) {
             return new GenericUser((array)$user);
         }
@@ -74,7 +73,8 @@ class UserProvider implements BaseUserProvider
         $user = $this->getGenericUser(
             $this->connection->table($this->table)->find($identifier)
         );
-        return $user && $user->getRememberToken() && hash_equals($user->getRememberToken(), $token)
+        $rememberToken = $user->getRememberToken();
+        return $user && $rememberToken && hash_equals($user->getRememberToken(), $token)
             ? $user : null;
     }
 
@@ -96,12 +96,12 @@ class UserProvider implements BaseUserProvider
         if (isset($credentials['email'])) {
             $userData = User::query()
                 ->where('email', '=', $credentials['email'])
-                ->get()
+                ->first()
                 ->toArray();
         } else if (isset($credentials['login'])) {
             $userData = User::query()
                 ->where('login', '=', $credentials['login'])
-                ->get()
+                ->first()
                 ->toArray();
         }
 //        $userData = User::where([
@@ -114,8 +114,9 @@ class UserProvider implements BaseUserProvider
 //        $credentials['login'] = $credentials['email'];
 //        dd(isset($credentials['email']));
 //        dd(empty($credentials['email']));
-        $userData['id'] = $identifier;
+//        $userData['id'] = $identifier;
         $genUser = new GenericUser($userData);
+//        dd($genUser);
         return $genUser;
 //        }
 
