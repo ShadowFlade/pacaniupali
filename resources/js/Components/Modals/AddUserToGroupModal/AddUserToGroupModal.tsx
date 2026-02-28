@@ -13,8 +13,7 @@ import { PlusCircle } from 'lucide-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 import { sPost } from '@/utility/requests';
-import { ComboboxPopup } from '@/Components/ComboboxPopup';
-import { UserComboboxPopup } from '@/Components/UserComboboxPopup';
+import { SearchUsersSelect } from '@/Components/SearchUsersSelect';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -24,7 +23,7 @@ let isFetched = false; //TODO:dirty hack - get rid of it
 
 type IPlayer = {
     id: number;
-    login: string;
+    username: string;
 };
 
 const ITypeVariants = {
@@ -123,12 +122,12 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         selected: string | any[],
         setFn: Dispatch<SetStateAction<any[]>>,
     ) => {
-        list = [{ login: "dickinson.aubrey", id: 5 }]
+        console.log(list,' LIST');
+        // list = [{ login: "dickinson.aubrey", id: 5 }]
         const entries = Object.entries(list);
         return entries && entries.length ? (
             <ul className="mt-8">
-                {Object.entries(list).map(([_, player]) => {
-                    console.log(player, ' player');
+                {entries.map(([_, player]) => {
                     return (
                         <div
                             key={player.id}
@@ -150,23 +149,13 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                                 htmlFor={`player-${player.id}`}
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                {player.login}
+                                {player.username}
                             </label>
                         </div>
                     );
                 })}
             </ul>
         ) : null;
-    };
-
-    const onSearchInputChange = async (e) => {
-        const resp = await sPost(
-            route('user.searchByUserName'),
-            { text: e.target.value },
-            props,
-        );
-        const data = await resp.json();
-        setFoundUsers(data)
     };
 
     return (
@@ -188,7 +177,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             >
                 <DialogHeader>
                     <DialogTitle>Добавить пользователя</DialogTitle>
-                    <UserComboboxPopup container={dialogContentRef}/>
+                    <SearchUsersSelect container={dialogContentRef} stateSetter={setFoundUsers} />
                 </DialogHeader>
 
                 <form
@@ -196,7 +185,10 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                     className="flex h-full flex-col justify-between"
                 >
 
-                    {Object.entries(groupUsers).length ||
+                    {
+
+                        Object.entries(foundUsers).length ||
+                        Object.entries(groupUsers).length ||
                     Object.entries(playedWithUsers).length ? (
                         <Tabs
                             defaultValue="played_with"
@@ -214,6 +206,11 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                             <TabsContent value={'played_with'}>
                                 {playersList(
                                     playedWithUsers,
+                                    selectedPlayedWithUsers,
+                                    setSelectedPlayedWithUsers,
+                                )}
+                                {playersList(
+                                    foundUsers,
                                     selectedPlayedWithUsers,
                                     setSelectedPlayedWithUsers,
                                 )}
