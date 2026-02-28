@@ -32,6 +32,7 @@ type SearchUsersSelectProps = {
     placeholder?: string;
     /** Called with the list of users; the selected user is appended to this list when one is chosen. */
     stateSetter: Dispatch<SetStateAction<UserSearchItem[]>>;
+    className: string
 };
 
 //todo[must-1]:rewrite it in react-query later
@@ -39,6 +40,7 @@ export function SearchUsersSelect({
     container,
     placeholder = 'Search users…',
     stateSetter,
+    className
 }: SearchUsersSelectProps) {
     const { props } = usePage<PageProps>();
     const [users, setUsers] = useState<UserSearchItem[]>([]);
@@ -138,6 +140,7 @@ export function SearchUsersSelect({
     return (
         <Combobox
             items={users}
+            itemToStringLabel={(user: UserSearchItem) => user.username}
             itemToStringValue={(user: UserSearchItem) => user.username}
             onOpenChange={handleOpenChange}
             onInputValueChange={setQuery}

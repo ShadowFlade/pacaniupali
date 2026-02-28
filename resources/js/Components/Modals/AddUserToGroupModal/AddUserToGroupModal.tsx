@@ -1,3 +1,4 @@
+import { SearchUsersSelect } from '@/Components/SearchUsersSelect';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     Dialog,
@@ -12,8 +13,6 @@ import { useForm, usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
 import { Dispatch, SetStateAction, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
-import { sPost } from '@/utility/requests';
-import { SearchUsersSelect } from '@/Components/SearchUsersSelect';
 ('user client');
 
 type IAddUserToGroupModal = {
@@ -47,7 +46,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const { post, setData, reset } = useForm({
         players: selectedPlayers,
         group_id: groupId,
-        found_user_id: "0"
+        found_user_id: '0',
     });
 
     const addUserFormHandler = (e) => {
@@ -121,12 +120,13 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         list: IPlayer[],
         selected: string | any[],
         setFn: Dispatch<SetStateAction<any[]>>,
+        label: string,
     ) => {
-        console.log(list,' LIST');
         // list = [{ login: "dickinson.aubrey", id: 5 }]
         const entries = Object.entries(list);
         return entries && entries.length ? (
             <ul className="mt-8">
+                {list.length && <h6>{label}</h6>}
                 {entries.map(([_, player]) => {
                     return (
                         <div
@@ -147,7 +147,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                             />
                             <label
                                 htmlFor={`player-${player.id}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 {player.username}
                             </label>
@@ -160,12 +160,11 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-
             <DialogTrigger asChild>
                 <Button
                     variant="secondary"
                     size="sm"
-                    className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
+                    className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
                 >
                     <PlusCircle className="h-4 w-4" />
                     <span>Add User</span>
@@ -176,19 +175,20 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                 className="flex h-[420px] max-w-[42rem] flex-col"
             >
                 <DialogHeader>
-                    <DialogTitle>Добавить пользователя</DialogTitle>
-                    <SearchUsersSelect container={dialogContentRef} stateSetter={setFoundUsers} />
+                    <DialogTitle className={'mb-4'}>Добавить пользователя</DialogTitle>
+                    <SearchUsersSelect
+                        container={dialogContentRef}
+                        stateSetter={setFoundUsers}
+                        className={'mt-10'}
+                    />
                 </DialogHeader>
 
                 <form
                     onSubmit={addUserFormHandler}
                     className="flex h-full flex-col justify-between"
                 >
-
-                    {
-
-                        Object.entries(foundUsers).length ||
-                        Object.entries(groupUsers).length ||
+                    {Object.entries(foundUsers).length ||
+                    Object.entries(groupUsers).length ||
                     Object.entries(playedWithUsers).length ? (
                         <Tabs
                             defaultValue="played_with"
@@ -208,11 +208,13 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                                     playedWithUsers,
                                     selectedPlayedWithUsers,
                                     setSelectedPlayedWithUsers,
+                                    '',
                                 )}
                                 {playersList(
                                     foundUsers,
                                     selectedPlayedWithUsers,
                                     setSelectedPlayedWithUsers,
+                                    'Найденные игроки',
                                 )}
                             </TabsContent>
                             <TabsContent value="from_group">
@@ -227,7 +229,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                     <Button
                         variant="secondary"
                         size="sm"
-                        className="mt-4 flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
+                        className="hover:bg-secondary-foreground hover:text-secondary mt-4 flex items-center gap-1 transition-colors duration-200 active:scale-95"
                         disabled={selectedPlayers.length == 0}
                     >
                         <span>Добавить пользователей</span>
