@@ -178,6 +178,7 @@ export function AddUserToGroupModal({
                                 className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 {player.username} {isExcluded && <span>(Он уже состоит в группе)</span>}
+                                {/*todo:перенести эту фразу (и блокировку выбора в option в выпадающем из поиска списке)*/}
                             </label>
                         </div>
                     );
