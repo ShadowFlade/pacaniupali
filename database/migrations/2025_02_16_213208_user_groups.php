@@ -26,6 +26,7 @@ return new class extends Migration
                 ->foreign('group_id', 'user_groups_group_id')
                 ->references('id')
                 ->on('group_list')->onDelete('cascade');
+
         });
     }
 

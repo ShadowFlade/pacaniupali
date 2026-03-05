@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\UserGroup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -29,21 +30,25 @@ class UserGroupController extends Controller
     public function store(Request $request)
     {
         $isSucc = true;
+        $groupId = $request->input('group_id');
+
+        $newPlayers = [];
+
         foreach ($request->input('players') as $player) {
             $resp = \App\Models\UserGroup::create(
                 [
                     'user_id'  => $player,
-                    'group_id' => $request->input('group_id'),
+                    'group_id' => $groupId,
                 ]
             );
-            if (!$resp && $isSucc) {
-                $isSucc = false;
-            }
+            $newPlayers[] = $resp;
         }
-        if ($isSucc) {
-            return $this->successResponse([$isSucc]);
+
+
+        if (count($newPlayers) > 0) {
+            return $this->successResponse(['newUsers' => $newPlayers]);
         } else {
-            return $this->errorResponse($isSucc);
+            return $this->errorResponse('Неизвестная ошибка');
         }
     }
 

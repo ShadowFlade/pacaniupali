@@ -81,7 +81,8 @@ class UserController extends \App\Http\Controllers\Controller
     public function playedWithUsers(\Illuminate\Http\Request $request)
     {
         $userService = new \App\Service\User();
-        $users = $userService->getPlayedWith(20);
+        $userId = $request->user()->id;
+        $users = $userService->getPlayedWith($userId);
         return response()->json($users);
     }
 

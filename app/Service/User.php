@@ -10,27 +10,25 @@ use Illuminate\Support\Str;
 class User
 {
 
-    public function getPlayedWith(int $limit = 10)
+    public function getPlayedWith(int $userId, int $limit = 10)
     {
         $groupUsers = $this->getGroupUsers();
-        $playedWith = $this->getPlayedWithExceptGroupUsers();
+        $playedWith = $this->getPlayedWithExceptGroupUsers($userId);
 
         return ['played_with' => $playedWith, 'group_users' => $groupUsers];
     }
 
-    public function getPlayedWithAddToGroup(int $limit = 10)
+    public function getPlayedWithAddToGroup(int $userId, int $limit = 10)
     {
         $groupUsers = $this->getGroupUsers();
-        $playedWith = $this->getPlayedWithUsers();
+        $playedWith = $this->getPlayedWithUsers($userId);
 
         return ['played_with' => $playedWith, 'group_users' => $groupUsers];
     }
 
-    public function getPlayedWithUsers(int $limit = 10)
+    public function getPlayedWithUsers(int $userId, int $limit = 10)
     {
-        $user = Auth::user();
-//        $currentUserId = $user['id'];
-        $currentUserId = 2;
+        $currentUserId = $userId;
 
         $playedWithIds = DB::table('players as p1')
             ->join('players as p2', 'p1.game_id', '=', 'p2.game_id')
@@ -47,11 +45,9 @@ class User
         return $playedWithUsers;
     }
 
-    public function getPlayedWithExceptGroupUsers(int $limit = 10)
+    public function getPlayedWithExceptGroupUsers(int $userId, int $limit = 10)
     {
-        $user = Auth::user();
-//        $currentUserId = $user['id'];
-        $currentUserId = 6;
+        $currentUserId = $userId;
 
         $playedWithIds = DB::table('players as p1')
             ->join('players as p2', 'p1.game_id', '=', 'p2.game_id')

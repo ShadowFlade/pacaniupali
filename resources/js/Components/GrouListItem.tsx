@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, PlusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 export default function GroupListItem({
     group,
@@ -17,12 +18,15 @@ export default function GroupListItem({
     players,
     groups,
 }) {
+    console.log(group, ' group');
+    const [userGroupUsers, setUserGroupUsers] = useState(group.users);
+    console.log(userGroupUsers,' user group users');
     const AddGameButton = ({ groupId }: { groupId: number }) => {
         return (
             <Button
                 variant="secondary"
                 size="sm"
-                className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
+                className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
             >
                 <PlusCircle className="h-4 w-4" />
                 <span>Add Game</span>
@@ -35,7 +39,7 @@ export default function GroupListItem({
             <Button
                 variant="secondary"
                 size="sm"
-                className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
+                className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
             >
                 <PlusCircle className="h-4 w-4" />
                 <span>Add User</span>
@@ -81,14 +85,18 @@ export default function GroupListItem({
                                     </Button>
                                 ) : null}
                             </div>
-                            <p className="mt-1 text-muted-foreground">
+                            <p className="text-muted-foreground mt-1">
                                 {group.description}
                             </p>
                         </div>
                     </div>
 
                     <div>
-                        <span>Игр: </span> {games.length}
+                        <p>
+                            <span>Игр: </span> <span>{games.length}</span>
+                        </p>
+                        <span>Участников: </span>{' '}
+                        <span>{group.users.length}</span>
                     </div>
 
                     <div className="mt-6 flex justify-between gap-2">
@@ -105,7 +113,11 @@ export default function GroupListItem({
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <AddUserToGroupModal groupId={group.id} />
+                            <AddUserToGroupModal
+                                groupId={group.id}
+                                setUsergroupUsers={setUserGroupUsers}
+                                userGroupUsers = {userGroupUsers}
+                            />
                             <AddGameModal
                                 players={group.users}
                                 groups={groups}

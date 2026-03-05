@@ -17,10 +17,12 @@ import { Button } from '../../../components/ui/button';
 
 type IAddUserToGroupModal = {
     groupId: number;
+    setUsergroupUsers: Dispatch<SetStateAction<any>>;
+    userGroupUsers: IPlayer[];
 };
 let isFetched = false; //TODO:dirty hack - get rid of it
 
-type IPlayer = {
+export type IPlayer = {
     id: number;
     username: string;
 };
@@ -30,7 +32,11 @@ const ITypeVariants = {
     played_with: 'played_with',
 } as const;
 
-export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
+export function AddUserToGroupModal({
+    groupId,
+    setUsergroupUsers,
+    userGroupUsers,
+}: IAddUserToGroupModal) {
     const [open, setOpen] = useState(false);
     const dialogContentRef = useRef<HTMLDivElement>(null);
     const { props } = usePage<PageProps>();
@@ -41,7 +47,6 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
     const [playedWithUsers, setPlayedWithUsers] = useState([]);
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
     const [foundUsers, setFoundUsers] = useState([]);
-
     const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
 
     const addUserFormHandler = async (e: React.FormEvent) => {
@@ -60,8 +65,12 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
             }),
         });
         const data = await res.json().catch(() => ({}));
-        if (res.ok && data.success) {
+
+        if (res.ok && data.success && data.userGroupCount) {
             setSelectedPlayers([]);
+            setUsergroupUsers((prev) => {
+                return [...prev, ...data.userGroupUsers];
+            });
         }
     };
 
@@ -70,7 +79,10 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
      * @param playerId
      * @param setFn Функция которая сетит состояние чекбоксов для плееров
      */
-    const handlePlayerToggle = (playerId: string, setFn: Dispatch<SetStateAction<string[]>>) => {
+    const handlePlayerToggle = (
+        playerId: string,
+        setFn: Dispatch<SetStateAction<string[]>>,
+    ) => {
         setFn((current) => {
             const updated = current.includes(playerId)
                 ? current.filter((id) => id !== playerId)
@@ -125,22 +137,34 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
         selected: string | any[],
         setFn: Dispatch<SetStateAction<any[]>>,
         label: string,
+        excludedFromList?: IPlayer[],
     ) => {
+        console.log(excludedFromList,' excluded from list');
         // list = [{ login: "dickinson.aubrey", id: 5 }]
         const entries = Object.entries(list);
         return entries && entries.length ? (
             <ul className="mt-8">
                 {list.length && <h6>{label}</h6>}
+
                 {entries.map(([_, player]) => {
+                    const isSelected = selected.includes(player.id.toString());
+                    const isExcluded =
+                        excludedFromList &&
+                        !!excludedFromList.find(
+                            (item) =>
+                                item.id.toString() != player.id.toString(),
+                        );
+
+                    const isChecked = isSelected;
+
                     return (
                         <div
                             key={player.id}
                             className="mt-2 flex items-center space-x-2"
                         >
                             <Checkbox
-                                checked={selected.includes(
-                                    player.id.toString(),
-                                )}
+                                disabled={isExcluded}
+                                checked={isChecked}
                                 onCheckedChange={() =>
                                     handlePlayerToggle(
                                         player.id.toString(),
@@ -153,7 +177,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                                 htmlFor={`player-${player.id}`}
                                 className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                {player.username}
+                                {player.username} {isExcluded && <span>(Он уже состоит в группе)</span>}
                             </label>
                         </div>
                     );
@@ -179,11 +203,14 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                 className="flex h-[420px] max-w-[42rem] flex-col"
             >
                 <DialogHeader>
-                    <DialogTitle className={'mb-4'}>Добавить пользователя</DialogTitle>
+                    <DialogTitle className={'mb-4'}>
+                        Добавить пользователя
+                    </DialogTitle>
                     <SearchUsersSelect
                         container={dialogContentRef}
                         stateSetter={setFoundUsers}
                         className={'mt-10'}
+                        userGroupUsers={userGroupUsers}
                     />
                 </DialogHeader>
 
@@ -219,6 +246,7 @@ export function AddUserToGroupModal({ groupId }: IAddUserToGroupModal) {
                                     selectedPlayedWithUsers,
                                     setSelectedPlayedWithUsers,
                                     'Найденные игроки',
+                                    userGroupUsers
                                 )}
                             </TabsContent>
                             <TabsContent value="from_group">
