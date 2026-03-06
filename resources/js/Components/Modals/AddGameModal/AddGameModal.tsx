@@ -136,7 +136,9 @@ export function AddGameModal({
                                         key={player.id}
                                         value={player.id.toString()}
                                     >
-                                        {player.login}
+                                        {(player as { username?: string; login?: string }).username ??
+                                            (player as { username?: string; login?: string }).login ??
+                                            ''}
                                     </SelectItem>
                                 );
                             })}
@@ -176,7 +178,7 @@ export function AddGameModal({
     const renderGameEndField = () => {
         return (
             <div className="flex flex-col space-y-2">
-                <label>Game Start</label>
+                <label>Game End</label>
                 <DatePicker
                     className="mt-0"
                     selected={data.game_end}
@@ -189,7 +191,7 @@ export function AddGameModal({
                     dateFormat={DATE_FORMAT}
                     customInput={
                         <CustomDatePickerInput
-                            label="start time"
+                            label="end time"
                             value={
                                 data.game_end
                                     ? format(data.game_end, DATE_FORMAT)
