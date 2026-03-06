@@ -33,10 +33,19 @@ class UserGroupController extends Controller
 
         $newPlayers = [];
 
-        foreach ($request->input('players') as $player) {
+        $users = $request->input('players');
+
+        $userIdsAlreadyInGroup = \App\Models\UserGroup::query()
+                             ->where('group_id', $groupId)
+                             ->whereIn('user_id',$users)
+                             ->pluck('user_id')->toArray();
+
+        $users = array_diff($users, $userIdsAlreadyInGroup);
+
+        foreach ($users as $userId) {
             $resp = \App\Models\UserGroup::create(
                 [
-                    'user_id'  => $player,
+                    'user_id'  => $userId,
                     'group_id' => $groupId,
                 ]
             );
@@ -44,11 +53,7 @@ class UserGroupController extends Controller
         }
 
 
-        if (count($newPlayers) > 0) {
-            return $this->successResponse(['newUsers' => $newPlayers]);
-        } else {
-            return $this->errorResponse('Неизвестная ошибка');
-        }
+        return $this->successResponse(['newUsers' => $newPlayers]);
     }
 
     /**
