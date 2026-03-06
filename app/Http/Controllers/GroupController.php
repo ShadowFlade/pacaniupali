@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
+use App\Http\Requests\UserAdvancedUpdateRequest;
 use App\Models\Game;
 use App\Models\Group;
 use App\Models\Player;
@@ -12,6 +13,7 @@ use App\Models\UserGroup;
 use App\Models\Winner;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -102,9 +104,8 @@ class GroupController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show(Request $request, $groupId)
     {
-
         $user = Auth::user();
         return Inertia::render('Group/GroupDetail');
     }

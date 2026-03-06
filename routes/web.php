@@ -11,10 +11,10 @@ Route::get(
     '/', function () {
     return Inertia::render(
         'Welcome', [
-        'canLogin'    => Route::has('login'),
-        'canRegister' => Route::has('register'),
+                     'canLogin'    => Route::has('login'),
+                     'canRegister' => Route::has('register'),
 
-    ]
+                 ]
     );
 }
 );
@@ -40,6 +40,8 @@ Route::middleware('auth')->group(
         Route::patch('/group', [GroupController::class, 'update'])->name('group.update');
         Route::delete('/group', [GroupController::class, 'destroy'])->name('group.destroy');
         Route::post('/group', [GroupController::class, 'store'])->name('group.store');
+        Route::get('/group/{id}', [GroupController::class, 'show'])->name('group.detail');
+
     }
 );
 
