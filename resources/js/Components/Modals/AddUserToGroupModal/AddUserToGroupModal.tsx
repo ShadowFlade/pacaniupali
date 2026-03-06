@@ -103,19 +103,32 @@ export function AddUserToGroupModal({
         });
         const json = await res.json().catch(() => ({}));
         const data = json.data ?? json;
+        const rawDeleted =
+            data?.deleteResult ??
+            data?.deleted_result ??
+            data?.deletedResult ??
+            data?.deleted;
+        const deletedOk =
+            Number(rawDeleted) === 1 ||
+            rawDeleted === true ||
+            (res.ok && toDelete.length > 0);
 
-        if (res.ok && json.success) {
+        if (res.ok && (json.success !== false)) {
             setSelectedPlayers([]);
-            const newMembers: IPlayer[] = (data.newUsers || []).map(
+            const added =
+                data.addedMembers ?? data.added_members ?? data.newUsers ?? [];
+            const addedMembers: IPlayer[] = (added || []).map(
                 (item: { user_id: string | number }) => ({
                     id: Number(item.user_id),
                     username: '',
                 }),
             );
-            const deletedIds = new Set((data.deletedIds || toDelete).map(Number));
+            const deletedIds = deletedOk
+                ? new Set(toDelete.map((id) => Number(id)))
+                : new Set<number>();
             setUsergroupUsers((prev) => [
-                ...prev.filter((u) => !deletedIds.has(u.id)),
-                ...newMembers,
+                ...prev.filter((u) => !deletedIds.has(Number(u.id))),
+                ...addedMembers,
             ]);
         }
     };
