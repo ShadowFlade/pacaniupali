@@ -1,8 +1,8 @@
 import {
-    GameHistoryItem,
     GameHistoryItemGame,
     GameHistoryItemGroup,
-} from './GameHistoryItem';
+    GamesHistoryItem,
+} from './GamesHistoryItem';
 
 export type { GameHistoryItemGame, GameHistoryItemGroup };
 
@@ -20,7 +20,7 @@ type GameHistoryProps = {
     groups?: Group[];
 };
 
-export function GameHistory({ games, groups = [] }: GameHistoryProps) {
+export function GamesHistory({ games, groups = [] }: GameHistoryProps) {
     const groupById = groups.reduce<Record<string, Group>>((acc, g) => {
         acc[String(g.id)] = g;
         return acc;
@@ -34,7 +34,7 @@ export function GameHistory({ games, groups = [] }: GameHistoryProps) {
                     : undefined;
                 return (
                     <li key={String(game.id)}>
-                        <GameHistoryItem
+                        <GamesHistoryItem
                             game={game}
                             group={group ?? undefined}
                         />
