@@ -96,7 +96,7 @@ export default function GroupListItem({
                             <span>Игр: </span> <span>{games.length}</span>
                         </p>
                         <span>Участников: </span>{' '}
-                        <span>{group.users.length}</span>
+                        <span>{userGroupUsers.length}</span>
                     </div>
 
                     <div className="mt-6 flex justify-between gap-2">

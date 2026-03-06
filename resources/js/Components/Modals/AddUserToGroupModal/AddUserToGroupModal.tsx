@@ -69,6 +69,12 @@ export function AddUserToGroupModal({
 
     const addUserFormHandler = async (e: React.FormEvent) => {
         e.preventDefault();
+        const alreadyInGroupIds = new Set(userGroupUsers.map((u) => u.id.toString()));
+        const playersToAdd = selectedPlayers.filter(
+            (id) => !alreadyInGroupIds.has(id),
+        );
+        if (playersToAdd.length === 0) return;
+
         const csrf = (props as { csrf?: string }).csrf ?? '';
         const res = await fetch(route('user_group.store'), {
             method: 'POST',
@@ -78,17 +84,22 @@ export function AddUserToGroupModal({
                 Accept: 'application/json',
             },
             body: JSON.stringify({
-                players: selectedPlayers,
+                players: playersToAdd,
                 group_id: groupId,
             }),
         });
-        const data = await res.json().catch(() => ({}));
+        const json = await res.json().catch(() => ({}));
+        const data = json.data ?? json;
 
-        if (res.ok && data.success && data.newUsers) {
+        if (res.ok && json.success && data.newUsers) {
             setSelectedPlayers([]);
-            setUsergroupUsers((prev) => {
-                return [...prev, ...data.newUsers];
-            });
+            const newMembers: IPlayer[] = (data.newUsers || []).map(
+                (item: { user_id: string | number }) => ({
+                    id: Number(item.user_id),
+                    username: '',
+                }),
+            );
+            setUsergroupUsers((prev) => [...prev, ...newMembers]);
         }
     };
 
@@ -230,7 +241,7 @@ export function AddUserToGroupModal({
                     className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
                 >
                     <PlusCircle className="h-4 w-4" />
-                    <span>Add User</span>
+                    <span title={'Управлять участниками группы'}>Игроки</span>
                 </Button>
             </DialogTrigger>
             <DialogContent
@@ -300,7 +311,7 @@ export function AddUserToGroupModal({
                         disabled={selectedPlayers.length == 0}
                         type={'submit'}
                     >
-                        <span>Добавить пользователей</span>
+                        <span>Сохранить</span>
                     </Button>
                 </form>
             </DialogContent>
