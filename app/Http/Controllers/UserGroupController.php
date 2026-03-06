@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserGroup;
+use App\Service\UserGroupService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
@@ -25,35 +27,45 @@ class UserGroupController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Добавляем/удаляем пользователей (юзеров) из группы
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function store(Request $request)
+    public function manage(Request $request): JsonResponse
     {
+
         $groupId = $request->input('group_id');
-
-        $newPlayers = [];
-
-        $users = $request->input('players');
-
+        $toDelete = $request->input('toDelete');
+        $toAdd = $request->input('toAdd');
+        $userGroupService = new UserGroupService();
+        $newGroupMembers = [];
         $userIdsAlreadyInGroup = \App\Models\UserGroup::query()
-                             ->where('group_id', $groupId)
-                             ->whereIn('user_id',$users)
-                             ->pluck('user_id')->toArray();
+                                                      ->where('group_id', $groupId)
+                                                      ->whereIn('user_id', $toAdd)
+                                                      ->pluck('user_id')->toArray();
 
-        $users = array_diff($users, $userIdsAlreadyInGroup);
+        $deleteResult = $userGroupService->deleteUsersFromGroup($groupId, $toDelete);
+
+
+        $users = array_diff($toAdd, $userIdsAlreadyInGroup);
 
         foreach ($users as $userId) {
-            $resp = \App\Models\UserGroup::create(
+            $resp = \App\Models\UserGroup::create( // we are find with "slow' create - not mamny users will be (should be) created at once + we need returning record as they are added and. but if we really want to avoid this, we can use insert + additional query after that.
                 [
                     'user_id'  => $userId,
                     'group_id' => $groupId,
                 ]
             );
-            $newPlayers[] = $resp;
+            $newGroupMembers[] = $resp;
         }
 
 
-        return $this->successResponse(['newUsers' => $newPlayers]);
+        return $this->successResponse(
+            [
+                'deleteResult'  => $deleteResult,
+                'addedMembers' => $newGroupMembers,
+            ]
+        );
     }
 
     /**

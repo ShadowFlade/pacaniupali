@@ -1,0 +1,10 @@
+---
+description: Do not modify backend code in this project
+alwaysApply: true
+---
+
+# Do Not Modify Backend
+
+- **Never edit, add, or delete files under** `app/` (Laravel backend: controllers, models, etc.), `routes/`, `database/`, or any PHP backend code in this project.
+- All changes must be frontend-only (e.g. `resources/js/`, Blade/Inertia views) unless the user explicitly asks to change the backend.
+- If a feature requires backend changes, describe what the backend should do and leave implementation to the user.

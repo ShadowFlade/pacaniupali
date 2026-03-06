@@ -68,8 +68,8 @@ Route::middleware('auth')->group(
     function () {
         Route::post(
             '/user_group',
-            [\App\Http\Controllers\UserGroupController::class, 'store']
-        )->name('user_group.store');
+            [\App\Http\Controllers\UserGroupController::class, 'manage']
+        )->name('user_group.manage');
     }
 );
 
