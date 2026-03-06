@@ -69,14 +69,26 @@ export function AddUserToGroupModal({
 
     const addUserFormHandler = async (e: React.FormEvent) => {
         e.preventDefault();
-        const alreadyInGroupIds = new Set(userGroupUsers.map((u) => u.id.toString()));
-        const playersToAdd = selectedPlayers.filter(
-            (id) => !alreadyInGroupIds.has(id),
-        );
-        if (playersToAdd.length === 0) return;
+        const inGroupIds = new Set(userGroupUsers.map((u) => u.id.toString()));
+        const toAdd = selectedPlayers.filter((id) => !inGroupIds.has(id));
+        // В toDelete только те, кто в группе, показан в модалке (есть чекбокс) и с кого сняли галочку
+        const visibleInModalIds = new Set([
+            ...foundUsers.map((p: IPlayer) => p.id.toString()),
+            ...groupUsers.map((p: IPlayer) => p.id.toString()),
+            ...playedWithUsers.map((p: IPlayer) => p.id.toString()),
+        ]);
+        const toDelete = userGroupUsers
+            .filter(
+                (u) =>
+                    visibleInModalIds.has(u.id.toString()) &&
+                    !selectedPlayers.includes(u.id.toString()),
+            )
+            .map((u) => u.id);
+
+        if (toAdd.length === 0 && toDelete.length === 0) return;
 
         const csrf = (props as { csrf?: string }).csrf ?? '';
-        const res = await fetch(route('user_group.store'), {
+        const res = await fetch(route('user_group.manage'), {
             method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': csrf,
@@ -84,14 +96,15 @@ export function AddUserToGroupModal({
                 Accept: 'application/json',
             },
             body: JSON.stringify({
-                players: playersToAdd,
                 group_id: groupId,
+                toAdd,
+                toDelete,
             }),
         });
         const json = await res.json().catch(() => ({}));
         const data = json.data ?? json;
 
-        if (res.ok && json.success && data.newUsers) {
+        if (res.ok && json.success) {
             setSelectedPlayers([]);
             const newMembers: IPlayer[] = (data.newUsers || []).map(
                 (item: { user_id: string | number }) => ({
@@ -99,7 +112,11 @@ export function AddUserToGroupModal({
                     username: '',
                 }),
             );
-            setUsergroupUsers((prev) => [...prev, ...newMembers]);
+            const deletedIds = new Set((data.deletedIds || toDelete).map(Number));
+            setUsergroupUsers((prev) => [
+                ...prev.filter((u) => !deletedIds.has(u.id)),
+                ...newMembers,
+            ]);
         }
     };
 
@@ -192,8 +209,9 @@ export function AddUserToGroupModal({
                     const isInGroup = !!userGroupUsers.find(
                         (item) => item.id == player.id,
                     );
+                    const willBeRemoved = isInGroup && !isSelected;
                     let titleText = '';
-                    if (!isSelected && isInGroup) {
+                    if (willBeRemoved) {
                         titleText = 'Удалить из группы?';
                     } else if (isSelected && !isInGroup) {
                         titleText = 'Добавить в группу?';
@@ -223,7 +241,12 @@ export function AddUserToGroupModal({
                                 {isExcluded && (
                                     <span>(Он уже состоит в группе)</span>
                                 )}
-                                {/*todo:перенести эту фразу (и блокировку выбора в option в выпадающем из поиска списке)*/}
+                                {willBeRemoved && (
+                                    <span className="text-destructive font-medium">
+                                        {' '}
+                                        — Будет удалён из группы
+                                    </span>
+                                )}
                             </label>
                         </div>
                     );
@@ -308,7 +331,38 @@ export function AddUserToGroupModal({
                         variant="secondary"
                         size="sm"
                         className="hover:bg-secondary-foreground hover:text-secondary mt-4 flex items-center gap-1 transition-colors duration-200 active:scale-95"
-                        disabled={selectedPlayers.length == 0}
+                        disabled={
+                            (() => {
+                                const inGroupIds = new Set(
+                                    userGroupUsers.map((u) => u.id.toString()),
+                                );
+                                const toAdd = selectedPlayers.filter(
+                                    (id) => !inGroupIds.has(id),
+                                );
+                                const visibleInModalIds = new Set([
+                                    ...foundUsers.map((p: IPlayer) =>
+                                        p.id.toString(),
+                                    ),
+                                    ...groupUsers.map((p: IPlayer) =>
+                                        p.id.toString(),
+                                    ),
+                                    ...playedWithUsers.map((p: IPlayer) =>
+                                        p.id.toString(),
+                                    ),
+                                ]);
+                                const toDelete = userGroupUsers.filter(
+                                    (u) =>
+                                        visibleInModalIds.has(u.id.toString()) &&
+                                        !selectedPlayers.includes(
+                                            u.id.toString(),
+                                        ),
+                                );
+                                return (
+                                    toAdd.length === 0 &&
+                                    toDelete.length === 0
+                                );
+                            })()
+                        }
                         type={'submit'}
                     >
                         <span>Сохранить</span>

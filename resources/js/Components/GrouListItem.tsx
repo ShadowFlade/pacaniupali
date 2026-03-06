@@ -20,7 +20,7 @@ export default function GroupListItem({
 }) {
     console.log(group, ' group');
     const [userGroupUsers, setUserGroupUsers] = useState(group.users);
-    console.log(userGroupUsers,' user group users');
+    console.log(userGroupUsers, ' user group users');
     const AddGameButton = ({ groupId }: { groupId: number }) => {
         return (
             <Button
@@ -35,12 +35,10 @@ export default function GroupListItem({
     };
 
     const AddUserButton = ({ groupId }: { groupId: number }) => {
+        const className =
+            'hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95';
         return (
-            <Button
-                variant="secondary"
-                size="sm"
-                className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
-            >
+            <Button variant="secondary" size="sm" className={className}>
                 <PlusCircle className="h-4 w-4" />
                 <span>Add User</span>
             </Button>
@@ -116,7 +114,7 @@ export default function GroupListItem({
                             <AddUserToGroupModal
                                 groupId={group.id}
                                 setUsergroupUsers={setUserGroupUsers}
-                                userGroupUsers = {userGroupUsers}
+                                userGroupUsers={userGroupUsers}
                             />
                             <AddGameModal
                                 players={group.users}
