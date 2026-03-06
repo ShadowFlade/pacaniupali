@@ -48,6 +48,7 @@ export function AddUserToGroupModal({
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
     const [foundUsers, setFoundUsers] = useState([]);
     const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+    console.log({userGroupUsers})
 
     const addUserFormHandler = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,6 +88,7 @@ export function AddUserToGroupModal({
             const updated = current.includes(playerId)
                 ? current.filter((id) => id !== playerId)
                 : [...current, playerId];
+            console.log(updated,'updated',current,'current')
             setSelectedPlayers(updated);
             return updated;
         });
@@ -148,7 +150,10 @@ export function AddUserToGroupModal({
                 {list.length && <h6>{label}</h6>}
 
                 {entries.map(([_, player]) => {
+                    let isJustSelected = true;
                     const isSelected = selected.includes(player.id.toString());
+                    console.log(isSelected,selected,'selected');
+
                     const isExcluded =
                         excludedFromList &&
                         !!excludedFromList.find(
@@ -156,7 +161,6 @@ export function AddUserToGroupModal({
                                 item.id.toString() == player.id.toString(),
                         );
 
-                    const isChecked = isSelected || isExcluded;
                     const isInGroup = !!userGroupUsers.find(
                         (item) => item.id == player.id,
                     );
