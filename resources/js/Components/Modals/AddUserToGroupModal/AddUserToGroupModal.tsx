@@ -66,10 +66,10 @@ export function AddUserToGroupModal({
         });
         const data = await res.json().catch(() => ({}));
 
-        if (res.ok && data.success && data.userGroupCount) {
+        if (res.ok && data.success && data.newUsers) {
             setSelectedPlayers([]);
             setUsergroupUsers((prev) => {
-                return [...prev, ...data.userGroupUsers];
+                return [...prev, ...data.newUsers];
             });
         }
     };
@@ -139,9 +139,10 @@ export function AddUserToGroupModal({
         label: string,
         excludedFromList?: IPlayer[],
     ) => {
-        console.log(excludedFromList,' excluded from list');
+        console.log(excludedFromList, ' excluded from list');
         // list = [{ login: "dickinson.aubrey", id: 5 }]
         const entries = Object.entries(list);
+        console.log(selected, ' selected', excludedFromList, ' exluded');
         return entries && entries.length ? (
             <ul className="mt-8">
                 {list.length && <h6>{label}</h6>}
@@ -152,10 +153,19 @@ export function AddUserToGroupModal({
                         excludedFromList &&
                         !!excludedFromList.find(
                             (item) =>
-                                item.id.toString() != player.id.toString(),
+                                item.id.toString() == player.id.toString(),
                         );
 
-                    const isChecked = isSelected;
+                    const isChecked = isSelected || isExcluded;
+                    const isInGroup = !!userGroupUsers.find(
+                        (item) => item.id == player.id,
+                    );
+                    let titleText = '';
+                    if (!isSelected && isInGroup) {
+                        titleText = 'Удалить из группы?';
+                    } else if (isSelected && !isInGroup) {
+                        titleText = 'Добавить в группу?';
+                    }
 
                     return (
                         <div
@@ -163,21 +173,24 @@ export function AddUserToGroupModal({
                             className="mt-2 flex items-center space-x-2"
                         >
                             <Checkbox
-                                disabled={isExcluded}
-                                checked={isChecked}
+                                checked={isSelected}
                                 onCheckedChange={() =>
                                     handlePlayerToggle(
                                         player.id.toString(),
                                         setFn,
                                     )
                                 }
+                                title={titleText}
                                 id={`player-${player.id}`}
                             />
                             <label
                                 htmlFor={`player-${player.id}`}
                                 className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                {player.username} {isExcluded && <span>(Он уже состоит в группе)</span>}
+                                {player.username}{' '}
+                                {isExcluded && (
+                                    <span>(Он уже состоит в группе)</span>
+                                )}
                                 {/*todo:перенести эту фразу (и блокировку выбора в option в выпадающем из поиска списке)*/}
                             </label>
                         </div>
@@ -247,7 +260,7 @@ export function AddUserToGroupModal({
                                     selectedPlayedWithUsers,
                                     setSelectedPlayedWithUsers,
                                     'Найденные игроки',
-                                    userGroupUsers
+                                    userGroupUsers,
                                 )}
                             </TabsContent>
                             <TabsContent value="from_group">

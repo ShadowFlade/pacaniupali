@@ -29,7 +29,6 @@ class UserGroupController extends Controller
      */
     public function store(Request $request)
     {
-        $isSucc = true;
         $groupId = $request->input('group_id');
 
         $newPlayers = [];
