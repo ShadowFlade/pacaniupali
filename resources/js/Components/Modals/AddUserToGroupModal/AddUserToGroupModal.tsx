@@ -48,19 +48,21 @@ export function AddUserToGroupModal({
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
     const [foundUsers, setFoundUsers] = useState([]);
     const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-    const prevFoundUsersLengthRef = useRef(0);
+    const prevFoundUserIdsRef = useRef<Set<string>>(new Set());
 
-    // When users are added from SearchUsersSelect (foundUsers), pre-check those who are in userGroupUsers. Only run when foundUsers grows so unchecking is not overwritten.
+    // При появлении новых пользователей в поиске — отмечаем только их, если они в группе (не трогаем уже снятые галочки).
     useEffect(() => {
-        if (foundUsers.length <= prevFoundUsersLengthRef.current) {
-            prevFoundUsersLengthRef.current = foundUsers.length;
-            return;
-        }
-        prevFoundUsersLengthRef.current = foundUsers.length;
+        const currentIds = new Set(
+            foundUsers.map((p: IPlayer) => p.id.toString()),
+        );
+        const newIds = [...currentIds].filter(
+            (id) => !prevFoundUserIdsRef.current.has(id),
+        );
+        prevFoundUserIdsRef.current = currentIds;
+        if (newIds.length === 0) return;
+
         const groupUserIds = new Set(userGroupUsers.map((u) => u.id.toString()));
-        const toSelect = foundUsers
-            .filter((p) => groupUserIds.has(p.id.toString()))
-            .map((p) => p.id.toString());
+        const toSelect = newIds.filter((id) => groupUserIds.has(id));
         if (toSelect.length === 0) return;
 
         setSelectedPlayedWithUsers((prev) => [...new Set([...prev, ...toSelect])]);
