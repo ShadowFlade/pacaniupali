@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PageProps } from '@/types';
 import { usePage } from '@inertiajs/react';
 import { PlusCircle } from 'lucide-react';
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { Button } from '../../../components/ui/button';
 ('user client');
 
@@ -48,7 +48,24 @@ export function AddUserToGroupModal({
     const [selectedPlayedWithUsers, setSelectedPlayedWithUsers] = useState([]);
     const [foundUsers, setFoundUsers] = useState([]);
     const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
-    console.log({userGroupUsers})
+    const prevFoundUsersLengthRef = useRef(0);
+
+    // When users are added from SearchUsersSelect (foundUsers), pre-check those who are in userGroupUsers. Only run when foundUsers grows so unchecking is not overwritten.
+    useEffect(() => {
+        if (foundUsers.length <= prevFoundUsersLengthRef.current) {
+            prevFoundUsersLengthRef.current = foundUsers.length;
+            return;
+        }
+        prevFoundUsersLengthRef.current = foundUsers.length;
+        const groupUserIds = new Set(userGroupUsers.map((u) => u.id.toString()));
+        const toSelect = foundUsers
+            .filter((p) => groupUserIds.has(p.id.toString()))
+            .map((p) => p.id.toString());
+        if (toSelect.length === 0) return;
+
+        setSelectedPlayedWithUsers((prev) => [...new Set([...prev, ...toSelect])]);
+        setSelectedPlayers((prev) => [...new Set([...prev, ...toSelect])]);
+    }, [foundUsers, userGroupUsers]);
 
     const addUserFormHandler = async (e: React.FormEvent) => {
         e.preventDefault();
