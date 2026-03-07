@@ -107,7 +107,28 @@ class GroupController extends Controller
     public function show(Request $request, $groupId)
     {
         $user = Auth::user();
-        return Inertia::render('Group/GroupDetail');
+        $group = Group::query()
+                      ->where('id', $groupId)
+                      ->first()
+                      ->toArray();
+
+
+        $games = Game::with(['player', 'winner', 'player.user'])
+                     ->where('group_id', $groupId)
+                     ->get()
+                     ->toArray();
+
+
+        $auth = auth();
+
+        return Inertia::render(
+            'Group/GroupDetail',
+            [
+                'group' => $group,
+                'games' => $games,
+                'auth'  => $auth
+            ]
+        );
     }
 
     /**
