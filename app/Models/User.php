@@ -68,7 +68,7 @@ class User extends Authenticatable
             'user_groups',
             'user_id',
             'group_id'
-        );
+        )->withTimestamps();
     }
 
 

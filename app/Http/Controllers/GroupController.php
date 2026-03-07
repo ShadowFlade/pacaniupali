@@ -116,10 +116,11 @@ class GroupController extends Controller
         $user = Auth::user();
 
         //here we load users 2 times - mb we can write some "smart" query to it 1 time but mb its its not worth it for complexity or event for opimization
-        $group = Group::with(['users','users.groups'])
+//        dd(User::query()->where('id',13)->with(['groups'])->get());
+        $group = Group::with(['users'])
                       ->where('id', $groupId)
-                      ->first()
-                      ->toArray();
+                      ->first()->toArray();
+        dd($group);
 
 
         $games = Game::with(['player', 'winner', 'player.user'])
