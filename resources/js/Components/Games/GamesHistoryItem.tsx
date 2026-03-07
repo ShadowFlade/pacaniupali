@@ -24,6 +24,7 @@ export type GameHistoryItemGame = {
     game_start: string;
     player?: GamePlayer[];
     winner?: GameWinner;
+    players_count: number;
 };
 
 export type GameHistoryItemGroup = {
@@ -46,6 +47,7 @@ function formatGameDate(value: string): string {
 }
 
 export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
+    console.log(game,'game');
     const players = game.player ?? [];
     const winnerPlayer =
         game.winner &&
@@ -63,7 +65,7 @@ export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
 
                     {/* Количество участников */}
                     <div className="shrink-0 text-sm font-medium">
-                        Участников: {players.length}
+                        Участников: {players.length ?? game.players_count}
                     </div>
 
                     {/* Аватарки участников */}

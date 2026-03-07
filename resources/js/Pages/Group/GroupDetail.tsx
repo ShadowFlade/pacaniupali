@@ -6,7 +6,9 @@ import { GroupMembersList } from '@/Components/Group/GroupMembersList';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import General from '@/Layouts/General';
 import { Link } from '@inertiajs/react';
-import { ArrowLeft, Gamepad2, Users } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, ChevronDown, ChevronUp, Gamepad2, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 type GroupUser = {
     id: number;
@@ -45,7 +47,7 @@ type GroupDetailProps = {
 };
 
 export default function GroupDetail({ auth, group, games = [] }: GroupDetailProps) {
-    console.log(group,' group');
+    const [membersOpen, setMembersOpen] = useState(true);
     const members = group.users ?? [];
     const gamesWithGroupId = games.map((g) => ({
         ...g,
@@ -120,17 +122,31 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                     </Card>
                 </div>
 
-                {/* Участники группы */}
+                {/* Участники группы (dropdown) */}
                 {members.length > 0 && (
                     <Card className="mb-8">
                         <CardHeader className="pb-2">
-                            <h2 className="text-lg font-semibold">
-                                Участники группы
-                            </h2>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex w-full cursor-pointer items-center justify-between p-0 text-left font-semibold hover:bg-transparent"
+                                onClick={() => setMembersOpen((o) => !o)}
+                            >
+                                <span className="text-lg">
+                                    Участники группы ({members.length})
+                                </span>
+                                {membersOpen ? (
+                                    <ChevronUp className="h-5 w-5 shrink-0" />
+                                ) : (
+                                    <ChevronDown className="h-5 w-5 shrink-0" />
+                                )}
+                            </Button>
                         </CardHeader>
-                        <CardContent>
-                            <GroupMembersList members={members} />
-                        </CardContent>
+                        {membersOpen && (
+                            <CardContent>
+                                <GroupMembersList members={members} />
+                            </CardContent>
+                        )}
                     </Card>
                 )}
 

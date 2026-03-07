@@ -136,8 +136,18 @@ export function AddGameModal({
                                         key={player.id}
                                         value={player.id.toString()}
                                     >
-                                        {(player as { username?: string; login?: string }).username ??
-                                            (player as { username?: string; login?: string }).login ??
+                                        {(
+                                            player as {
+                                                username?: string;
+                                                login?: string;
+                                            }
+                                        ).username ??
+                                            (
+                                                player as {
+                                                    username?: string;
+                                                    login?: string;
+                                                }
+                                            ).login ??
                                             ''}
                                     </SelectItem>
                                 );
@@ -249,7 +259,7 @@ export function AddGameModal({
                             />
                             <label
                                 htmlFor={`player-${player.id}`}
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
                                 {player.username}
                             </label>
@@ -266,7 +276,7 @@ export function AddGameModal({
                 <Button
                     variant="secondary"
                     size="sm"
-                    className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
+                    className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
                 >
                     <PlusCircle className="h-4 w-4" />
                     <span>Добавить игру</span>

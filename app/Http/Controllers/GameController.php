@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
 use App\Models\Game;
+use App\Service\GameService;
 use Carbon\Carbon;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Redirect;
@@ -38,16 +39,14 @@ class GameController extends Controller
         $gameEnd = new \DateTime($request->input('game_end'));
         $gameEnd = $gameEnd->format($dbFormat);
         $players = $request->input('players');
+        $winnerId = $request->input('winner_id');
         \Illuminate\Support\Facades\Log::channel('single')->info(
             [$players]
         );
 
-        $game = Game::create([
-            'game_start' => $gameStart,
-            'game_end' => $gameEnd,
-            'group_id' => $request['group_id'],
-            'players_count' => count($players),
-        ]);
+        $gameService = new GameService();
+        $game = $gameService->createGame($gameStart, $gameEnd, $players, $winnerId, $winnerId);
+
         return Redirect::back()->with([
             'data' => $game
         ]);
