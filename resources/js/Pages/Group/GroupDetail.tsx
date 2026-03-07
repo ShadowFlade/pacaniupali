@@ -1,9 +1,8 @@
 'use client';
 
 import { AddGameModal } from '@/Components/Modals/AddGameModal/AddGameModal';
-import {GamesHistory} from '@/Components/Games/GamesHistory';
-import { AvatarList } from '@/Components/AvatarList';
-import { Button } from '@/components/ui/button';
+import { GamesHistory } from '@/Components/Games/GamesHistory';
+import { GroupMembersList } from '@/Components/Group/GroupMembersList';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import General from '@/Layouts/General';
 import { Link } from '@inertiajs/react';
@@ -14,6 +13,9 @@ type GroupUser = {
     username?: string;
     login?: string;
     picture?: string;
+    created_at?: string | null;
+    joined_at?: string | null;
+    wins_count?: number | null;
 };
 
 type Group = {
@@ -43,21 +45,11 @@ type GroupDetailProps = {
 };
 
 export default function GroupDetail({ auth, group, games = [] }: GroupDetailProps) {
+    console.log(group,' group');
     const members = group.users ?? [];
     const gamesWithGroupId = games.map((g) => ({
         ...g,
         group_id: g.group_id ?? group.id,
-    }));
-
-    const playersForAvatarList = members.map((u) => ({
-        id: u.id,
-        user_id: u.id,
-        user: {
-            id: u.id,
-            username: u.username ?? u.login,
-            login: u.login,
-            picture: u.picture,
-        },
     }));
 
     return (
@@ -128,7 +120,7 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                     </Card>
                 </div>
 
-                {/* Участники (аватарки) */}
+                {/* Участники группы */}
                 {members.length > 0 && (
                     <Card className="mb-8">
                         <CardHeader className="pb-2">
@@ -137,11 +129,7 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                             </h2>
                         </CardHeader>
                         <CardContent>
-                            <AvatarList
-                                players={playersForAvatarList}
-                                maxAvatars={12}
-                                overlap={10}
-                            />
+                            <GroupMembersList members={members} />
                         </CardContent>
                     </Card>
                 )}

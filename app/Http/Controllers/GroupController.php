@@ -11,6 +11,7 @@ use App\Models\Player;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Winner;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -113,7 +114,9 @@ class GroupController extends Controller
     public function show(Request $request, $groupId)
     {
         $user = Auth::user();
-        $group = Group::query()
+
+        //here we load users 2 times - mb we can write some "smart" query to it 1 time but mb its its not worth it for complexity or event for opimization
+        $group = Group::with(['users','users.groups'])
                       ->where('id', $groupId)
                       ->first()
                       ->toArray();

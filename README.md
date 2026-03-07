@@ -8,6 +8,7 @@
 * composer install
 * npm install
 * create database and update `.env` accordingly
+* php artisan storage:link
 * php artisan migrate:install
 * php artisan key:generate
 * php artisan migrate
