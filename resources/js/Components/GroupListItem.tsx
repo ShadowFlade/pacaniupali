@@ -29,7 +29,7 @@ export default function GroupListItem({
                 className="hover:bg-secondary-foreground hover:text-secondary flex items-center gap-1 transition-colors duration-200 active:scale-95"
             >
                 <PlusCircle className="h-4 w-4" />
-                <span>Add Game</span>
+                <span>Добавить игру</span>
             </Button>
         );
     };

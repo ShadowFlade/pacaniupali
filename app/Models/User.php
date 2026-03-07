@@ -28,11 +28,14 @@ class User extends Authenticatable
         'login',
         'remember_token',
     ];
-    protected $visible = [
+    protected $visible  = [
         'id',
         'username',
         'remember_token',
         'password',
+        'pivot',
+        'created_at',
+        'wins'
     ];
 
     /**
@@ -52,7 +55,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'password'          => 'hashed',
         ];
     }
 
@@ -68,8 +71,12 @@ class User extends Authenticatable
             'user_groups',
             'user_id',
             'group_id'
-        )->withTimestamps();
+        );
     }
 
+    public function wins(): HasMany
+    {
+        return $this->hasMany(Winner::class);
+    }
 
 }

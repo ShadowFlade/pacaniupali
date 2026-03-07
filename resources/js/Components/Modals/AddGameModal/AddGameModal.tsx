@@ -16,7 +16,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { DATE_FORMAT } from '@/utility/const';
+import { DATE_TIME_FORMAT } from '@/utility/const';
 import { useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { CalendarIcon, PlusCircle } from 'lucide-react';
@@ -158,13 +158,13 @@ export function AddGameModal({
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
-                    dateFormat={DATE_FORMAT}
+                    dateFormat={DATE_TIME_FORMAT}
                     customInput={
                         <CustomDatePickerInput
                             label="start time"
                             value={
                                 data.game_start
-                                    ? format(data.game_start, DATE_FORMAT)
+                                    ? format(data.game_start, DATE_TIME_FORMAT)
                                     : undefined
                             }
                         />
@@ -188,13 +188,13 @@ export function AddGameModal({
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
-                    dateFormat={DATE_FORMAT}
+                    dateFormat={DATE_TIME_FORMAT}
                     customInput={
                         <CustomDatePickerInput
                             label="end time"
                             value={
                                 data.game_end
-                                    ? format(data.game_end, DATE_FORMAT)
+                                    ? format(data.game_end, DATE_TIME_FORMAT)
                                     : undefined
                             }
                         />
@@ -269,7 +269,7 @@ export function AddGameModal({
                     className="flex items-center gap-1 transition-colors duration-200 hover:bg-secondary-foreground hover:text-secondary active:scale-95"
                 >
                     <PlusCircle className="h-4 w-4" />
-                    <span>Add Game</span>
+                    <span>Добавить игру</span>
                 </Button>
             </DialogTrigger>
             <DialogContent className="h-[420px] max-w-[42rem]">

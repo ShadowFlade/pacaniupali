@@ -11,6 +11,7 @@ use App\Models\Player;
 use App\Models\User;
 use App\Models\UserGroup;
 use App\Models\Winner;
+use App\Service\UserGroupService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -117,11 +118,8 @@ class GroupController extends Controller
 
         //here we load users 2 times - mb we can write some "smart" query to it 1 time but mb its its not worth it for complexity or event for opimization
 //        dd(User::query()->where('id',13)->with(['groups'])->get());
-        $group = Group::with(['users'])
-                      ->where('id', $groupId)
-                      ->first()->toArray();
-        dd($group);
-
+        $userGroupService = new UserGroupService();
+        $group = $userGroupService->getGroupWithUsersAndWinners($groupId);
 
         $games = Game::with(['player', 'winner', 'player.user'])
                      ->where('group_id', $groupId)

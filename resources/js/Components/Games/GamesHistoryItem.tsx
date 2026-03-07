@@ -2,7 +2,7 @@ import { AvatarList } from '@/Components/AvatarList';
 import AvatarSmall from '@/Components/AvatarSmall';
 import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { DATE_FORMAT } from '@/utility/const';
+import { DATE_TIME_FORMAT } from '@/utility/const';
 
 export type GamePlayer = {
     id: number;
@@ -39,7 +39,7 @@ type GameHistoryItemProps = {
 function formatGameDate(value: string): string {
     try {
         const date = new Date(value);
-        return isNaN(date.getTime()) ? value : format(date, DATE_FORMAT);
+        return isNaN(date.getTime()) ? value : format(date, DATE_TIME_FORMAT);
     } catch {
         return value;
     }
