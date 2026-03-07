@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 
 import FileInput from '@/Components/FileInput';
-import GroupListItem from '@/Components/GrouListItem';
+import GroupListItem from '@/Components/GroupListItem';
 import SidebarCustom from '@/Components/SidebarCustom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -31,7 +31,7 @@ interface Game {
     points: number;
 }
 
-export default function GroupsList({ auth, groups: userGroups, games }) {
+export default function GroupList({ auth, groups: userGroups, games }) {
     const page = usePage<PageProps>();
     console.log(auth, ' auth');
 

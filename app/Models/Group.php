@@ -23,4 +23,10 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class,'user_groups');
     }
+
+//    public function userGroups(): HasManyThrough
+//    {
+//        return $this->hasManyThrough(UserGroup::class, User::class);
+//    }
+
 }
