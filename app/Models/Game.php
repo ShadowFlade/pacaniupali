@@ -13,20 +13,35 @@ class Game extends Model
 {
     /** @use HasFactory<\Database\Factories\GameFactory> */
     use HasFactory;
+
     protected $fillable = [
         'game_start',
         'game_end',
         'group_id',
         'players_count',
     ];
-    public function winner() : HasOne
+
+    public function winner(): HasOne
     {
         //TODO: hasOneThrough?
         return $this->hasOne(Winner::class);
     }
 
-    public function player() : HasMany
+    public function player(): HasMany
     {
         return $this->hasMany(Player::class);
     }
+
+    public static function boot()
+    {
+        parent::boot();
+        self::deleting(
+            function ($game) {
+                $game->winner()->delete();
+                $game->player()->delete();
+            }
+        );
+    }
+
+
 }

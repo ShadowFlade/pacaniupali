@@ -116,8 +116,6 @@ class GroupController extends Controller
     {
         $user = Auth::user();
 
-        //here we load users 2 times - mb we can write some "smart" query to it 1 time but mb its its not worth it for complexity or event for opimization
-//        dd(User::query()->where('id',13)->with(['groups'])->get());
         $userGroupService = new UserGroupService();
         $group = $userGroupService->getGroupWithUsersAndWinners($groupId);
 
@@ -128,6 +126,16 @@ class GroupController extends Controller
 
 
         $auth = auth();
+        $winnerPlayer = null;
+
+        foreach ($games as $game) {
+            $players = [];
+            foreach ($game['player'] as $player) {
+                $players[$player['user_id']] = $player;
+            }
+            $game['player'] = $players;
+            $game['winner']['username'] = $game['player'][$player['user_id']]['user']['username'];
+        }
 
         return Inertia::render(
             'Group/GroupDetail',

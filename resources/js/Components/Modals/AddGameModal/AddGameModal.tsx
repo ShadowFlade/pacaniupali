@@ -377,8 +377,7 @@ export function AddGameModal({
                                                     <td className="py-2 px-3">
                                                         <Input
                                                             type="number"
-                                                            min={0}
-                                                            step={1}
+                                                            step={500}
                                                             className="h-8 w-20"
                                                             value={
                                                                 entry.points
@@ -449,41 +448,52 @@ export function AddGameModal({
                     <span>Добавить игру</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="flex max-h-[90vh] max-w-[42rem] flex-col overflow-hidden">
-                <DialogHeader className="shrink-0">
-                    <DialogTitle>Добавить новую игру</DialogTitle>
-                </DialogHeader>
-                <form
-                    onSubmit={onSubmit}
-                    className="flex min-h-0 flex-1 flex-col"
+            <DialogContent className="max-w-[42rem] overflow-hidden">
+                <motion.div
+                    layout
+                    className="flex max-h-[90vh] flex-col overflow-y-auto"
+                    transition={{
+                        layout: {
+                            duration: 0.25,
+                            ease: [0.4, 0, 0.2, 1],
+                        },
+                    }}
                 >
-                    <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
-                        <div className="grid grid-cols-2 gap-4">
-                            {renderGameStartField()}
-                            {renderGameEndField()}
+                    <DialogHeader className="shrink-0">
+                        <DialogTitle>Добавить новую игру</DialogTitle>
+                    </DialogHeader>
+                    <form
+                        onSubmit={onSubmit}
+                        className="flex flex-col"
+                    >
+                        <div className="space-y-4 pr-1">
+                            <div className="grid grid-cols-2 gap-4">
+                                {renderGameStartField()}
+                                {renderGameEndField()}
+                            </div>
+
+                            {showSelectGroup && renderGroupField()}
+
+                            {selectedGroup && (
+                                <>
+                                    {renderSelectPlayersField()}
+                                    {renderWinnerField()}
+                                </>
+                            )}
                         </div>
 
-                        {showSelectGroup && renderGroupField()}
-
-                        {selectedGroup && (
-                            <>
-                                {renderSelectPlayersField()}
-                                {renderWinnerField()}
-                            </>
-                        )}
-                    </div>
-
-                    <div className="mt-4 flex shrink-0 justify-end space-x-2 border-t border-border pt-4">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => setOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button type="submit">Добавить игру</Button>
-                    </div>
-                </form>
+                        <div className="mt-4 flex shrink-0 justify-end space-x-2 border-t border-border pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setOpen(false)}
+                            >
+                                Cancel
+                            </Button>
+                            <Button type="submit">Добавить игру</Button>
+                        </div>
+                    </form>
+                </motion.div>
             </DialogContent>
         </Dialog>
     );

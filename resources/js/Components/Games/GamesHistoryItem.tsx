@@ -47,6 +47,7 @@ function formatGameDate(value: string): string {
 
 export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
     const players = game.player ?? [];
+    console.log(game,' game');
     const winnerPlayer =
         game.winner &&
         players.find((p) => String(p.id) === String(game.winner!.player_id));

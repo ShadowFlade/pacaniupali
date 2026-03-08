@@ -46,7 +46,7 @@ class GameController extends Controller
         );
 
         $gameService = new GameService();
-        $game = $gameService->createGame($groupId, $gameStart, $gameEnd, $players, $winnerId, $winnerId);
+        $game = $gameService->createGame($groupId, $gameStart, $gameEnd, $players, $winnerId);
 
         return Redirect::back()->with([
             'data' => $game
