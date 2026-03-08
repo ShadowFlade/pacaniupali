@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
 import {
     Dialog,
     DialogContent,
@@ -19,17 +20,24 @@ import {
 import { DATE_TIME_FORMAT } from '@/utility/const';
 import { useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarIcon, PlusCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './AddGameModal.css';
 
+type SelectedPlayer = {
+    id: string;
+    points: number;
+    is_host: boolean;
+};
+
 type FormValues = {
     game_end: Date;
     game_start: Date;
     winner_id: number;
-    players: number[];
+    players: SelectedPlayer[];
 };
 
 const CustomDatePickerInput = ({
@@ -64,15 +72,19 @@ export function AddGameModal({
     const [selectedGroup, setSelectedGroup] = useState<
         (typeof groups)[0] | null
     >(groups.find((item) => item.id == selectedGroupID));
-    const [selectedPlayers, setSelectedPlayers] = useState<string[]>([]);
+    const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayer[]>([]);
+
+    const syncPlayersToForm = (next: SelectedPlayer[]) => {
+        setData('players', next);
+    };
 
     const { data, setData, post, transform, processing, errors, reset } =
         useForm({
             game_start: null,
             game_end: null,
             winner_id: '',
-            players: selectedPlayers,
-            group_id: selectedGroup.id,
+            players: [] as SelectedPlayer[],
+            group_id: selectedGroup?.id,
         });
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -88,6 +100,8 @@ export function AddGameModal({
         setSelectedPlayers([]);
     };
 
+    const selectedIds = selectedPlayers.map((p) => p.id);
+
     const handleGroupChange = (groupId: string) => {
         const group = groups.find((g) => g.id.toString() === groupId);
         setSelectedGroup(group || null);
@@ -98,17 +112,37 @@ export function AddGameModal({
 
     const handlePlayerToggle = (playerId: string) => {
         setSelectedPlayers((current) => {
-            const updated = current.includes(playerId)
-                ? current.filter((id) => id !== playerId)
-                : [...current, playerId];
+            const exists = current.some((p) => p.id === playerId);
+            const updated = exists
+                ? current.filter((p) => p.id !== playerId)
+                : [...current, { id: playerId, points: 0, is_host: false }];
 
-            // If the winner is no longer in the selected players, reset the winner
-            if (!updated.includes(data.winner_id)) {
+            if (!updated.some((p) => p.id === String(data.winner_id))) {
                 setData('winner_id', '');
             }
-
-            setData('players', updated);
+            syncPlayersToForm(updated);
             return updated;
+        });
+    };
+
+    const setPlayerPoints = (playerId: string, points: number) => {
+        setSelectedPlayers((current) => {
+            const next = current.map((p) =>
+                p.id === playerId ? { ...p, points } : p,
+            );
+            syncPlayersToForm(next);
+            return next;
+        });
+    };
+
+    const setPlayerIsHost = (playerId: string, is_host: boolean) => {
+        setSelectedPlayers((current) => {
+            const next = current.map((p) => ({
+                ...p,
+                is_host: p.id === playerId ? is_host : false,
+            }));
+            syncPlayersToForm(next);
+            return next;
         });
     };
 
@@ -128,7 +162,7 @@ export function AddGameModal({
                     <SelectContent>
                         {players
                             .filter((player) =>
-                                selectedPlayers.includes(player.id.toString()),
+                                selectedIds.includes(player.id.toString()),
                             )
                             .map((player) => {
                                 return (
@@ -239,33 +273,166 @@ export function AddGameModal({
     };
 
     const renderSelectPlayersField = () => {
+        const displayName = (p: { username?: string; login?: string }) =>
+            p.username ?? p.login ?? '';
+
         return (
-            <div>
-                <label>Players</label>
-                <div className="grid grid-cols-2 gap-2">
-                    {players.map((player) => (
-                        <div
-                            key={player.id}
-                            className="flex items-center space-x-2"
-                        >
-                            <Checkbox
-                                checked={selectedPlayers.includes(
-                                    player.id.toString(),
-                                )}
-                                onCheckedChange={() =>
-                                    handlePlayerToggle(player.id.toString())
-                                }
-                                id={`player-${player.id}`}
-                            />
-                            <label
-                                htmlFor={`player-${player.id}`}
-                                className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            <div className="space-y-3">
+                <div>
+                    <label>Players</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {players.map((player) => (
+                            <div
+                                key={player.id}
+                                className="flex items-center space-x-2"
                             >
-                                {player.username}
-                            </label>
-                        </div>
-                    ))}
+                                <Checkbox
+                                    checked={selectedIds.includes(
+                                        player.id.toString(),
+                                    )}
+                                    onCheckedChange={() =>
+                                        handlePlayerToggle(player.id.toString())
+                                    }
+                                    id={`player-${player.id}`}
+                                />
+                                <label
+                                    htmlFor={`player-${player.id}`}
+                                    className="text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                >
+                                    {displayName(player)}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+                <AnimatePresence>
+                    {selectedPlayers.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{
+                                opacity: 1,
+                                height: 'auto',
+                            }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{
+                                duration: 0.25,
+                                ease: [0.4, 0, 0.2, 1],
+                            }}
+                            className="overflow-hidden"
+                        >
+                            <label className="mb-2 block text-sm font-medium">
+                                Очки и хост
+                            </label>
+                            <div className="rounded-md border border-border/60 overflow-hidden">
+                                <table className="w-full table-fixed border-collapse text-left text-sm">
+                                <thead>
+                                    <tr className="border-b border-border bg-muted/50 text-muted-foreground">
+                                        <th className="w-[45%] py-2 px-3 font-medium">
+                                            Игрок
+                                        </th>
+                                        <th className="w-[25%] py-2 px-3 font-medium">
+                                            Очки
+                                        </th>
+                                        <th className="w-[30%] py-2 px-3 font-medium">
+                                            Хост
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <AnimatePresence>
+                                        {selectedPlayers.map((entry) => {
+                                            const player = players.find(
+                                                (p) =>
+                                                    p.id.toString() ===
+                                                    entry.id,
+                                            );
+                                            return (
+                                                <motion.tr
+                                                    key={entry.id}
+                                                    initial={{
+                                                        opacity: 0,
+                                                        y: -8,
+                                                    }}
+                                                    animate={{
+                                                        opacity: 1,
+                                                        y: 0,
+                                                    }}
+                                                    exit={{
+                                                        opacity: 0,
+                                                        y: -4,
+                                                    }}
+                                                    transition={{
+                                                        duration: 0.2,
+                                                        ease: [0.4, 0, 0.2, 1],
+                                                    }}
+                                                    className="border-b border-border/60 last:border-0"
+                                                >
+                                                    <td className="py-2 px-3 font-medium">
+                                                        {player
+                                                            ? displayName(
+                                                                  player,
+                                                              )
+                                                            : entry.id}
+                                                    </td>
+                                                    <td className="py-2 px-3">
+                                                        <Input
+                                                            type="number"
+                                                            min={0}
+                                                            step={1}
+                                                            className="h-8 w-20"
+                                                            value={
+                                                                entry.points
+                                                            }
+                                                            onChange={(e) => {
+                                                                const v =
+                                                                    e.target.value;
+                                                                setPlayerPoints(
+                                                                    entry.id,
+                                                                    v === ''
+                                                                        ? 0
+                                                                        : parseInt(
+                                                                              v,
+                                                                              10,
+                                                                          ) ||
+                                                                              0,
+                                                                );
+                                                            }}
+                                                        />
+                                                    </td>
+                                                    <td className="py-2 px-3">
+                                                        <div className="flex items-center gap-2">
+                                                            <Checkbox
+                                                                id={`host-${entry.id}`}
+                                                                checked={
+                                                                    entry.is_host
+                                                                }
+                                                                onCheckedChange={(
+                                                                    checked,
+                                                                ) =>
+                                                                    setPlayerIsHost(
+                                                                        entry.id,
+                                                                        !!checked,
+                                                                    )
+                                                                }
+                                                            />
+                                                            <label
+                                                                htmlFor={`host-${entry.id}`}
+                                                                className="cursor-pointer text-sm"
+                                                            >
+                                                                Хост
+                                                            </label>
+                                                        </div>
+                                                    </td>
+                                                </motion.tr>
+                                            );
+                                        })}
+                                    </AnimatePresence>
+                                </tbody>
+                            </table>
+                        </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         );
     };
@@ -282,26 +449,31 @@ export function AddGameModal({
                     <span>Добавить игру</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="h-[420px] max-w-[42rem]">
-                <DialogHeader>
+            <DialogContent className="flex max-h-[90vh] max-w-[42rem] flex-col overflow-hidden">
+                <DialogHeader className="shrink-0">
                     <DialogTitle>Добавить новую игру</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={onSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        {renderGameStartField()}
-                        {renderGameEndField()}
+                <form
+                    onSubmit={onSubmit}
+                    className="flex min-h-0 flex-1 flex-col"
+                >
+                    <div className="min-h-0 flex-1 space-y-4 overflow-y-auto pr-1">
+                        <div className="grid grid-cols-2 gap-4">
+                            {renderGameStartField()}
+                            {renderGameEndField()}
+                        </div>
+
+                        {showSelectGroup && renderGroupField()}
+
+                        {selectedGroup && (
+                            <>
+                                {renderSelectPlayersField()}
+                                {renderWinnerField()}
+                            </>
+                        )}
                     </div>
 
-                    {showSelectGroup && renderGroupField()}
-
-                    {selectedGroup && (
-                        <>
-                            {renderSelectPlayersField()}
-                            {renderWinnerField()}
-                        </>
-                    )}
-
-                    <div className="flex justify-end space-x-2 pt-4">
+                    <div className="mt-4 flex shrink-0 justify-end space-x-2 border-t border-border pt-4">
                         <Button
                             type="button"
                             variant="outline"
