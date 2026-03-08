@@ -40,12 +40,13 @@ class GameController extends Controller
         $gameEnd = $gameEnd->format($dbFormat);
         $players = $request->input('players');
         $winnerId = $request->input('winner_id');
+        $groupId = $request->input('group_id');
         \Illuminate\Support\Facades\Log::channel('single')->info(
             [$players]
         );
 
         $gameService = new GameService();
-        $game = $gameService->createGame($gameStart, $gameEnd, $players, $winnerId, $winnerId);
+        $game = $gameService->createGame($groupId, $gameStart, $gameEnd, $players, $winnerId, $winnerId);
 
         return Redirect::back()->with([
             'data' => $game
