@@ -1,6 +1,5 @@
 import { AvatarList } from '@/Components/AvatarList';
 import AvatarSmall from '@/Components/AvatarSmall';
-import { Card, CardContent } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '@/utility/const';
 
@@ -47,7 +46,6 @@ function formatGameDate(value: string): string {
 }
 
 export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
-    console.log(game,'game');
     const players = game.player ?? [];
     const winnerPlayer =
         game.winner &&
@@ -55,71 +53,58 @@ export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
     const winnerUser = winnerPlayer?.user;
 
     return (
-        <Card className="overflow-hidden">
-            <CardContent className="p-4">
-                <div className="flex flex-wrap items-center gap-4">
-                    {/* Дата */}
-                    <div className="shrink-0 text-sm text-muted-foreground">
-                        {formatGameDate(game.game_start)}
+        <tr className="border-b border-border/60 last:border-0">
+            <td className="whitespace-nowrap py-3 pr-4 text-sm text-muted-foreground">
+                {formatGameDate(game.game_start)}
+            </td>
+            <td className="w-24 py-3 pr-4 text-sm font-medium">
+                {players.length ?? game.players_count}
+            </td>
+            <td className="py-3 pr-4">
+                {players.length > 0 ? (
+                    <AvatarList
+                        players={players}
+                        maxAvatars={5}
+                        overlap={12}
+                    />
+                ) : (
+                    <span className="text-muted-foreground text-sm">—</span>
+                )}
+            </td>
+            <td className="py-3 pr-4">
+                {winnerUser ? (
+                    <div className="flex items-center gap-2">
+                        <AvatarSmall
+                            picture={winnerUser.picture}
+                            username={
+                                winnerUser.username ??
+                                winnerUser.login ??
+                                ''
+                            }
+                        />
+                        <span className="text-sm font-medium">
+                            {winnerUser.username ??
+                                winnerUser.login ??
+                                'Победитель'}
+                        </span>
                     </div>
-
-                    {/* Количество участников */}
-                    <div className="shrink-0 text-sm font-medium">
-                        Участников: {players.length ?? game.players_count}
-                    </div>
-
-                    {/* Аватарки участников */}
-                    <div className="min-w-0 shrink-0">
-                        {players.length > 0 ? (
-                            <AvatarList
-                                players={players}
-                                maxAvatars={6}
-                                overlap={12}
-                            />
-                        ) : (
-                            <span className="text-muted-foreground text-sm">
-                                —
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Победитель */}
-                    <div className="flex shrink-0 items-center gap-2">
-                        {winnerUser ? (
-                            <>
-                                <AvatarSmall
-                                    picture={winnerUser.picture}
-                                    username={
-                                        winnerUser.username ??
-                                        winnerUser.login ??
-                                        ''
-                                    }
-                                />
-                                <span className="text-sm font-medium">
-                                    {winnerUser.username ??
-                                        winnerUser.login ??
-                                        'Победитель'}
-                                </span>
-                            </>
-                        ) : (
-                            <span className="text-muted-foreground text-sm">
-                                Победитель не указан
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Лого группы */}
-                    {group?.logo_path && (
-                        <div className="ml-auto shrink-0">
-                            <img
-                                src={group.logo_path || '/placeholder.svg'}
-                                alt={group.name ? `${group.name} logo` : 'Group logo'}
-                                className="h-10 w-10 rounded-lg object-cover"
-                            />
-                        </div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+                ) : (
+                    <span className="text-muted-foreground text-sm">
+                        Победитель не указан
+                    </span>
+                )}
+            </td>
+            {/*<td className="w-12 py-3 text-right">*/}
+            {/*    {group?.logo_path ? (*/}
+            {/*        <img*/}
+            {/*            src={group.logo_path || '/placeholder.svg'}*/}
+            {/*            alt={group.name ? `${group.name} logo` : 'Group logo'}*/}
+            {/*            className="ml-auto h-10 w-10 rounded-lg object-cover"*/}
+            {/*        />*/}
+            {/*    ) : (*/}
+            {/*        '—'*/}
+            {/*    )}*/}
+            {/*</td>*/}
+        </tr>
     );
 }
