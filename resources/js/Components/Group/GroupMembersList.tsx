@@ -1,4 +1,5 @@
 import AvatarSmall from '@/Components/AvatarSmall';
+import { Button } from '@/components/ui/button';
 import { DATE_FORMAT, DEFAULT_AVATAR_PATH } from '@/utility/const';
 import { format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '@/utility/const';
@@ -15,6 +16,8 @@ export type GroupMember = {
 
 type GroupMembersListProps = {
     members: GroupMember[];
+    editable?: boolean;
+    onRemoveMember?: (id: number) => void;
 };
 
 function formatDate(value: string | null | undefined): string {
@@ -27,9 +30,17 @@ function formatDate(value: string | null | undefined): string {
     }
 }
 
-function MemberRow({ member }: { member: GroupMember }) {
-    const displayName = member.username  ?? '—';
-    const wins = member.wins.length ?? 0;
+function MemberRow({
+    member,
+    editable,
+    onRemoveMember,
+}: {
+    member: GroupMember;
+    editable?: boolean;
+    onRemoveMember?: (id: number) => void;
+}) {
+    const displayName = member.username ?? '—';
+    const wins = member.wins?.length ?? 0;
 
     return (
         <div className="border-border/60 flex flex-wrap items-center gap-4 border-b py-3 last:border-0">
@@ -47,12 +58,26 @@ function MemberRow({ member }: { member: GroupMember }) {
                     <span>Побед: {wins}</span>
                 </dl>
             </div>
+            {editable && (
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="shake-soft text-destructive hover:text-destructive"
+                    onClick={() => onRemoveMember?.(member.id)}
+                >
+                    Удалить
+                </Button>
+            )}
         </div>
     );
 }
 
-export function GroupMembersList({ members }: GroupMembersListProps) {
-    console.log(members,' members');
+export function GroupMembersList({
+    members,
+    editable,
+    onRemoveMember,
+}: GroupMembersListProps) {
     if (members.length === 0) {
         return (
             <p className="py-4 text-center text-sm text-muted-foreground">
@@ -64,7 +89,12 @@ export function GroupMembersList({ members }: GroupMembersListProps) {
     return (
         <div className="divide-y-0">
             {members.map((member) => (
-                <MemberRow key={member.id} member={member} />
+                <MemberRow
+                    key={member.id}
+                    member={member}
+                    editable={editable}
+                    onRemoveMember={onRemoveMember}
+                />
             ))}
         </div>
     );

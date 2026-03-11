@@ -5,10 +5,11 @@ import { GamesHistory } from '@/Components/Games/GamesHistory';
 import { GroupMembersList } from '@/Components/Group/GroupMembersList';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import General from '@/Layouts/General';
-import { Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router } from '@inertiajs/react';
+import { useState, ChangeEvent, useEffect } from 'react';
 import { ArrowLeft, ChevronDown, ChevronUp, Gamepad2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import './GroupDetail.css';
 
 type GroupUser = {
     id: number;
@@ -48,29 +49,105 @@ type GroupDetailProps = {
 
 export default function GroupDetail({ auth, group, games = [] }: GroupDetailProps) {
     const [membersOpen, setMembersOpen] = useState(true);
-    const members = group.users ?? [];
+    const [editMode, setEditMode] = useState(false);
+    const [logoShake, setLogoShake] = useState(false);
+    const [removedMemberIds, setRemovedMemberIds] = useState<number[]>([]);
+    const [removedGameIds, setRemovedGameIds] = useState<Array<number | string>>(
+        [],
+    );
+    const [logoPreview, setLogoPreview] = useState<string | null>(
+        group.logo_path || null,
+    );
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+
+    const originalMembers = group.users ?? [];
+    const members = originalMembers.filter(
+        (m) => !removedMemberIds.includes(m.id),
+    );
+
     const gamesWithGroupId = games.map((g) => ({
         ...g,
         group_id: g.group_id ?? group.id,
     }));
 
+    const visibleGames = gamesWithGroupId.filter(
+        (g) => !removedGameIds.includes(g.id),
+    );
+
+    const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const url = URL.createObjectURL(file);
+        setLogoPreview(url);
+        setLogoFile(file);
+    };
+
+    useEffect(() => {
+        if (editMode) {
+            setLogoShake(true);
+            const timer = setTimeout(() => setLogoShake(false), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [editMode]);
+
+    const handleToggleEdit = () => {
+        // turning off edit mode -> send state to backend
+        if (editMode) {
+            const payload = {
+                group_id: group.id,
+                active_member_ids: members.map((m) => m.id),
+                removed_member_ids: removedMemberIds,
+                active_game_ids: visibleGames.map((g) => g.id),
+                removed_game_ids: removedGameIds,
+            };
+
+            const formData = new FormData();
+            formData.append('_method', 'PATCH');
+            formData.append('data', JSON.stringify(payload));
+            if (logoFile) {
+                formData.append('logo', logoFile);
+            }
+
+            router.post(route('group.update'), formData, {
+                preserveScroll: true,
+            });
+        }
+
+        setEditMode((prev) => !prev);
+    };
+
     return (
         <General>
             <div className="container mx-auto max-w-3xl px-4 py-8">
-                <Link
-                    href={route('group.index')}
-                    className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-                >
-                    <ArrowLeft className="h-4 w-4" />
-                    К списку групп
-                </Link>
+                <div className="mb-6 flex items-center justify-between">
+                    <Link
+                        href={route('group.index')}
+                        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        К списку групп
+                    </Link>
+                    <Button
+                        type="button"
+                        variant={editMode ? 'outline' : 'secondary'}
+                        size="sm"
+                        className="cursor-pointer"
+                        onClick={handleToggleEdit}
+                    >
+                        {editMode ? 'Готово' : 'Редактировать'}
+                    </Button>
+                </div>
 
                 {/* Шапка группы: лого, название, описание */}
                 <Card className="mb-8 overflow-hidden">
                     <CardContent className="p-6">
                         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
                             <img
-                                src={group.logo_path || '/placeholder.svg'}
+                                src={
+                                    logoPreview ||
+                                    group.logo_path ||
+                                    '/placeholder.svg'
+                                }
                                 alt={`${group.name} logo`}
                                 className="h-24 w-24 shrink-0 rounded-xl object-cover shadow-sm"
                             />
@@ -85,6 +162,23 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                                 ) : null}
                             </div>
                         </div>
+                        {editMode && (
+                            <div className="mt-4">
+                                <label
+                                    className={`inline-flex cursor-pointer items-center gap-2 text-sm font-medium text-primary ${
+                                        logoShake ? 'shake-soft' : ''
+                                    }`}
+                                >
+                                    <span>Изменить лого</span>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        className="hidden"
+                                        onChange={handleLogoChange}
+                                    />
+                                </label>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -112,7 +206,7 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                             </div>
                             <div>
                                 <p className="text-2xl font-semibold">
-                                    {games.length}
+                                    {visibleGames.length}
                                 </p>
                                 <p className="text-sm text-muted-foreground">
                                     Игр сыграно
@@ -144,7 +238,17 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                         </CardHeader>
                         {membersOpen && (
                             <CardContent>
-                                <GroupMembersList members={members} />
+                                <GroupMembersList
+                                    members={members}
+                                    editable={editMode}
+                                    onRemoveMember={(id) =>
+                                        setRemovedMemberIds((prev) =>
+                                            prev.includes(id)
+                                                ? prev
+                                                : [...prev, id],
+                                        )
+                                    }
+                                />
                             </CardContent>
                         )}
                     </Card>
@@ -164,10 +268,18 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                         />
                     </CardHeader>
                     <CardContent>
-                        {gamesWithGroupId.length > 0 ? (
+                        {visibleGames.length > 0 ? (
                             <GamesHistory
-                                games={gamesWithGroupId}
+                                games={visibleGames}
                                 groups={[group]}
+                                editable={editMode}
+                                onDeleteGame={(id) =>
+                                    setRemovedGameIds((prev) =>
+                                        prev.includes(id)
+                                            ? prev
+                                            : [...prev, id],
+                                    )
+                                }
                             />
                         ) : (
                             <p className="py-8 text-center text-muted-foreground">

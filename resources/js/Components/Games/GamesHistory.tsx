@@ -18,9 +18,16 @@ type GameHistoryProps = {
     games: GameWithGroupId[];
     /** Список групп для подстановки лого по game.group_id */
     groups?: Group[];
+    editable?: boolean;
+    onDeleteGame?: (id: number | string) => void;
 };
 
-export function GamesHistory({ games, groups = [] }: GameHistoryProps) {
+export function GamesHistory({
+    games,
+    groups = [],
+    editable = false,
+    onDeleteGame,
+}: GameHistoryProps) {
     const groupById = groups.reduce<Record<string, Group>>((acc, g) => {
         acc[String(g.id)] = g;
         return acc;
@@ -42,9 +49,11 @@ export function GamesHistory({ games, groups = [] }: GameHistoryProps) {
                     <th className="py-2 pr-4 text-sm font-medium">
                         Победитель
                     </th>
-                    {/*<th className="w-12 py-2 text-right text-sm font-medium">*/}
-                    {/*    Группа*/}
-                    {/*</th>*/}
+                    {editable && (
+                        <th className="w-24 py-2 pr-2 text-right text-sm font-medium">
+                            Действия
+                        </th>
+                    )}
                 </tr>
             </thead>
             <tbody>
@@ -57,6 +66,8 @@ export function GamesHistory({ games, groups = [] }: GameHistoryProps) {
                             key={String(game.id)}
                             game={game}
                             group={group ?? undefined}
+                            editable={editable}
+                            onDeleteGame={onDeleteGame}
                         />
                     );
                 })}

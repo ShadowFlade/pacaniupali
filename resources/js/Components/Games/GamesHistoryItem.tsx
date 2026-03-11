@@ -1,5 +1,6 @@
 import { AvatarList } from '@/Components/AvatarList';
 import AvatarSmall from '@/Components/AvatarSmall';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '@/utility/const';
 
@@ -34,6 +35,8 @@ export type GameHistoryItemGroup = {
 type GameHistoryItemProps = {
     game: GameHistoryItemGame;
     group?: GameHistoryItemGroup | null;
+    editable?: boolean;
+    onDeleteGame?: (id: number | string) => void;
 };
 
 function formatGameDate(value: string): string {
@@ -45,7 +48,12 @@ function formatGameDate(value: string): string {
     }
 }
 
-export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
+export function GamesHistoryItem({
+    game,
+    group,
+    editable,
+    onDeleteGame,
+}: GameHistoryItemProps) {
     const players = game.player ?? [];
     console.log(game,' game');
     const winnerPlayer =
@@ -95,17 +103,19 @@ export function GamesHistoryItem({ game, group }: GameHistoryItemProps) {
                     </span>
                 )}
             </td>
-            {/*<td className="w-12 py-3 text-right">*/}
-            {/*    {group?.logo_path ? (*/}
-            {/*        <img*/}
-            {/*            src={group.logo_path || '/placeholder.svg'}*/}
-            {/*            alt={group.name ? `${group.name} logo` : 'Group logo'}*/}
-            {/*            className="ml-auto h-10 w-10 rounded-lg object-cover"*/}
-            {/*        />*/}
-            {/*    ) : (*/}
-            {/*        '—'*/}
-            {/*    )}*/}
-            {/*</td>*/}
+            {editable && (
+                <td className="w-24 py-3 pr-2 text-right">
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="shake-soft text-destructive hover:text-destructive"
+                        onClick={() => onDeleteGame?.(game.id)}
+                    >
+                        Удалить
+                    </Button>
+                </td>
+            )}
         </tr>
     );
 }
