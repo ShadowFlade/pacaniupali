@@ -3,12 +3,11 @@
 namespace Database\Seeders;
 
 use App\Models\Game;
-use App\Models\Group;
 use App\Models\Player;
 use App\Models\User;
-use App\Models\UserGroup;
 use App\Models\Winner;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Modules\UserGroup\Models\Group;
+use App\Modules\UserGroup\Models\UserGroup;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;

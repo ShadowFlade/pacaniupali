@@ -2,25 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Requests\UserAdvancedUpdateRequest;
 use App\Models\Game;
-use App\Models\Group;
-use App\Models\Player;
-use App\Models\User;
-use App\Models\UserGroup;
-use App\Models\Winner;
+use App\Modules\UserGroup\Models\Group;
+use App\Modules\UserGroup\Models\UserGroup;
 use App\Service\UserGroupService;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Storage;
-use Inertia\Response;
 
 class GroupController extends Controller
 {

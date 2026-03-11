@@ -11,13 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table(
-            'games', function (Blueprint $table) {
-            DB::statement(
-                'ALTER TABLE games ADD CONSTRAINT games_player_id_foreign
-                        FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE;'
-            );
-        }
-        );
+            'group_list', function (Blueprint $table) {
+            $table->integer('publicity')->default(1);
+        });
     }
 
     /**
@@ -25,5 +21,9 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        Schema::table(
+            'group_list', function (Blueprint $table) {
+            $table->dropColumn('publicity');
+        });
     }
 };

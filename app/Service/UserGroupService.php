@@ -2,19 +2,19 @@
 
 namespace App\Service;
 
-use App\Models\Group;
+use App\Modules\UserGroup\Models\Group;
 
 class UserGroupService
 {
     public function deleteUsersFromGroup(int $groupId, array $userIds)
     {
-        $deleteResult = \App\Models\UserGroup::query()
-                                             ->where('group_id', $groupId)
-                                             ->whereIn('user_id', $userIds)
-                                             ->delete();
+        $deleteResult = \App\Modules\UserGroup\Models\UserGroup::query()
+                                                               ->where('group_id', $groupId)
+                                                               ->whereIn('user_id', $userIds)
+                                                               ->delete();
         return $deleteResult;
-
     }
+
 
     public function getGroupWithUsersAndWinners(int $groupId)
     {

@@ -2,27 +2,22 @@
 
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\GroupController;
+use App\Http\Controllers\Pages\MainController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get(
-    '/', function () {
-    return Inertia::render(
-        'Welcome', [
-                     'canLogin'    => Route::has('login'),
-                     'canRegister' => Route::has('register'),
-
-                 ]
-    );
-}
-);
+    '/',
+    [MainController::class, 'show']
+)->name('main.show');
 
 Route::get(
-    '/dashboard', function () {
-    return Inertia::render('Dashboard');
-}
+    '/dashboard',
+    function () {
+        return Inertia::render('Dashboard');
+    }
 )->middleware(['auth', 'verified'])->name('dashboard');
 
 
