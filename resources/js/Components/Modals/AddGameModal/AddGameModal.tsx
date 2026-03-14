@@ -372,22 +372,22 @@ export function AddGameModal({
                                             <th className="py-2 px-3 text-left font-medium">Игрок</th>
                                             <th className="py-2 px-2 text-left font-medium">
                                                 <span className="inline-block w-full max-w-[5rem] text-left" title="Очков заработано">
-                                                    + Очки
+                                                    Заработанные очки
                                                 </span>
                                             </th>
                                             <th className="py-2 px-2 text-left font-medium">
                                                 <span className="inline-block w-full max-w-[5rem] left" title="Очков потеряно">
-                                                    − Очки
+                                                    Потерянные очки
                                                 </span>
                                             </th>
                                             <th className="py-2 px-2 text-left font-medium">
                                                 <span className="inline-block w-full max-w-[5rem] text-left" title="Правильных ответов">
-                                                    ✓
+                                                    Правильных ответов
                                                 </span>
                                             </th>
                                             <th className="py-2 px-2 text-left font-medium">
                                                 <span className="inline-block w-full max-w-[5rem] text-left" title="Неправильных ответов">
-                                                    ✗
+                                                    Неправильных ответов
                                                 </span>
                                             </th>
                                             <th className="py-2 px-3 text-left font-medium">Хост</th>
@@ -404,75 +404,156 @@ export function AddGameModal({
                                                 return (
                                                     <motion.tr
                                                         key={entry.id}
-                                                        initial={{ opacity: 0, y: -8 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, y: -4 }}
-                                                        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                                                        className="border-b border-border/60 last:border-0"
+                                                        initial={{
+                                                            opacity: 0,
+                                                            y: -8,
+                                                        }}
+                                                        animate={{
+                                                            opacity: 1,
+                                                            y: 0,
+                                                        }}
+                                                        exit={{
+                                                            opacity: 0,
+                                                            y: -4,
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.2,
+                                                            ease: [
+                                                                0.4, 0, 0.2, 1,
+                                                            ],
+                                                        }}
+                                                        className="border-border/60 border-b last:border-0"
                                                     >
-                                                        <td className="min-w-0 py-2 px-3">
+                                                        <td className="min-w-0 px-3 py-2">
                                                             <span
                                                                 className="block truncate font-medium"
-                                                                title={player ? displayName(player) : entry.id}
+                                                                title={
+                                                                    player
+                                                                        ? displayName(
+                                                                              player,
+                                                                          )
+                                                                        : entry.id
+                                                                }
                                                             >
-                                                                {player ? displayName(player) : entry.id}
+                                                                {player
+                                                                    ? displayName(
+                                                                          player,
+                                                                      )
+                                                                    : entry.id}
                                                             </span>
                                                         </td>
-                                                        <td className="py-2 px-2 text-right">
+                                                        <td className="px-2 py-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step={500}
+                                                                className="h-8 w-full max-w-[5rem] text-left"
+                                                                value={
+                                                                    entry.points_earned
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setPlayerPoints(
+                                                                        entry.id,
+                                                                        num(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        ),
+                                                                    )
+                                                                }
+                                                            />
+                                                        </td>
+                                                        <td className="px-2 py-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step={500}
+                                                                className="h-8 w-full max-w-[5rem] text-left"
+                                                                value={
+                                                                    entry.points_lost ??
+                                                                    0
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setPlayerStat(
+                                                                        entry.id,
+                                                                        'points_lost',
+                                                                        num(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        ),
+                                                                    )
+                                                                }
+                                                            />
+                                                        </td>
+                                                        <td className="px-2 py-2 text-right">
                                                             <Input
                                                                 type="number"
                                                                 min={0}
                                                                 step={1}
-                                                                className="h-8 w-full max-w-[5rem] text-right"
-                                                                value={entry.points_earned ?? entry.points}
-                                                                onChange={(e) => setPlayerPoints(entry.id, num(e.target.value))}
+                                                                className="h-8 w-full max-w-[5rem] text-left"
+                                                                value={
+                                                                    entry.correct_answers ??
+                                                                    0
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setPlayerStat(
+                                                                        entry.id,
+                                                                        'correct_answers',
+                                                                        num(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        ),
+                                                                    )
+                                                                }
                                                             />
                                                         </td>
-                                                        <td className="py-2 px-2 text-right">
+                                                        <td className="px-2 py-2 text-right">
                                                             <Input
                                                                 type="number"
                                                                 min={0}
                                                                 step={1}
-                                                                className="h-8 w-full max-w-[5rem] text-right"
-                                                                value={entry.points_lost ?? 0}
-                                                                onChange={(e) => setPlayerStat(entry.id, 'points_lost', num(e.target.value))}
+                                                                className="h-8 w-full max-w-[5rem] text-left"
+                                                                value={
+                                                                    entry.incorrect_answers ??
+                                                                    0
+                                                                }
+                                                                onChange={(e) =>
+                                                                    setPlayerStat(
+                                                                        entry.id,
+                                                                        'incorrect_answers',
+                                                                        num(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        ),
+                                                                    )
+                                                                }
                                                             />
                                                         </td>
-                                                        <td className="py-2 px-2 text-right">
-                                                            <Input
-                                                                type="number"
-                                                                min={0}
-                                                                step={1}
-                                                                className="h-8 w-full max-w-[5rem] text-right"
-                                                                value={entry.correct_answers ?? 0}
-                                                                onChange={(e) => setPlayerStat(entry.id, 'correct_answers', num(e.target.value))}
-                                                            />
-                                                        </td>
-                                                        <td className="py-2 px-2 text-right">
-                                                            <Input
-                                                                type="number"
-                                                                min={0}
-                                                                step={1}
-                                                                className="h-8 w-full max-w-[5rem] text-right"
-                                                                value={entry.incorrect_answers ?? 0}
-                                                                onChange={(e) => setPlayerStat(entry.id, 'incorrect_answers', num(e.target.value))}
-                                                            />
-                                                        </td>
-                                                        <td className="py-2 px-3">
+                                                        <td className="px-3 py-2">
                                                             <div className="flex items-center gap-2">
-                                                                <Checkbox
-                                                                    id={`host-${entry.id}`}
-                                                                    checked={entry.is_host}
-                                                                    onCheckedChange={(checked) =>
-                                                                        setPlayerIsHost(entry.id, !!checked)
-                                                                    }
-                                                                />
                                                                 <label
                                                                     htmlFor={`host-${entry.id}`}
                                                                     className="cursor-pointer"
                                                                 >
                                                                     Хост
                                                                 </label>
+                                                                <Checkbox
+                                                                    id={`host-${entry.id}`}
+                                                                    checked={
+                                                                        entry.is_host
+                                                                    }
+                                                                    onCheckedChange={(
+                                                                        checked,
+                                                                    ) =>
+                                                                        setPlayerIsHost(
+                                                                            entry.id,
+                                                                            !!checked,
+                                                                        )
+                                                                    }
+                                                                />
                                                             </div>
                                                         </td>
                                                     </motion.tr>
