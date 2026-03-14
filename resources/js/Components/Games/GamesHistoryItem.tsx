@@ -1,6 +1,7 @@
 import { AvatarList } from '@/Components/AvatarList';
 import AvatarSmall from '@/Components/AvatarSmall';
 import { Button } from '@/components/ui/button';
+import { Link } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '@/utility/const';
 
@@ -64,7 +65,12 @@ export function GamesHistoryItem({
     return (
         <tr className="border-b border-border/60 last:border-0">
             <td className="whitespace-nowrap py-3 pr-4 text-sm text-muted-foreground">
-                {formatGameDate(game.game_start)}
+                <Link
+                    href={`/game/${game.id}`}
+                    className="hover:text-foreground hover:underline"
+                >
+                    {formatGameDate(game.game_start)}
+                </Link>
             </td>
             <td className="w-24 py-3 pr-4 text-sm font-medium">
                 {players.length ?? game.players_count}
