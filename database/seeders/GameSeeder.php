@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Game;
 use App\Models\Player;
 use App\Models\User;
 use App\Models\Winner;
+use App\Modules\Games\Models\Game;
 use App\Modules\UserGroup\Models\Group;
 use App\Modules\UserGroup\Models\UserGroup;
 use Illuminate\Database\Seeder;

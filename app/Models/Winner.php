@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Modules\Games\Models\Game;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Winner extends Pivot
@@ -17,5 +18,10 @@ class Winner extends Pivot
     public function player()
     {
         return $this->belongsTo(Player::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

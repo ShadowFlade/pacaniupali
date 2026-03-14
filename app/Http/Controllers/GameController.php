@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
-use App\Models\Game;
+use App\Modules\Games\Models\Game;
+use App\Modules\Games\Repository\GameRepository;
 use App\Service\GameService;
-use Carbon\Carbon;
-use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Redirect;
+use Inertia\Inertia;
 
 class GameController extends Controller
 {
@@ -56,9 +55,11 @@ class GameController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Game $game)
+    public function show(int $gameId)
     {
-        //
+        $repo = new GameRepository();
+        $game = $repo->getGameWithPlayersById($gameId);
+        return Inertia::render('Games/GameDetail', ['game' => $game]);
     }
 
     /**

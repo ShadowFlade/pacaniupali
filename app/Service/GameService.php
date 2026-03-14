@@ -2,10 +2,9 @@
 
 namespace App\Service;
 
-use App\Models\Game;
 use App\Models\Player;
 use App\Models\Winner;
-use Illuminate\Support\Facades\DB;
+use App\Modules\Games\Models\Game;
 
 class GameService
 {

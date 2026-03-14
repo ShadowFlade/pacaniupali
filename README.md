@@ -25,9 +25,7 @@
 * player - your last games, total points, best games and so on
 * replace string table names with smth like Model\User::table_name if it exists (across whole project)
 * in some places IPlayer is actually a user, not a player - refactor
-
-# BUGS
-* показывает неправильное количество игр у групп на /group (показывает количество у первой группы для всех групп)
+* add player column - point earned total, points lost total , right answsers, wrong answers  
 
 # LEFT ON
 * do npm run build and fix SearchUserPopup error

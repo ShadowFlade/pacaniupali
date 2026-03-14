@@ -55,6 +55,7 @@ Route::middleware('auth')->group(
 Route::middleware('auth')->group(
     function () {
         Route::get('/game', [GameController::class, 'index'])->name('game.index');
+        Route::get('/game/{id}', [GameController::class, 'show'])->name('game.show');
         Route::patch('/game', [GameController::class, 'update'])->name('game.update');
         Route::delete('/game', [GameController::class, 'destroy'])->name('game.destroy');
         Route::post('/game', [GameController::class, 'store'])->name('game.store');

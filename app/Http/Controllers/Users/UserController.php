@@ -2,18 +2,10 @@
 
 namespace App\Http\Controllers\Users;
 
-use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
 use App\Http\Requests\UserSearchRequest;
-use App\Models\Game;
 use App\Models\User;
-use Carbon\Carbon;
-use Illuminate\Http\Request;
-use Illuminate\Log\Logger;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
-use Inertia\Inertia;
+use App\Modules\Games\Models\Game;
 
 class UserController extends \App\Http\Controllers\Controller
 {

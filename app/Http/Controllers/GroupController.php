@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateGroupRequest;
 use App\Http\Requests\UserAdvancedUpdateRequest;
-use App\Models\Game;
+use App\Modules\Games\Models\Game;
 use App\Modules\UserGroup\Models\Group;
 use App\Modules\UserGroup\Models\UserGroup;
 use App\Service\UserGroupService;
