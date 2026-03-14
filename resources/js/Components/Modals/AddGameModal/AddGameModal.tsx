@@ -30,6 +30,10 @@ import './AddGameModal.css';
 type SelectedPlayer = {
     id: string;
     points: number;
+    points_earned?: number;
+    points_lost?: number;
+    correct_answers?: number;
+    incorrect_answers?: number;
     is_host: boolean;
 };
 
@@ -115,7 +119,18 @@ export function AddGameModal({
             const exists = current.some((p) => p.id === playerId);
             const updated = exists
                 ? current.filter((p) => p.id !== playerId)
-                : [...current, { id: playerId, points: 0, is_host: false }];
+                : [
+                      ...current,
+                      {
+                          id: playerId,
+                          points: 0,
+                          points_earned: 0,
+                          points_lost: 0,
+                          correct_answers: 0,
+                          incorrect_answers: 0,
+                          is_host: false,
+                      },
+                  ];
 
             if (!updated.some((p) => p.id === String(data.winner_id))) {
                 setData('winner_id', '');
@@ -128,7 +143,26 @@ export function AddGameModal({
     const setPlayerPoints = (playerId: string, points: number) => {
         setSelectedPlayers((current) => {
             const next = current.map((p) =>
-                p.id === playerId ? { ...p, points } : p,
+                p.id === playerId
+                    ? { ...p, points, points_earned: points }
+                    : p,
+            );
+            syncPlayersToForm(next);
+            return next;
+        });
+    };
+
+    const setPlayerStat = (
+        playerId: string,
+        field: keyof Pick<
+            SelectedPlayer,
+            'points_lost' | 'correct_answers' | 'incorrect_answers'
+        >,
+        value: number,
+    ) => {
+        setSelectedPlayers((current) => {
+            const next = current.map((p) =>
+                p.id === playerId ? { ...p, [field]: value } : p,
             );
             syncPlayersToForm(next);
             return next;
@@ -321,114 +355,133 @@ export function AddGameModal({
                             className="overflow-hidden"
                         >
                             <label className="mb-2 block text-sm font-medium">
-                                Очки и хост
+                                Очки, статистика и хост
                             </label>
-                            <div className="rounded-md border border-border/60 overflow-hidden">
-                                <table className="w-full table-fixed border-collapse text-left text-sm">
-                                <thead>
-                                    <tr className="border-b border-border bg-muted/50 text-muted-foreground">
-                                        <th className="w-[45%] py-2 px-3 font-medium">
-                                            Игрок
-                                        </th>
-                                        <th className="w-[25%] py-2 px-3 font-medium">
-                                            Очки
-                                        </th>
-                                        <th className="w-[30%] py-2 px-3 font-medium">
-                                            Хост
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <AnimatePresence>
-                                        {selectedPlayers.map((entry) => {
-                                            const player = players.find(
-                                                (p) =>
-                                                    p.id.toString() ===
-                                                    entry.id,
-                                            );
-                                            return (
-                                                <motion.tr
-                                                    key={entry.id}
-                                                    initial={{
-                                                        opacity: 0,
-                                                        y: -8,
-                                                    }}
-                                                    animate={{
-                                                        opacity: 1,
-                                                        y: 0,
-                                                    }}
-                                                    exit={{
-                                                        opacity: 0,
-                                                        y: -4,
-                                                    }}
-                                                    transition={{
-                                                        duration: 0.2,
-                                                        ease: [0.4, 0, 0.2, 1],
-                                                    }}
-                                                    className="border-b border-border/60 last:border-0"
-                                                >
-                                                    <td className="py-2 px-3 font-medium">
-                                                        {player
-                                                            ? displayName(
-                                                                  player,
-                                                              )
-                                                            : entry.id}
-                                                    </td>
-                                                    <td className="py-2 px-3">
-                                                        <Input
-                                                            type="number"
-                                                            step={500}
-                                                            className="h-8 w-20"
-                                                            value={
-                                                                entry.points
-                                                            }
-                                                            onChange={(e) => {
-                                                                const v =
-                                                                    e.target.value;
-                                                                setPlayerPoints(
-                                                                    entry.id,
-                                                                    v === ''
-                                                                        ? 0
-                                                                        : parseInt(
-                                                                              v,
-                                                                              10,
-                                                                          ) ||
-                                                                              0,
-                                                                );
-                                                            }}
-                                                        />
-                                                    </td>
-                                                    <td className="py-2 px-3">
-                                                        <div className="flex items-center gap-2">
-                                                            <Checkbox
-                                                                id={`host-${entry.id}`}
-                                                                checked={
-                                                                    entry.is_host
-                                                                }
-                                                                onCheckedChange={(
-                                                                    checked,
-                                                                ) =>
-                                                                    setPlayerIsHost(
-                                                                        entry.id,
-                                                                        !!checked,
-                                                                    )
-                                                                }
-                                                            />
-                                                            <label
-                                                                htmlFor={`host-${entry.id}`}
-                                                                className="cursor-pointer text-sm"
+                            <div className="rounded-md border border-border/60 text-sm">
+                                <table className="w-full table-fixed border-collapse">
+                                    <colgroup>
+                                        <col style={{ width: '22%' }} />
+                                        <col style={{ width: '15%' }} />
+                                        <col style={{ width: '15%' }} />
+                                        <col style={{ width: '14%' }} />
+                                        <col style={{ width: '14%' }} />
+                                        <col style={{ width: '20%' }} />
+                                    </colgroup>
+                                    <thead>
+                                        <tr className="border-b border-border bg-muted/50 text-muted-foreground">
+                                            <th className="py-2 px-3 text-left font-medium">Игрок</th>
+                                            <th className="py-2 px-2 text-left font-medium">
+                                                <span className="inline-block w-full max-w-[5rem] text-left" title="Очков заработано">
+                                                    + Очки
+                                                </span>
+                                            </th>
+                                            <th className="py-2 px-2 text-left font-medium">
+                                                <span className="inline-block w-full max-w-[5rem] left" title="Очков потеряно">
+                                                    − Очки
+                                                </span>
+                                            </th>
+                                            <th className="py-2 px-2 text-left font-medium">
+                                                <span className="inline-block w-full max-w-[5rem] text-left" title="Правильных ответов">
+                                                    ✓
+                                                </span>
+                                            </th>
+                                            <th className="py-2 px-2 text-left font-medium">
+                                                <span className="inline-block w-full max-w-[5rem] text-left" title="Неправильных ответов">
+                                                    ✗
+                                                </span>
+                                            </th>
+                                            <th className="py-2 px-3 text-left font-medium">Хост</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <AnimatePresence>
+                                            {selectedPlayers.map((entry) => {
+                                                const player = players.find(
+                                                    (p) => p.id.toString() === entry.id,
+                                                );
+                                                const num = (v: string) =>
+                                                    v === '' ? 0 : parseInt(v, 10) || 0;
+                                                return (
+                                                    <motion.tr
+                                                        key={entry.id}
+                                                        initial={{ opacity: 0, y: -8 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -4 }}
+                                                        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                                                        className="border-b border-border/60 last:border-0"
+                                                    >
+                                                        <td className="min-w-0 py-2 px-3">
+                                                            <span
+                                                                className="block truncate font-medium"
+                                                                title={player ? displayName(player) : entry.id}
                                                             >
-                                                                Хост
-                                                            </label>
-                                                        </div>
-                                                    </td>
-                                                </motion.tr>
-                                            );
-                                        })}
-                                    </AnimatePresence>
-                                </tbody>
-                            </table>
-                        </div>
+                                                                {player ? displayName(player) : entry.id}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 px-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step={1}
+                                                                className="h-8 w-full max-w-[5rem] text-right"
+                                                                value={entry.points_earned ?? entry.points}
+                                                                onChange={(e) => setPlayerPoints(entry.id, num(e.target.value))}
+                                                            />
+                                                        </td>
+                                                        <td className="py-2 px-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step={1}
+                                                                className="h-8 w-full max-w-[5rem] text-right"
+                                                                value={entry.points_lost ?? 0}
+                                                                onChange={(e) => setPlayerStat(entry.id, 'points_lost', num(e.target.value))}
+                                                            />
+                                                        </td>
+                                                        <td className="py-2 px-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step={1}
+                                                                className="h-8 w-full max-w-[5rem] text-right"
+                                                                value={entry.correct_answers ?? 0}
+                                                                onChange={(e) => setPlayerStat(entry.id, 'correct_answers', num(e.target.value))}
+                                                            />
+                                                        </td>
+                                                        <td className="py-2 px-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step={1}
+                                                                className="h-8 w-full max-w-[5rem] text-right"
+                                                                value={entry.incorrect_answers ?? 0}
+                                                                onChange={(e) => setPlayerStat(entry.id, 'incorrect_answers', num(e.target.value))}
+                                                            />
+                                                        </td>
+                                                        <td className="py-2 px-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <Checkbox
+                                                                    id={`host-${entry.id}`}
+                                                                    checked={entry.is_host}
+                                                                    onCheckedChange={(checked) =>
+                                                                        setPlayerIsHost(entry.id, !!checked)
+                                                                    }
+                                                                />
+                                                                <label
+                                                                    htmlFor={`host-${entry.id}`}
+                                                                    className="cursor-pointer"
+                                                                >
+                                                                    Хост
+                                                                </label>
+                                                            </div>
+                                                        </td>
+                                                    </motion.tr>
+                                                );
+                                            })}
+                                        </AnimatePresence>
+                                    </tbody>
+                                </table>
+                            </div>
                         </motion.div>
                     )}
                 </AnimatePresence>
@@ -448,7 +501,7 @@ export function AddGameModal({
                     <span>Добавить игру</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-[42rem] overflow-hidden">
+            <DialogContent className="max-w-5xl overflow-hidden">
                 <motion.div
                     layout
                     className="flex max-h-[90vh] flex-col overflow-y-auto"
