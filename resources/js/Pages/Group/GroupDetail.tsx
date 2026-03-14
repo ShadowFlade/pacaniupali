@@ -68,7 +68,9 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
     const gamesWithGroupId = games.map((g) => ({
         ...g,
         group_id: g.group_id ?? group.id,
+        players_count: g.player.length
     }));
+    console.log(gamesWithGroupId,' game with group id');
 
     const visibleGames = gamesWithGroupId.filter(
         (g) => !removedGameIds.includes(g.id),

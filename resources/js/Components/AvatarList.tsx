@@ -1,5 +1,6 @@
 import AvatarSmall from '@/Components/AvatarSmall';
 import { DEFAULT_AVATAR_PATH } from '@/utility/const';
+import { GamePlayer } from '@/Components/Games/GamesHistoryItem';
 
 interface Player {
     user: {
@@ -11,7 +12,7 @@ interface Player {
 }
 
 interface AvatarListProps {
-    players: Player[];
+    players: GamePlayer[];
     maxAvatars?: number;
     overlap?: number;
 }
