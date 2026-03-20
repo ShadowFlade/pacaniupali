@@ -104,6 +104,22 @@ export function AddGameModal({
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        transform((formData) => ({
+            ...formData,
+            players: formData.players.map((player) =>
+                player.is_host
+                    ? {
+                          ...player,
+                          points: 0,
+                          points_earned: 0,
+                          points_lost: 0,
+                          correct_answers: 0,
+                          incorrect_answers: 0,
+                      }
+                    : player,
+            ),
+        }));
+
         post(route('game.store'), {
             onSuccess: (data) => console.log(data, ' success'),
             onFinish: (smth) => console.log(smth),
@@ -184,6 +200,15 @@ export function AddGameModal({
             const next = current.map((p) => ({
                 ...p,
                 is_host: p.id === playerId ? is_host : false,
+                ...(p.id === playerId && is_host
+                    ? {
+                          points: 0,
+                          points_earned: 0,
+                          points_lost: 0,
+                          correct_answers: 0,
+                          incorrect_answers: 0,
+                      }
+                    : {}),
             }));
             syncPlayersToForm(next);
             return next;
@@ -472,6 +497,7 @@ export function AddGameModal({
                                                                 value={
                                                                     entry.points_earned
                                                                 }
+                                                                disabled={entry.is_host}
                                                                 onChange={(e) =>
                                                                     setPlayerPoints(
                                                                         entry.id,
@@ -494,6 +520,7 @@ export function AddGameModal({
                                                                     entry.points_lost ??
                                                                     0
                                                                 }
+                                                                disabled={entry.is_host}
                                                                 onChange={(e) =>
                                                                     setPlayerStat(
                                                                         entry.id,
@@ -517,6 +544,7 @@ export function AddGameModal({
                                                                     entry.correct_answers ??
                                                                     0
                                                                 }
+                                                                disabled={entry.is_host}
                                                                 onChange={(e) =>
                                                                     setPlayerStat(
                                                                         entry.id,
@@ -540,6 +568,7 @@ export function AddGameModal({
                                                                     entry.incorrect_answers ??
                                                                     0
                                                                 }
+                                                                disabled={entry.is_host}
                                                                 onChange={(e) =>
                                                                     setPlayerStat(
                                                                         entry.id,
