@@ -27,5 +27,4 @@
 * in some places IPlayer is actually a user, not a player - refactor
 * add player column - point earned total, points lost total , right answsers, wrong answers  
 
-# LEFT ON
-* do npm run build and fix SearchUserPopup error
+

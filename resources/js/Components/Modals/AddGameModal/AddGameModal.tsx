@@ -22,7 +22,7 @@ import { useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarIcon, PlusCircle } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './AddGameModal.css';
@@ -77,6 +77,16 @@ export function AddGameModal({
         (typeof groups)[0] | null
     >(groups.find((item) => item.id == selectedGroupID));
     const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayer[]>([]);
+    const statsContentRef = useRef<HTMLDivElement | null>(null);
+    const [statsContentHeight, setStatsContentHeight] = useState(0);
+
+    useLayoutEffect(() => {
+        if (!statsContentRef.current) {
+            return;
+        }
+
+        setStatsContentHeight(statsContentRef.current.scrollHeight);
+    }, [selectedPlayers]);
 
     const syncPlayersToForm = (next: SelectedPlayer[]) => {
         setData('players', next);
@@ -339,21 +349,19 @@ export function AddGameModal({
                         ))}
                     </div>
                 </div>
-                <AnimatePresence>
-                    {selectedPlayers.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{
-                                opacity: 1,
-                                height: 'auto',
-                            }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{
-                                duration: 0.25,
-                                ease: [0.4, 0, 0.2, 1],
-                            }}
-                            className="overflow-hidden"
-                        >
+                <motion.div
+                    initial={false}
+                    animate={{
+                        opacity: selectedPlayers.length > 0 ? 1 : 0,
+                        height: selectedPlayers.length > 0 ? statsContentHeight : 0,
+                    }}
+                    transition={{
+                        duration: 0.25,
+                        ease: [0.4, 0, 0.2, 1],
+                    }}
+                    className="overflow-hidden"
+                >
+                    <div ref={statsContentRef}>
                             <label className="mb-2 block text-sm font-medium">
                                 Очки, статистика и хост
                             </label>
@@ -393,8 +401,16 @@ export function AddGameModal({
                                             <th className="py-2 px-3 text-left font-medium">Хост</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <AnimatePresence>
+                                    <motion.tbody
+                                        layout
+                                        transition={{
+                                            layout: {
+                                                duration: 0.25,
+                                                ease: [0.4, 0, 0.2, 1],
+                                            },
+                                        }}
+                                    >
+                                        <AnimatePresence mode="sync" initial={false}>
                                             {selectedPlayers.map((entry) => {
                                                 const player = players.find(
                                                     (p) => p.id.toString() === entry.id,
@@ -404,23 +420,28 @@ export function AddGameModal({
                                                 return (
                                                     <motion.tr
                                                         key={entry.id}
+                                                        layout
                                                         initial={{
                                                             opacity: 0,
-                                                            y: -8,
                                                         }}
                                                         animate={{
                                                             opacity: 1,
-                                                            y: 0,
                                                         }}
                                                         exit={{
                                                             opacity: 0,
-                                                            y: -4,
                                                         }}
                                                         transition={{
                                                             duration: 0.2,
                                                             ease: [
                                                                 0.4, 0, 0.2, 1,
                                                             ],
+                                                            layout: {
+                                                                duration: 0.25,
+                                                                ease: [
+                                                                    0.4, 0, 0.2,
+                                                                    1,
+                                                                ],
+                                                            },
                                                         }}
                                                         className="border-border/60 border-b last:border-0"
                                                     >
@@ -560,12 +581,11 @@ export function AddGameModal({
                                                 );
                                             })}
                                         </AnimatePresence>
-                                    </tbody>
+                                    </motion.tbody>
                                 </table>
                             </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                    </div>
+                </motion.div>
             </div>
         );
     };
