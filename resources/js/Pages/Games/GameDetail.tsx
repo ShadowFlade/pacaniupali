@@ -4,8 +4,18 @@ import AvatarSmall from '@/Components/AvatarSmall';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import General from '@/Layouts/General';
 import { Link } from '@inertiajs/react';
-import { ArrowLeft, Calendar, Gamepad2, Trophy, Users } from 'lucide-react';
+import {
+    ArrowDown,
+    ArrowLeft,
+    ArrowUp,
+    ArrowUpDown,
+    Calendar,
+    Gamepad2,
+    Trophy,
+    Users,
+} from 'lucide-react';
 import { format } from 'date-fns';
+import { useMemo, useState } from 'react';
 import { DATE_TIME_FORMAT } from '@/utility/const';
 import { DEFAULT_AVATAR_PATH } from '@/utility/const';
 
@@ -54,9 +64,150 @@ function displayName(p: GameDetailPlayer): string {
     return p.user?.username ?? p.user?.login ?? String(p.user_id);
 }
 
+function formatPlayerStat(
+    value: number | null | undefined,
+): string | number {
+    if (value === null || value === undefined) {
+        return '—';
+    }
+    return value;
+}
+
+function pointsTotalDisplay(p: GameDetailPlayer): string | number {
+    return formatPlayerStat(p.points);
+}
+
+function pointsEarnedDisplay(p: GameDetailPlayer): string | number {
+    return formatPlayerStat(p.points_earned);
+}
+
+type StatsSortKey =
+    | 'name'
+    | 'points'
+    | 'points_earned'
+    | 'points_lost'
+    | 'right_answers'
+    | 'wrong_answers'
+    | 'win_streak';
+
+type SortDir = 'asc' | 'desc';
+
+function comparePlayers(
+    a: GameDetailPlayer,
+    b: GameDetailPlayer,
+    key: StatsSortKey,
+    dir: SortDir,
+): number {
+    let cmp = 0;
+    if (key === 'name') {
+        cmp = displayName(a).localeCompare(displayName(b), 'ru', {
+            sensitivity: 'base',
+        });
+    } else {
+        const get = (p: GameDetailPlayer): number | null | undefined => {
+            switch (key) {
+                case 'points':
+                    return p.points;
+                case 'points_earned':
+                    return p.points_earned;
+                case 'points_lost':
+                    return p.points_lost;
+                case 'right_answers':
+                    return p.right_answers;
+                case 'wrong_answers':
+                    return p.wrong_answers;
+                case 'win_streak':
+                    return p.win_streak;
+                default:
+                    return null;
+            }
+        };
+        const va = get(a);
+        const vb = get(b);
+        if (dir === 'asc') {
+            const na = va ?? Number.POSITIVE_INFINITY;
+            const nb = vb ?? Number.POSITIVE_INFINITY;
+            cmp = na - nb;
+        } else {
+            const na = va ?? Number.NEGATIVE_INFINITY;
+            const nb = vb ?? Number.NEGATIVE_INFINITY;
+            cmp = nb - na;
+        }
+    }
+    return cmp !== 0
+        ? cmp
+        : String(a.id).localeCompare(String(b.id), undefined, {
+              numeric: true,
+          });
+}
+
+function SortHeaderButton({
+    label,
+    sortKey,
+    activeKey,
+    dir,
+    onSort,
+    align,
+    title,
+}: {
+    label: string;
+    sortKey: StatsSortKey;
+    activeKey: StatsSortKey | null;
+    dir: SortDir;
+    onSort: (key: StatsSortKey) => void;
+    align: 'left' | 'right';
+    title?: string;
+}) {
+    const active = activeKey === sortKey;
+    const Icon = !active
+        ? ArrowUpDown
+        : dir === 'asc'
+          ? ArrowUp
+          : ArrowDown;
+    return (
+        <button
+            type="button"
+            title={title}
+            onClick={() => onSort(sortKey)}
+            className={
+                align === 'left'
+                    ? 'inline-flex w-full items-center justify-start gap-1 rounded px-0 py-0.5 text-left font-medium hover:text-foreground'
+                    : 'inline-flex w-full items-center justify-end gap-1 rounded px-0 py-0.5 text-right font-medium hover:text-foreground'
+            }
+        >
+            <span>{label}</span>
+            <Icon
+                className={
+                    active ? 'h-3.5 w-3.5 shrink-0' : 'h-3.5 w-3.5 shrink-0 opacity-40'
+                }
+                aria-hidden
+            />
+        </button>
+    );
+}
+
 export default function GameDetail({ game }: GameDetailProps) {
     const players = game.player ?? [];
-    console.log(game,' game');
+    const [statsSortKey, setStatsSortKey] = useState<StatsSortKey | null>(null);
+    const [statsSortDir, setStatsSortDir] = useState<SortDir>('asc');
+
+    const handleStatsSort = (key: StatsSortKey) => {
+        if (statsSortKey === key) {
+            setStatsSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+        } else {
+            setStatsSortKey(key);
+            setStatsSortDir('asc');
+        }
+    };
+
+    const sortedPlayersForStats = useMemo(() => {
+        if (!statsSortKey) {
+            return players;
+        }
+        return [...players].sort((a, b) =>
+            comparePlayers(a, b, statsSortKey, statsSortDir),
+        );
+    }, [players, statsSortKey, statsSortDir]);
     const winnerPlayer = game.winner
         ? players.find(
               (p) => String(p.id) === String(game.winner!.player_id),
@@ -66,7 +217,7 @@ export default function GameDetail({ game }: GameDetailProps) {
 
     return (
         <General>
-            <div className="container mx-auto max-w-3xl px-4 py-8">
+            <div className="container mx-auto max-w-7xl px-4 py-8">
                 <div className="mb-6 flex items-center justify-between">
                     <Link
                         href={
@@ -148,24 +299,94 @@ export default function GameDetail({ game }: GameDetailProps) {
                             </h2>
                         </CardHeader>
                         <CardContent>
-                            {winnerUser ? (
-                                <div className="flex items-center gap-3">
-                                    <AvatarSmall
-                                        picture={
-                                            winnerUser.picture ??
-                                            DEFAULT_AVATAR_PATH
-                                        }
-                                        username={
-                                            winnerUser.username ??
-                                            winnerUser.login ??
-                                            ''
-                                        }
-                                    />
-                                    <span className="font-medium">
-                                        {winnerUser.username ??
-                                            winnerUser.login ??
-                                            'Победитель'}
-                                    </span>
+                            {winnerUser && winnerPlayer ? (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3">
+                                        <AvatarSmall
+                                            picture={
+                                                winnerUser.picture ??
+                                                DEFAULT_AVATAR_PATH
+                                            }
+                                            username={
+                                                winnerUser.username ??
+                                                winnerUser.login ??
+                                                ''
+                                            }
+                                        />
+                                        <span className="font-medium">
+                                            {winnerUser.username ??
+                                                winnerUser.login ??
+                                                'Победитель'}
+                                        </span>
+                                    </div>
+                                    <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/60 pt-4 sm:grid-cols-3">
+                                        <div>
+                                            <dt
+                                                className="text-muted-foreground text-xs"
+                                                title="Всего очков набрано за игру"
+                                            >
+                                                Всего очков
+                                            </dt>
+                                            <dd className="font-medium tabular-nums">
+                                                {pointsTotalDisplay(
+                                                    winnerPlayer,
+                                                )}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt className="text-muted-foreground text-xs">
+                                                Очков заработано
+                                            </dt>
+                                            <dd className="font-medium tabular-nums">
+                                                {pointsEarnedDisplay(
+                                                    winnerPlayer,
+                                                )}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt className="text-muted-foreground text-xs">
+                                                Очков потеряно
+                                            </dt>
+                                            <dd className="font-medium tabular-nums">
+                                                {formatPlayerStat(
+                                                    winnerPlayer.points_lost,
+                                                )}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt className="text-muted-foreground text-xs">
+                                                Правильных
+                                            </dt>
+                                            <dd className="font-medium tabular-nums">
+                                                {formatPlayerStat(
+                                                    winnerPlayer.right_answers,
+                                                )}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt className="text-muted-foreground text-xs">
+                                                Неправильных
+                                            </dt>
+                                            <dd className="font-medium tabular-nums">
+                                                {formatPlayerStat(
+                                                    winnerPlayer.wrong_answers,
+                                                )}
+                                            </dd>
+                                        </div>
+                                        <div>
+                                            <dt
+                                                className="text-muted-foreground text-xs"
+                                                title="Стрик побед после игры"
+                                            >
+                                                Серия
+                                            </dt>
+                                            <dd className="font-medium tabular-nums">
+                                                {formatPlayerStat(
+                                                    winnerPlayer.win_streak,
+                                                )}
+                                            </dd>
+                                        </div>
+                                    </dl>
                                 </div>
                             ) : (
                                 <p className="text-muted-foreground text-sm">
@@ -194,28 +415,82 @@ export default function GameDetail({ game }: GameDetailProps) {
                                 <table className="w-full table-fixed border-collapse text-left text-sm">
                                     <thead>
                                         <tr className="border-b border-border bg-muted/50 text-muted-foreground">
-                                            <th className="w-[25%] py-2 px-3 font-medium">
-                                                Игрок
+                                            <th className="w-[20%] py-2 px-3 font-medium">
+                                                <SortHeaderButton
+                                                    label="Игрок"
+                                                    sortKey="name"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="left"
+                                                />
                                             </th>
-                                            <th className="w-[12%] py-2 px-2 text-right font-medium">
-                                                Очков заработано
+                                            <th className="w-[11%] py-2 px-2 text-right font-medium">
+                                                <SortHeaderButton
+                                                    label="Всего очков"
+                                                    sortKey="points"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="right"
+                                                    title="Всего очков набрано за игру"
+                                                />
                                             </th>
-                                            <th className="w-[12%] py-2 px-2 text-right font-medium">
-                                                Очков потеряно
+                                            <th className="w-[11%] py-2 px-2 text-right font-medium">
+                                                <SortHeaderButton
+                                                    label="Очков заработано"
+                                                    sortKey="points_earned"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="right"
+                                                />
                                             </th>
-                                            <th className="w-[12%] py-2 px-2 text-right font-medium">
-                                                Правильных
+                                            <th className="w-[11%] py-2 px-2 text-right font-medium">
+                                                <SortHeaderButton
+                                                    label="Очков потеряно"
+                                                    sortKey="points_lost"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="right"
+                                                />
                                             </th>
-                                            <th className="w-[12%] py-2 px-2 text-right font-medium">
-                                                Неправильных
+                                            <th className="w-[11%] py-2 px-2 text-right font-medium">
+                                                <SortHeaderButton
+                                                    label="Правильных"
+                                                    sortKey="right_answers"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="right"
+                                                />
                                             </th>
-                                            <th className="w-[12%] py-2 px-2 text-right font-medium">
-                                                Стрик побед после игры
+                                            <th className="w-[11%] py-2 px-2 text-right font-medium">
+                                                <SortHeaderButton
+                                                    label="Неправильных"
+                                                    sortKey="wrong_answers"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="right"
+                                                />
+                                            </th>
+                                            <th className="w-[11%] py-2 px-2 text-right font-medium">
+                                                <SortHeaderButton
+                                                    label="Серия"
+                                                    sortKey="win_streak"
+                                                    activeKey={statsSortKey}
+                                                    dir={statsSortDir}
+                                                    onSort={handleStatsSort}
+                                                    align="right"
+                                                    title="Стрик побед после игры"
+                                                />
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {players.map((p) => (
+                                        {sortedPlayersForStats.map((p) => (
                                             <tr
                                                 key={String(p.id)}
                                                 className="border-b border-border/60 last:border-0"
@@ -238,21 +513,30 @@ export default function GameDetail({ game }: GameDetailProps) {
                                                     </div>
                                                 </td>
                                                 <td className="py-3 px-2 text-right">
-                                                    {p.points_earned ??
-                                                        p.points ??
-                                                        '—'}
+                                                    {pointsTotalDisplay(p)}
                                                 </td>
                                                 <td className="py-3 px-2 text-right">
-                                                    {p.points_lost ?? '—'}
+                                                    {pointsEarnedDisplay(p)}
                                                 </td>
                                                 <td className="py-3 px-2 text-right">
-                                                    {p.right_answers ?? '—'}
+                                                    {formatPlayerStat(
+                                                        p.points_lost,
+                                                    )}
                                                 </td>
                                                 <td className="py-3 px-2 text-right">
-                                                    {p.wrong_answers ?? '—'}
+                                                    {formatPlayerStat(
+                                                        p.right_answers,
+                                                    )}
                                                 </td>
                                                 <td className="py-3 px-2 text-right">
-                                                    {p.win_streak ?? '—'}
+                                                    {formatPlayerStat(
+                                                        p.wrong_answers,
+                                                    )}
+                                                </td>
+                                                <td className="py-3 px-2 text-right">
+                                                    {formatPlayerStat(
+                                                        p.win_streak,
+                                                    )}
                                                 </td>
                                             </tr>
                                         ))}

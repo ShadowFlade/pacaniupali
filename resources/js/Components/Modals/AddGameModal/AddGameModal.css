@@ -1,3 +1,9 @@
 .react-datepicker__tab-loop {
     margin-top: 0 !important;
 }
+
+/* Поверх контента диалога; pointer-events — на случай вложенности в обёртки с none */
+.add-game-datepicker-popper {
+    z-index: 100;
+    pointer-events: auto;
+}

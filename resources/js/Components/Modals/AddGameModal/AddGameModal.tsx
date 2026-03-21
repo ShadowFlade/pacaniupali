@@ -20,12 +20,20 @@ import {
 import { DATE_TIME_FORMAT } from '@/utility/const';
 import { useForm } from '@inertiajs/react';
 import { format } from 'date-fns';
-import { AnimatePresence, motion } from 'framer-motion';
 import { CalendarIcon, PlusCircle } from 'lucide-react';
-import React, { useLayoutEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import './AddGameModal.css';
+
+/** Минимум строк в таблице статистики (реальные + пустые слоты), чтобы высота не прыгала при 1–5 игроках */
+const STATS_TABLE_MIN_ROWS = 5;
+
+const ADD_GAME_DATE_PICKER_SHARED = {
+    portalId: 'react-datepicker-add-game-portal',
+    popperProps: { strategy: 'fixed' as const },
+    popperClassName: 'add-game-datepicker-popper',
+} as const;
 
 type SelectedPlayer = {
     id: string;
@@ -78,16 +86,6 @@ export function AddGameModal({
         (typeof groups)[0] | null
     >(groups.find((item) => item.id == selectedGroupID));
     const [selectedPlayers, setSelectedPlayers] = useState<SelectedPlayer[]>([]);
-    const statsContentRef = useRef<HTMLDivElement | null>(null);
-    const [statsContentHeight, setStatsContentHeight] = useState(0);
-
-    useLayoutEffect(() => {
-        if (!statsContentRef.current) {
-            return;
-        }
-
-        setStatsContentHeight(statsContentRef.current.scrollHeight);
-    }, [selectedPlayers]);
 
     const syncPlayersToForm = (next: SelectedPlayer[]) => {
         setData('players', next);
@@ -173,12 +171,20 @@ export function AddGameModal({
         });
     };
 
-    const setPlayerPoints = (playerId: string, points: number) => {
+    const setPlayerTotalPoints = (playerId: string, points: number) => {
         setSelectedPlayers((current) => {
             const next = current.map((p) =>
-                p.id === playerId
-                    ? { ...p, points, points_earned: points }
-                    : p,
+                p.id === playerId ? { ...p, points } : p,
+            );
+            syncPlayersToForm(next);
+            return next;
+        });
+    };
+
+    const setPlayerPointsEarned = (playerId: string, points_earned: number) => {
+        setSelectedPlayers((current) => {
+            const next = current.map((p) =>
+                p.id === playerId ? { ...p, points_earned } : p,
             );
             syncPlayersToForm(next);
             return next;
@@ -287,6 +293,7 @@ export function AddGameModal({
             <div className="flex flex-col space-y-2">
                 <label>Game Start</label>
                 <DatePicker
+                    {...ADD_GAME_DATE_PICKER_SHARED}
                     selected={data.game_start}
                     onChange={(date) => {
                         setData('game_start', date);
@@ -311,9 +318,13 @@ export function AddGameModal({
                     }
                     selectsMultiple={undefined}
                 />
-                {gameStartError && (
-                    <p className="text-sm text-destructive">{gameStartError}</p>
-                )}
+                <div className="min-h-[22px]">
+                    {gameStartError ? (
+                        <p className="text-sm text-destructive">
+                            {gameStartError}
+                        </p>
+                    ) : null}
+                </div>
             </div>
         );
     };
@@ -323,6 +334,7 @@ export function AddGameModal({
             <div className="flex flex-col space-y-2">
                 <label>Game End</label>
                 <DatePicker
+                    {...ADD_GAME_DATE_PICKER_SHARED}
                     className="mt-0"
                     selected={data.game_end}
                     onChange={(date) => {
@@ -344,6 +356,7 @@ export function AddGameModal({
                     }
                     selectsMultiple={undefined}
                 />
+                <div className="min-h-[22px]" aria-hidden />
             </div>
         );
     };
@@ -375,6 +388,12 @@ export function AddGameModal({
         const displayName = (p: { username?: string; login?: string }) =>
             p.username ?? p.login ?? '';
 
+        /* Всегда держим в таблице ровно 5 «слотов» строк данных — высота блока не меняется при 0–5 игроках */
+        const statsPlaceholderRows = Math.max(
+            0,
+            STATS_TABLE_MIN_ROWS - selectedPlayers.length,
+        );
+
         return (
             <div className="space-y-3">
                 <div>
@@ -404,35 +423,43 @@ export function AddGameModal({
                         ))}
                     </div>
                 </div>
-                <motion.div
-                    initial={false}
-                    animate={{
-                        opacity: selectedPlayers.length > 0 ? 1 : 0,
-                        height: selectedPlayers.length > 0 ? statsContentHeight : 0,
-                    }}
-                    transition={{
-                        duration: 0.25,
-                        ease: [0.4, 0, 0.2, 1],
-                    }}
-                    className="overflow-hidden"
+                <div
+                    className={
+                        selectedPlayers.length === 0
+                            ? 'opacity-60'
+                            : ''
+                    }
                 >
-                    <div ref={statsContentRef}>
-                            <label className="mb-2 block text-sm font-medium">
-                                Очки, статистика и хост
-                            </label>
-                            <div className="rounded-md border border-border/60 text-sm">
+                    <label className="mb-2 block text-sm font-medium">
+                        Очки, статистика и хост
+                    </label>
+                    <div className="text-muted-foreground mb-2 flex h-8 items-center text-xs">
+                        {selectedPlayers.length === 0
+                            ? 'Отметьте игроков выше, чтобы заполнить строки'
+                            : ''}
+                    </div>
+                    <div className="rounded-md border border-border/60 text-sm">
                                 <table className="w-full table-fixed border-collapse">
                                     <colgroup>
+                                        <col style={{ width: '18%' }} />
+                                        <col style={{ width: '12%' }} />
+                                        <col style={{ width: '12%' }} />
+                                        <col style={{ width: '12%' }} />
+                                        <col style={{ width: '12%' }} />
+                                        <col style={{ width: '12%' }} />
                                         <col style={{ width: '22%' }} />
-                                        <col style={{ width: '15%' }} />
-                                        <col style={{ width: '15%' }} />
-                                        <col style={{ width: '14%' }} />
-                                        <col style={{ width: '14%' }} />
-                                        <col style={{ width: '20%' }} />
                                     </colgroup>
                                     <thead>
                                         <tr className="border-b border-border bg-muted/50 text-muted-foreground">
                                             <th className="py-2 px-3 text-left font-medium">Игрок</th>
+                                            <th className="py-2 px-2 text-left font-medium">
+                                                <span
+                                                    className="inline-block w-full max-w-[5rem] text-left"
+                                                    title="Всего очков набрано за игру"
+                                                >
+                                                    Всего очков
+                                                </span>
+                                            </th>
                                             <th className="py-2 px-2 text-left font-medium">
                                                 <span className="inline-block w-full max-w-[5rem] text-left" title="Очков заработано">
                                                     Заработанные очки
@@ -456,48 +483,21 @@ export function AddGameModal({
                                             <th className="py-2 px-3 text-left font-medium">Хост</th>
                                         </tr>
                                     </thead>
-                                    <motion.tbody
-                                        layout
-                                        transition={{
-                                            layout: {
-                                                duration: 0.25,
-                                                ease: [0.4, 0, 0.2, 1],
-                                            },
-                                        }}
-                                    >
-                                        <AnimatePresence mode="sync" initial={false}>
+                                    <tbody>
                                             {selectedPlayers.map((entry) => {
                                                 const player = players.find(
                                                     (p) => p.id.toString() === entry.id,
                                                 );
-                                                const num = (v: string) =>
-                                                    v === '' ? 0 : parseInt(v, 10) || 0;
+                                                const num = (v: string) => {
+                                                    if (v === '' || v === '-') {
+                                                        return 0;
+                                                    }
+                                                    const n = Number(v);
+                                                    return Number.isFinite(n) ? n : 0;
+                                                };
                                                 return (
-                                                    <motion.tr
+                                                    <tr
                                                         key={entry.id}
-                                                        layout
-                                                        initial={{
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            opacity: 1,
-                                                        }}
-                                                        exit={{
-                                                            opacity: 0,
-                                                        }}
-                                                        transition={{
-                                                            duration: 0.2,
-                                                            ease: [
-                                                                0.4, 0, 0.2, 1,
-                                                            ],
-                                                            layout: {
-                                                                duration: 0.25,
-                                                                ease: [
-                                                                    0.4, 0, 0.2,
-                                                                    1,
-                                                                ],
-                                                            },
-                                                        }}
                                                         className="border-border/60 border-b last:border-0"
                                                     >
                                                         <td className="min-w-0 px-3 py-2">
@@ -522,14 +522,12 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step={500}
+                                                                step="any"
                                                                 className="h-8 w-full max-w-[5rem] text-left"
-                                                                value={
-                                                                    entry.points_earned
-                                                                }
+                                                                value={entry.points}
                                                                 disabled={entry.is_host}
                                                                 onChange={(e) =>
-                                                                    setPlayerPoints(
+                                                                    setPlayerTotalPoints(
                                                                         entry.id,
                                                                         num(
                                                                             e
@@ -544,7 +542,30 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step={500}
+                                                                step="any"
+                                                                className="h-8 w-full max-w-[5rem] text-left"
+                                                                value={
+                                                                    entry.points_earned ??
+                                                                    0
+                                                                }
+                                                                disabled={entry.is_host}
+                                                                onChange={(e) =>
+                                                                    setPlayerPointsEarned(
+                                                                        entry.id,
+                                                                        num(
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                        ),
+                                                                    )
+                                                                }
+                                                            />
+                                                        </td>
+                                                        <td className="px-2 py-2 text-right">
+                                                            <Input
+                                                                type="number"
+                                                                min={0}
+                                                                step="any"
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
                                                                     entry.points_lost ??
@@ -568,7 +589,7 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step={1}
+                                                                step="any"
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
                                                                     entry.right_answers ??
@@ -592,7 +613,7 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step={1}
+                                                                step="any"
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
                                                                     entry.wrong_answers ??
@@ -636,15 +657,46 @@ export function AddGameModal({
                                                                 />
                                                             </div>
                                                         </td>
-                                                    </motion.tr>
+                                                    </tr>
                                                 );
                                             })}
-                                        </AnimatePresence>
-                                    </motion.tbody>
+                                        {Array.from({
+                                            length: statsPlaceholderRows,
+                                        }).map((_, i) => (
+                                            <tr
+                                                key={`stats-placeholder-${i}`}
+                                                aria-hidden
+                                                className="pointer-events-none border-border/60 border-b last:border-0"
+                                            >
+                                                <td className="min-w-0 px-3 py-2">
+                                                    <span className="invisible inline-block h-8">
+                                                        —
+                                                    </span>
+                                                </td>
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="h-8" />
+                                                </td>
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="h-8" />
+                                                </td>
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="h-8" />
+                                                </td>
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="h-8" />
+                                                </td>
+                                                <td className="px-2 py-2 text-right">
+                                                    <div className="h-8" />
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <div className="h-8" />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
                                 </table>
                             </div>
-                    </div>
-                </motion.div>
+                </div>
             </div>
         );
     };
@@ -661,17 +713,8 @@ export function AddGameModal({
                     <span>Добавить игру</span>
                 </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-5xl overflow-hidden">
-                <motion.div
-                    layout
-                    className="flex max-h-[90vh] flex-col overflow-y-auto"
-                    transition={{
-                        layout: {
-                            duration: 0.25,
-                            ease: [0.4, 0, 0.2, 1],
-                        },
-                    }}
-                >
+            <DialogContent className="max-w-5xl overflow-visible">
+                <div className="flex max-h-[90vh] flex-col overflow-y-auto overflow-x-hidden">
                     <DialogHeader className="shrink-0">
                         <DialogTitle>Добавить новую игру</DialogTitle>
                     </DialogHeader>
@@ -706,7 +749,15 @@ export function AddGameModal({
                             <Button type="submit">Добавить игру</Button>
                         </div>
                     </form>
-                </motion.div>
+                </div>
+                {/*
+                  Календарь должен монтироваться внутри DialogContent: иначе портал на document.body
+                  попадает под блокировку pointer-events у Radix (модалка), и дата/время не кликаются.
+                */}
+                <div
+                    id="react-datepicker-add-game-portal"
+                    className="absolute bottom-0 right-4 h-0 w-0 overflow-visible"
+                />
             </DialogContent>
         </Dialog>
     );
