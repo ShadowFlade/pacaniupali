@@ -522,7 +522,7 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step="any"
+                                                                step={500}
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={entry.points}
                                                                 disabled={entry.is_host}
@@ -542,7 +542,7 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step="any"
+                                                                step={500}
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
                                                                     entry.points_earned ??
@@ -565,7 +565,7 @@ export function AddGameModal({
                                                             <Input
                                                                 type="number"
                                                                 min={0}
-                                                                step="any"
+                                                                step={500}
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
                                                                     entry.points_lost ??
@@ -719,6 +719,7 @@ export function AddGameModal({
                         <DialogTitle>Добавить новую игру</DialogTitle>
                     </DialogHeader>
                     <form
+                        noValidate
                         onSubmit={onSubmit}
                         className="flex flex-col"
                     >
