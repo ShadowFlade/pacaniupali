@@ -64,10 +64,10 @@ class UserController extends \App\Http\Controllers\Controller
                      ->get()
                      ->keyBy('id')
                      ->toArray();
-
         foreach ($opponents as $key => $opponent) {
             if (isset($users[$opponent['opponent_id']])) {
                 $opponents[$key]['user'] = $users[$opponent['opponent_id']];
+                $opponents[$key]['count'] = $opponents[$key]['times_played_together'];
             }
         }
 
@@ -82,7 +82,9 @@ class UserController extends \App\Http\Controllers\Controller
                 'wins'         => $winCount,
                 'win_rate'     => $winRate,
             ],
-            'most_played_with' => $opponents,
+            'most_played_with' => array_values($opponents),
+            'most_won_against' => [],
+            'most_lost_to'     => [],
         ];
 
         return Inertia::render('Users/UserDetail', $resp);

@@ -30,11 +30,12 @@ class User
 
     public function getPlayedWithMostStat(int $userId, int $limit): Collection
     {
+        //todo[revisit]: revisit later if i understand this lol
         $opponents = Player::from('players as me')
                            ->join(
                                'players as opponent', function ($join) {
                                $join->on('me.game_id', '=', 'opponent.game_id')
-                                    ->where('me.user_id', '!=', DB::raw('opponent.user_id'));
+                                    ->on('me.user_id', '!=', 'opponent.user_id');
                            })
                            ->where('me.user_id', $userId)
                            ->select(

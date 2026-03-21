@@ -94,6 +94,7 @@ function StatPartnersCard({
     items: UserStatPartner[];
     emptyText: string;
 }) {
+    console.log(items,' items');
     return (
         <Card>
             <CardHeader className="pb-2">
