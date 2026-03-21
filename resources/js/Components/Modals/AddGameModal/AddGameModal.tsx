@@ -32,8 +32,8 @@ type SelectedPlayer = {
     points: number;
     points_earned?: number;
     points_lost?: number;
-    correct_answers?: number;
-    incorrect_answers?: number;
+    right_answers?: number;
+    wrong_answers?: number;
     is_host: boolean;
 };
 
@@ -73,6 +73,7 @@ export function AddGameModal({
     selectedGroupID,
 }) {
     const [open, setOpen] = useState(false);
+    const [touched, setTouched] = useState({ game_start: false });
     const [selectedGroup, setSelectedGroup] = useState<
         (typeof groups)[0] | null
     >(groups.find((item) => item.id == selectedGroupID));
@@ -104,6 +105,11 @@ export function AddGameModal({
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        setTouched((prev) => ({ ...prev, game_start: true }));
+        if (!data.game_start) {
+            return;
+        }
+
         transform((formData) => ({
             ...formData,
             players: formData.players.map((player) =>
@@ -113,8 +119,8 @@ export function AddGameModal({
                           points: 0,
                           points_earned: 0,
                           points_lost: 0,
-                          correct_answers: 0,
-                          incorrect_answers: 0,
+                          right_answers: 0,
+                          wrong_answers: 0,
                       }
                     : player,
             ),
@@ -128,6 +134,7 @@ export function AddGameModal({
         setOpen(false);
         reset();
         setSelectedPlayers([]);
+        setTouched({ game_start: false });
     };
 
     const selectedIds = selectedPlayers.map((p) => p.id);
@@ -152,8 +159,8 @@ export function AddGameModal({
                           points: 0,
                           points_earned: 0,
                           points_lost: 0,
-                          correct_answers: 0,
-                          incorrect_answers: 0,
+                          right_answers: 0,
+                          wrong_answers: 0,
                           is_host: false,
                       },
                   ];
@@ -182,7 +189,7 @@ export function AddGameModal({
         playerId: string,
         field: keyof Pick<
             SelectedPlayer,
-            'points_lost' | 'correct_answers' | 'incorrect_answers'
+            'points_lost' | 'right_answers' | 'wrong_answers'
         >,
         value: number,
     ) => {
@@ -205,8 +212,8 @@ export function AddGameModal({
                           points: 0,
                           points_earned: 0,
                           points_lost: 0,
-                          correct_answers: 0,
-                          incorrect_answers: 0,
+                          right_answers: 0,
+                          wrong_answers: 0,
                       }
                     : {}),
             }));
@@ -232,6 +239,15 @@ export function AddGameModal({
                         {players
                             .filter((player) =>
                                 selectedIds.includes(player.id.toString()),
+                            )
+                            .filter(
+                                (player) =>
+                                    !selectedPlayers.some(
+                                        (selectedPlayer) =>
+                                            selectedPlayer.id ===
+                                                player.id.toString() &&
+                                            selectedPlayer.is_host,
+                                    ),
                             )
                             .map((player) => {
                                 return (
@@ -262,16 +278,27 @@ export function AddGameModal({
     };
 
     const renderGameStartField = () => {
+        const gameStartError =
+            touched.game_start && !data.game_start
+                ? 'Укажите время начала игры'
+                : '';
+
         return (
             <div className="flex flex-col space-y-2">
                 <label>Game Start</label>
                 <DatePicker
                     selected={data.game_start}
-                    onChange={(date) => setData('game_start', date)}
+                    onChange={(date) => {
+                        setData('game_start', date);
+                        setTouched((prev) => ({ ...prev, game_start: true }));
+                    }}
                     showTimeSelect
                     timeFormat="HH:mm"
                     timeIntervals={15}
                     dateFormat={DATE_TIME_FORMAT}
+                    onCalendarOpen={() =>
+                        setTouched((prev) => ({ ...prev, game_start: true }))
+                    }
                     customInput={
                         <CustomDatePickerInput
                             label="start time"
@@ -284,6 +311,9 @@ export function AddGameModal({
                     }
                     selectsMultiple={undefined}
                 />
+                {gameStartError && (
+                    <p className="text-sm text-destructive">{gameStartError}</p>
+                )}
             </div>
         );
     };
@@ -541,14 +571,14 @@ export function AddGameModal({
                                                                 step={1}
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
-                                                                    entry.correct_answers ??
+                                                                    entry.right_answers ??
                                                                     0
                                                                 }
                                                                 disabled={entry.is_host}
                                                                 onChange={(e) =>
                                                                     setPlayerStat(
                                                                         entry.id,
-                                                                        'correct_answers',
+                                                                        'right_answers',
                                                                         num(
                                                                             e
                                                                                 .target
@@ -565,14 +595,14 @@ export function AddGameModal({
                                                                 step={1}
                                                                 className="h-8 w-full max-w-[5rem] text-left"
                                                                 value={
-                                                                    entry.incorrect_answers ??
+                                                                    entry.wrong_answers ??
                                                                     0
                                                                 }
                                                                 disabled={entry.is_host}
                                                                 onChange={(e) =>
                                                                     setPlayerStat(
                                                                         entry.id,
-                                                                        'incorrect_answers',
+                                                                        'wrong_answers',
                                                                         num(
                                                                             e
                                                                                 .target

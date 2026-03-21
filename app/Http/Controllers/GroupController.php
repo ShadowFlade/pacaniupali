@@ -118,7 +118,6 @@ class GroupController extends Controller
 
 
         $auth = auth();
-        $winnerPlayer = null;
 
         foreach ($games as $game) {
             $players = [];
@@ -126,7 +125,11 @@ class GroupController extends Controller
                 $players[$player['user_id']] = $player;
             }
             $game['player'] = $players;
-            $game['winner']['username'] = $game['player'][$player['user_id']]['user']['username'];
+            $winner = $game['winner'];
+            if ($winner) {
+                $game['winner']['username'] = $game['player'][$winner['user_id']]['user']['username'];
+            }
+//            $game['winner']['username'] = $game['player'][$player['user_id']]['user']['username'];
         }
 
         return Inertia::render(

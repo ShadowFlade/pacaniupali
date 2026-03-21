@@ -8,6 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property int user_id
+ * @property string created_at
+ * @property string updated_at
+ * @property int game_id
+ * @property int is_host
+ * @property int $points
+ * @property int $points_earned
+ * @property int $points_lost
+ * @property int $right_answers
+ * @property int $wrong_answers
+ */
 class Player extends Model
 {
     /** @use HasFactory<\Database\Factories\PlayerFactory> */

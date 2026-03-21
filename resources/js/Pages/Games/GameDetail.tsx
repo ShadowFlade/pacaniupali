@@ -210,7 +210,7 @@ export default function GameDetail({ game }: GameDetailProps) {
                                                 Неправильных
                                             </th>
                                             <th className="w-[12%] py-2 px-2 text-right font-medium">
-                                                Стрик побед
+                                                Стрик побед после игры
                                             </th>
                                         </tr>
                                     </thead>

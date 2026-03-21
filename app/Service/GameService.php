@@ -14,13 +14,10 @@ class GameService
         string $dateTimeEnd,
         array  $players,
         int    $userWinnerId
-    ): ?Game
-    {
-//        dd($players);
+    ): ?Game {
         $game = null;
 
-//        DB::transaction(
-//            function () use (&$game, $groupId, $dateTimeStart, $dateTimeEnd, $players, $userWinnerId, $playerWinnerId) {
+        //todo:make it a transaction?
         $game = Game::create(
             [
                 'game_start'    => $dateTimeStart,
@@ -32,10 +29,15 @@ class GameService
         $players = array_map(
             function ($player) use ($game) {
                 $playerArr = [
-                    'user_id' => $player['id'],
-                    'points'  => $player['points'],
-                    'is_host' => $player['is_host'],
-                    'game_id' => $game->id,
+                    'user_id'       => $player['id'],
+                    'points'        => $player['points'],
+                    'is_host'       => $player['is_host'],
+                    'game_id'       => $game->id,
+                    'points_earned' => $player['points_earned'],
+                    'points_lost'   => $player['points_lost'],
+                    'right_answers' => $player['right_answers'],
+                    'wrong_answers' => $player['wrong_answers'],
+
                 ];
                 return $playerArr;
             },
@@ -44,7 +46,7 @@ class GameService
         Player::insert($players);
         $playerWinner = Player::query()
                               ->where('game_id', $game->id)
-                              ->where('user_id',$userWinnerId)
+                              ->where('user_id', $userWinnerId)
                               ->first();
 
 
@@ -56,9 +58,21 @@ class GameService
 
             ]
         );
-//            }
-//        );
+
 
         return $game;
+    }
+
+    /**
+     * Мы берем последнюю игру, в которой записан его game_streak, смотрим, есть ли
+     * между текущей игрой и последней победой (также это будет последняя игра с game_streak) игры,
+     * если да, то считаем для этих игр game_streak, если нет, просто проставляем 0 или x+1,
+     * где x это последний game_streak
+     * @param int $userId
+     * @return void
+     */
+    public function calcGameStreak(int $userId)
+    {
+
     }
 }

@@ -24,7 +24,9 @@
 * group detail page - all games of the groups (thats all for now looks like)
 * player - your last games, total points, best games and so on
 * replace string table names with smth like Model\User::table_name if it exists (across whole project)
-* in some places IPlayer is actually a user, not a player - refactor
-* add player column - point earned total, points lost total , right answsers, wrong answers  
+* in some places IPlayer is actually a user, not a player - refactor - frontend
+* ~~add player column - point earned total, points lost total , right answsers, wrong answers~~  
 
 
+# Архитектурные решения
+* почему я не ставлю winner_id в players?
