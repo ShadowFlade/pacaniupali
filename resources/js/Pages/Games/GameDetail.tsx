@@ -23,7 +23,7 @@ type GameDetailPlayer = {
     points_lost?: number | null;
     right_answers?: number | null;
     wrong_answers?: number | null;
-    win_streak_at_game?: number | null;
+    win_streak?: number | null;
 };
 
 type GameDetailData = {
@@ -252,7 +252,7 @@ export default function GameDetail({ game }: GameDetailProps) {
                                                     {p.wrong_answers ?? '—'}
                                                 </td>
                                                 <td className="py-3 px-2 text-right">
-                                                    {p.win_streak_at_game ?? '—'}
+                                                    {p.win_streak ?? '—'}
                                                 </td>
                                             </tr>
                                         ))}

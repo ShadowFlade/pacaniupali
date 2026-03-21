@@ -15,8 +15,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Link } from '@inertiajs/react';
 
-export function FloatingMenu({ username, userEmail, className }) {
-    const isLoggedIn = !!username;
+export function FloatingMenu({ username, userEmail, login, className }) {
+    const isLoggedIn = !!(username || login);
     console.log(isLoggedIn, ' is logge3d in ');
     return (
         <nav
@@ -32,7 +32,11 @@ export function FloatingMenu({ username, userEmail, className }) {
             </div>
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-4">
-                    <span className="text-sm font-medium">Admin</span>
+                    {isLoggedIn && (
+                        <span className="text-sm font-medium">
+                            {login ?? username}
+                        </span>
+                    )}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button

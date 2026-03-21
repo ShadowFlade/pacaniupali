@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdateGameRequest;
 use App\Modules\Games\Models\Game;
 use App\Modules\Games\Repository\GameRepository;
-use App\Service\GameService;
+use App\Modules\Games\Services\GameService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
@@ -45,7 +46,13 @@ class GameController extends Controller
         );
 
         $gameService = new GameService();
-        $game = $gameService->createGame($groupId, $gameStart, $gameEnd, $players, $winnerId);
+        $userId = $request->user()->id;
+        $game = null;
+        DB::transaction(function () use ($gameStart, $gameEnd, $players, $groupId, $userId, $gameService, $winnerId, &$game) {
+            $game = $gameService->createGame($groupId, $gameStart, $gameEnd, $players, $winnerId);
+            $gameService->calcGameStreakFull($userId);
+        });
+
 
         return Redirect::back()->with([
             'data' => $game

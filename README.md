@@ -3,6 +3,7 @@
 * php artisan inertia:start-ssr
 * npm run dev
 * composer run dev
+* php artisan pulse:check
 
 ### Fresh startup
 * composer install

@@ -52,6 +52,7 @@ class RegisteredUserController extends Controller
             'email'    => $request->email,
             'username' => $request->username,
             'password' => Hash::make($request->password),
+            'created_at' => now()
         ];
         if (isset($pictureFilename)) {
             $userCreateFields['picture'] = $pictureFilename;

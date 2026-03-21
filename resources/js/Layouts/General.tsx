@@ -16,6 +16,7 @@ export default function General({
             <FloatingMenu
                 username={user?.username}
                 userEmail={user?.email}
+                login={user?.login}
                 className={'h-[70px]'}
             />
             <div className={'align-start mt-[70px] flex'}>{children}</div>
