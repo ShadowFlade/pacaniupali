@@ -280,9 +280,15 @@ export default function GameDetail({ game }: GameDetailProps) {
                                                 }
                                                 username={displayName(p)}
                                             />
-                                            <span className="font-medium">
+                                            <Link
+                                                href={route(
+                                                    'user.show',
+                                                    p.user.id,
+                                                )}
+                                                className="font-medium hover:underline"
+                                            >
                                                 {displayName(p)}
-                                            </span>
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
@@ -313,11 +319,17 @@ export default function GameDetail({ game }: GameDetailProps) {
                                                 ''
                                             }
                                         />
-                                        <span className="font-medium">
+                                        <Link
+                                            href={route(
+                                                'user.show',
+                                                winnerUser.id,
+                                            )}
+                                            className="font-medium hover:underline"
+                                        >
                                             {winnerUser.username ??
                                                 winnerUser.login ??
                                                 'Победитель'}
-                                        </span>
+                                        </Link>
                                     </div>
                                     <dl className="grid grid-cols-2 gap-x-4 gap-y-3 border-t border-border/60 pt-4 sm:grid-cols-3">
                                         <div>
@@ -507,9 +519,15 @@ export default function GameDetail({ game }: GameDetailProps) {
                                                                 displayName(p)
                                                             }
                                                         />
-                                                        <span className="font-medium">
+                                                        <Link
+                                                            href={route(
+                                                                'user.show',
+                                                                p.user.id,
+                                                            )}
+                                                            className="font-medium hover:underline"
+                                                        >
                                                             {displayName(p)}
-                                                        </span>
+                                                        </Link>
                                                     </div>
                                                 </td>
                                                 <td className="py-3 px-2 text-right">

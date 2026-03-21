@@ -5,6 +5,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\Pages\MainController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Modules\User\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -12,6 +13,9 @@ Route::get(
     '/',
     [MainController::class, 'show']
 )->name('main.show');
+
+Route::resource('/user', UserController::class)->middleware('auth');
+
 
 Route::get(
     '/dashboard',
@@ -49,7 +53,6 @@ Route::middleware('auth')->group(
     }
 );
 
-//Route::resource('/games', GameController::class)->middleware('auth');
 
 
 Route::middleware('auth')->group(
@@ -75,11 +78,11 @@ Route::middleware('auth')->group(
     function () {
         Route::post(
             '/played_with_users',
-            [\App\Http\Controllers\Users\UserController::class, 'playedWithUsers']
+            [\App\Modules\User\Http\Controllers\UserController::class, 'playedWithUsers']
         )->name('user.playedWithUsers');
         Route::post(
             '/search_user',
-            [\App\Http\Controllers\Users\UserController::class, 'searchByUserName']
+            [\App\Modules\User\Http\Controllers\UserController::class, 'searchByUserName']
         )->name('user.searchByUserName');
     }
 );

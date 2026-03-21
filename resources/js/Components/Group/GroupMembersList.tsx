@@ -1,5 +1,6 @@
 import AvatarSmall from '@/Components/AvatarSmall';
 import { Button } from '@/components/ui/button';
+import { Link } from '@inertiajs/react';
 import { DATE_FORMAT, DEFAULT_AVATAR_PATH } from '@/utility/const';
 import { format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '@/utility/const';
@@ -39,7 +40,7 @@ function MemberRow({
     editable?: boolean;
     onRemoveMember?: (id: number) => void;
 }) {
-    const displayName = member.username ?? '—';
+    const displayName = member.username ?? member.login ?? '—';
     const wins = member.wins?.length ?? 0;
 
     return (
@@ -49,7 +50,12 @@ function MemberRow({
                 username={displayName}
             />
             <div className="min-w-0 flex-1">
-                <p className="font-medium">{displayName}</p>
+                <Link
+                    href={route('user.show', member.id)}
+                    className="font-medium hover:underline"
+                >
+                    {displayName}
+                </Link>
                 <dl className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-0 text-sm">
                     <span>Создан: {formatDate(member.created_at)}</span>
                     <span>
