@@ -7,7 +7,7 @@ use App\Http\Requests\UserSearchRequest;
 use App\Models\Player;
 use App\Models\User;
 use App\Modules\Games\Models\Game;
-use App\Service\UserGroupService;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class UserController extends \App\Http\Controllers\Controller
@@ -31,24 +31,22 @@ class UserController extends \App\Http\Controllers\Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(\Illuminate\Http\Request $request)
-    {
-
-    }
+    public function store(\Illuminate\Http\Request $request) {}
 
     /**
      * Display the specified resource.
      */
     public function show(int $userId)
     {
-        $games = Player::with(['winner'])->where('user_id', $userId)->select(['*'])->get();
-        $auth = auth();
-        $user = $auth->user();
+        // todo:возможно надо переписать на Games::with(['player','winner'])
+        $games = Player::with(['winner', 'user', 'user.groups'])->where('user_id', $userId)->select(['*'])->get();
+        //        dd($games);
+        $user = Auth::user();
         $winCount = array_reduce(
             $games->toArray(), function ($carry, $game) {
-            return $game ? 1 : 0 + $carry;
-        },  0);
-        $userService = new \App\Service\User();
+                return $game ? 1 : 0 + $carry;
+            }, 0);
+        $userService = new \App\Service\User;
         $limit = 3;
         $playedWithStat = $userService->getPlayedWithMostStat($userId, $limit);
         $userIds = array_map(
@@ -60,10 +58,10 @@ class UserController extends \App\Http\Controllers\Controller
         $opponents = $playedWithStat->keyBy('opponent_id')->toArray();
 
         $users = User::query()
-                     ->whereIn('id', $userIds)
-                     ->get()
-                     ->keyBy('id')
-                     ->toArray();
+            ->whereIn('id', $userIds)
+            ->get()
+            ->keyBy('id')
+            ->toArray();
         foreach ($opponents as $key => $opponent) {
             if (isset($users[$opponent['opponent_id']])) {
                 $opponents[$key]['user'] = $users[$opponent['opponent_id']];
@@ -71,20 +69,19 @@ class UserController extends \App\Http\Controllers\Controller
             }
         }
 
-
         $winRate = $winCount / $games->count();
         $resp = [
-            'games'            => $games,
-            'auth'             => auth(),
-            'user'             => $user,
-            'summary'          => [
+            'games' => $games,
+            'auth' => auth(),
+            'user' => $user,
+            'summary' => [
                 'games_played' => $games->count(),
-                'wins'         => $winCount,
-                'win_rate'     => $winRate,
+                'wins' => $winCount,
+                'win_rate' => $winRate,
             ],
             'most_played_with' => array_values($opponents),
             'most_won_against' => [],
-            'most_lost_to'     => [],
+            'most_lost_to' => [],
         ];
 
         return Inertia::render('Users/UserDetail', $resp);
@@ -116,22 +113,23 @@ class UserController extends \App\Http\Controllers\Controller
 
     /**
      * Также сюда включаются юзеры из твоей группы
-     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function playedWithUsers(\Illuminate\Http\Request $request)
     {
-        $userService = new \App\Service\User();
+        $userService = new \App\Service\User;
         $userId = $request->user()->id;
         $users = $userService->getPlayedWith($userId);
+
         return response()->json($users);
     }
 
     public function searchByUserName(UserSearchRequest $request)
     {
         $text = $request->input('text');
-        $limit = (int)$request->input('limit', 20);
-        $offset = (int)$request->input('offset', 0);
+        $limit = (int) $request->input('limit', 20);
+        $offset = (int) $request->input('offset', 0);
 
         $query = User::query()->select(['username', 'id'])->orderBy('username');
 

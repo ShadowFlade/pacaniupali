@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-
 class Group extends Model
 {
     protected $table = 'group_list';
+
     /** @use HasFactory<\Database\Factories\GroupFactory> */
     use HasFactory;
 
@@ -20,7 +20,7 @@ class Group extends Model
         'name',
         'description',
         'logo_path',
-        'code'
+        'code',
     ];
 
     public function users(): BelongsToMany
@@ -29,9 +29,9 @@ class Group extends Model
     }
 
     //    #[Scope]//todo:uncomment when updated to laravel12
-    public function scopePublic(EloquentBuilder $query): void
-    {
-        $query->where('publicity', '=', UserGroupPublicity::PUBLIC);
-    }
+    // public function scopePublic(EloquentBuilder $query): void
+    // {
+    //     $query->where('publicity', '=', UserGroupPublicity::PUBLIC);
+    // }
 
 }

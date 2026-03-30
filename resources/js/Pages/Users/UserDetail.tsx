@@ -15,7 +15,7 @@ import {
     Users,
 } from 'lucide-react';
 import { format } from 'date-fns';
-import type { ComponentType } from 'react';
+import { useMemo, type ComponentType } from 'react';
 import { DATE_TIME_FORMAT } from '@/utility/const';
 import { DEFAULT_AVATAR_PATH } from '@/utility/const';
 
@@ -36,8 +36,8 @@ export type UserDetailSummary = {
 
 export type UserDetailGameRow = {
     id: number;
-    game_start: string;
-    game_end?: string | null;
+    /** Дата игры / записи (с бэка: `created_at` или `createdAt`) */
+    created_at: string;
     group?: { id: number; name?: string } | null;
     won?: boolean | null;
     my_points?: number | null;
@@ -62,13 +62,138 @@ function displayUserName(u: UserDetailProfile): string {
     return u.username ?? u.login ?? `User #${u.id}`;
 }
 
-function formatGameDate(value: string): string {
+function formatGameDate(value: string | null | undefined): string {
+    if (value == null || value === '') {
+        return '—';
+    }
     try {
         const date = new Date(value);
-        return isNaN(date.getTime()) ? value : format(date, DATE_TIME_FORMAT);
+        return isNaN(date.getTime()) ? String(value) : format(date, DATE_TIME_FORMAT);
     } catch {
-        return value;
+        return String(value);
     }
+}
+
+export type LegacyGroup = { id: number; name?: string | null };
+
+/** Ответ бэка: либо уже `UserDetailGameRow`, либо `Player` с `game`, у `game` бывает `user.groups[]` */
+type LegacyPlayerGamePayload = {
+    id?: number;
+    game_id?: number;
+    points?: number | null;
+    my_points?: number | null;
+    won?: boolean | null;
+    winner?: Record<string, unknown> | null;
+    created_at?: string;
+    createdAt?: string;
+    group?: LegacyGroup | null;
+    /** У записи Player свой user с группами */
+    user?: {
+        groups?: LegacyGroup[] | null;
+    };
+    game?: {
+        id?: number;
+        group_id?: number | null;
+        created_at?: string;
+        createdAt?: string;
+        /** Например связь game.user с groups */
+        user?: {
+            groups?: LegacyGroup[] | null;
+        };
+        group?: LegacyGroup | null;
+        group_list?: LegacyGroup | null;
+    };
+};
+
+function toLegacyGroup(raw: unknown): LegacyGroup | null {
+    if (!raw || typeof raw !== 'object' || !('id' in raw)) {
+        return null;
+    }
+    const o = raw as LegacyGroup;
+    return { id: Number(o.id), name: o.name ?? undefined };
+}
+
+/** Группа игры: из `game.user.groups` (массив), при необходимости по `game.group_id`, и запасные поля */
+function pickGroupFromGamePayload(
+    item: LegacyPlayerGamePayload,
+): LegacyGroup | null {
+    const g = item.game;
+    const fromScalar =
+        toLegacyGroup(g?.group) ??
+        toLegacyGroup(g?.group_list) ??
+        toLegacyGroup(item.group);
+
+    const groups = g?.user?.groups ?? item.user?.groups;
+    if (!Array.isArray(groups) || groups.length === 0) {
+        return fromScalar;
+    }
+
+    const gid = g?.group_id;
+    if (gid != null && gid !== '') {
+        const match = groups.find((x) => Number(x?.id) === Number(gid));
+        if (match) {
+            return toLegacyGroup(match) ?? fromScalar;
+        }
+    }
+
+    return toLegacyGroup(groups[0]) ?? fromScalar;
+}
+
+function pickCreatedAt(item: LegacyPlayerGamePayload): string {
+    const g = item.game;
+    return (
+        g?.created_at ??
+        g?.createdAt ??
+        item.created_at ??
+        item.createdAt ??
+        ''
+    );
+}
+
+function normalizeGameHistory(raw: unknown): UserDetailGameRow[] {
+    if (!Array.isArray(raw)) {
+        return [];
+    }
+
+    return raw.map((item: LegacyPlayerGamePayload & Partial<UserDetailGameRow>) => {
+        const g = item.game;
+        const gameId = Number(g?.id ?? item.game_id ?? 0);
+        const rowId = Number(item.id ?? gameId);
+
+        const createdAt = pickCreatedAt(item);
+
+        const grp = pickGroupFromGamePayload(item);
+        const group = grp ? { id: grp.id, name: grp.name ?? undefined } : null;
+
+        let won: boolean | null = null;
+        if (typeof item.won === 'boolean') {
+            won = item.won;
+        } else if (item.winner != null && typeof item.winner === 'object') {
+            won = Object.keys(item.winner).length > 0;
+        }
+
+        const myPoints =
+            item.my_points != null ? item.my_points : item.points;
+
+        return {
+            id: gameId || rowId,
+            created_at: createdAt,
+            group,
+            won,
+            my_points:
+                myPoints !== undefined && myPoints !== null
+                    ? Number(myPoints)
+                    : null,
+        };
+    });
+}
+
+function historySortKey(row: UserDetailGameRow): number {
+    if (!row.created_at) {
+        return row.id;
+    }
+    const t = new Date(row.created_at).getTime();
+    return isNaN(t) ? row.id : t;
 }
 
 function resultLabel(won: boolean | null | undefined): string {
@@ -94,7 +219,6 @@ function StatPartnersCard({
     items: UserStatPartner[];
     emptyText: string;
 }) {
-    console.log(items,' items');
     return (
         <Card>
             <CardHeader className="pb-2">
@@ -155,6 +279,12 @@ export default function UserDetail({
     most_lost_to = [],
 }: UserDetailPageProps) {
     const name = displayUserName(user);
+
+    const historyRows = useMemo(() => {
+        return [...normalizeGameHistory(games as unknown)].sort(
+            (a, b) => historySortKey(b) - historySortKey(a),
+        );
+    }, [games]);
 
     return (
         <General>
@@ -271,7 +401,7 @@ export default function UserDetail({
                         </h2>
                     </CardHeader>
                     <CardContent>
-                        {games.length === 0 ? (
+                        {historyRows.length === 0 ? (
                             <p className="text-muted-foreground py-8 text-center text-sm">
                                 Нет сыгранных игр.
                             </p>
@@ -298,25 +428,25 @@ export default function UserDetail({
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {games.map((g) => (
+                                        {historyRows.map((g) => (
                                             <tr
-                                                key={g.id}
+                                                key={`${g.id}-${g.created_at}`}
                                                 className="border-b border-border/60 last:border-0"
                                             >
                                                 <td className="py-3 px-3">
-                                                    <span className="font-medium">
-                                                        {formatGameDate(
-                                                            g.game_start,
-                                                        )}
-                                                    </span>
-                                                    {g.game_end ? (
-                                                        <span className="text-muted-foreground mt-0.5 block text-xs">
-                                                            до{' '}
-                                                            {formatGameDate(
-                                                                g.game_end,
-                                                            )}
+                                                    {g.created_at ? (
+                                                        <>
+                                                            <span className="font-medium">
+                                                                {formatGameDate(
+                                                                    g.created_at,
+                                                                )}
+                                                            </span>
+                                                        </>
+                                                    ) : (
+                                                        <span className="text-muted-foreground font-medium">
+                                                            Игра #{g.id}
                                                         </span>
-                                                    ) : null}
+                                                    )}
                                                 </td>
                                                 <td className="px-2 py-3">
                                                     {g.group ? (
