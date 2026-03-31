@@ -43,9 +43,12 @@ class UserController extends \App\Http\Controllers\Controller
         //        dd($games);
         $user = Auth::user();
         $winCount = array_reduce(
-            $games->toArray(), function ($carry, $game) {
+            $games->toArray(),
+            function ($carry, $game) {
                 return $game ? 1 : 0 + $carry;
-            }, 0);
+            },
+            0
+        );
         $userService = new \App\Service\User;
         $limit = 3;
         $playedWithStat = $userService->getPlayedWithMostStat($userId, $limit);

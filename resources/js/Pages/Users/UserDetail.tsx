@@ -358,7 +358,7 @@ export default function UserDetail({
                                 </p>
                                 <p className="text-xl font-semibold tabular-nums">
                                     {summary.win_rate != null
-                                        ? `${summary.win_rate}%`
+                                        ? `${summary.win_rate.toString().slice(0,10)}%`
                                         : '—'}
                                 </p>
                             </div>
