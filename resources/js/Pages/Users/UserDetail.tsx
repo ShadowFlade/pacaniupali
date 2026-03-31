@@ -279,7 +279,7 @@ export default function UserDetail({
     most_lost_to = [],
 }: UserDetailPageProps) {
     const name = displayUserName(user);
-
+    console.log(games,' games');
     const historyRows = useMemo(() => {
         return [...normalizeGameHistory(games as unknown)].sort(
             (a, b) => historySortKey(b) - historySortKey(a),
@@ -384,12 +384,7 @@ export default function UserDetail({
                         items={most_won_against}
                         emptyText="Нет побед над соперниками в общих играх."
                     />
-                    <StatPartnersCard
-                        title="Кому чаще проигрывал"
-                        icon={Skull}
-                        items={most_lost_to}
-                        emptyText="Нет поражений с известным победителем."
-                    />
+                    { /*<StatPartnersCard title="Кому чаще проигрывал" icon={Skull} items={most_lost_to} emptyText="Нет поражений с известным победителем." /> */}
                 </div>
 
                 {/* История игр */}
@@ -428,7 +423,9 @@ export default function UserDetail({
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {historyRows.map((g) => (
+                                        {historyRows.map((g) => {
+console.log('g',g);
+                                            return (
                                             <tr
                                                 key={`${g.id}-${g.created_at}`}
                                                 className="border-b border-border/60 last:border-0"
@@ -491,7 +488,7 @@ export default function UserDetail({
                                                     </Link>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )})}
                                     </tbody>
                                 </table>
                             </div>

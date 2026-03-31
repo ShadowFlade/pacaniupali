@@ -40,17 +40,24 @@ class UserController extends \App\Http\Controllers\Controller
     {
         // todo:возможно надо переписать на Games::with(['player','winner'])
         $games = Player::with(['winner', 'user', 'user.groups'])->where('user_id', $userId)->select(['*'])->get();
+
         //        dd($games);
         $user = Auth::user();
-        $winCount = array_reduce(
-            $games->toArray(),
-            function ($carry, $game) {
-                return $game ? 1 : 0 + $carry;
-            },
-            0
-        );
+        $winCount = 0;
+        $gameIds = [];
+
+        foreach ($games->toArray() as $playerGame) {
+            if ($playerGame['winner']) {
+                $winCount++;
+            }
+            $gameIds[] = $playerGame['game_id'];
+        }
+
         $userService = new \App\Service\User;
         $limit = 3;
+
+        //
+        // getting most played with
         $playedWithStat = $userService->getPlayedWithMostStat($userId, $limit);
         $userIds = array_map(
             function ($item) {
@@ -65,12 +72,33 @@ class UserController extends \App\Http\Controllers\Controller
             ->get()
             ->keyBy('id')
             ->toArray();
+
         foreach ($opponents as $key => $opponent) {
             if (isset($users[$opponent['opponent_id']])) {
                 $opponents[$key]['user'] = $users[$opponent['opponent_id']];
                 $opponents[$key]['count'] = $opponents[$key]['times_played_together'];
             }
         }
+
+        unset($opponent);
+        //
+        // getting most wins against
+        $mostWinsAgainst = $userService->getMostWinsAgainst($userId, $limit);
+        $mostWinsAgainstOpponents = $mostWinsAgainst->keyBy('opponent_id')->toArray();
+
+        $usersMostWinsAgainst = User::query()
+            ->whereIn('id', $userIds)
+            ->get()
+            ->keyBy('id')
+            ->toArray();
+
+        foreach ($mostWinsAgainstOpponents as $key => $opponent) {
+            if (isset($usersMostWinsAgainst[$opponent['opponent_id']])) {
+                $mostWinsAgainstOpponents[$key]['user'] = $usersMostWinsAgainst[$opponent['opponent_id']];
+                $mostWinsAgainstOpponents[$key]['count'] = $mostWinsAgainstOpponents[$key]['times_played_together'];
+            }
+        }
+        $mostWinsAgainstOpponents = array_values($mostWinsAgainstOpponents);
 
         $winRate = $winCount / $games->count();
         $resp = [
@@ -83,8 +111,8 @@ class UserController extends \App\Http\Controllers\Controller
                 'win_rate' => $winRate,
             ],
             'most_played_with' => array_values($opponents),
-            'most_won_against' => [],
-            'most_lost_to' => [],
+            'most_won_against' => array_values($mostWinsAgainstOpponents),
+            'most_lost_to' => [], // implement statistics "with whom you had most losses
         ];
 
         return Inertia::render('Users/UserDetail', $resp);

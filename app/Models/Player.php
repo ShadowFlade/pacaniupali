@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 /**
  * @property int user_id
@@ -30,10 +29,10 @@ class Player extends Model
         'user_id',
         'game_id',
         'is_host',
-        'points'
+        'points',
     ];
-    protected $appends  = ['position'];
 
+    protected $appends = ['position'];
 
     public function user(): BelongsTo
     {
@@ -45,8 +44,7 @@ class Player extends Model
         return $this->belongsTo(Game::class);
     }
 
-
-    //TODO: разница между hasOne и belongsTo ??
+    // TODO: разница между hasOne и belongsTo ??
     public function winner()
     {
         return $this->hasOne(Winner::class);
@@ -54,12 +52,9 @@ class Player extends Model
 
     public function getPositionAttribute()
     {
-        Log::debug("", ['points' => $this->points, 'game_id' => $this->game_id]);
         return DB::table('players as p')
-                 ->where('p.game_id', $this->game_id)
-                 ->where('p.points', '>', $this->points ?? 0)//todo:тут был баг, что в userController при использовании $userService->getPlayedWithMostStat points в селест не передавался, соответственно там был null, поэтому сравнение не проходило
-                 ->count() + 1;
+            ->where('p.game_id', $this->game_id)
+            ->where('p.points', '>', $this->points ?? 0)// todo:тут был баг, что в userController при использовании $userService->getPlayedWithMostStat points в селест не передавался, соответственно там был null, поэтому сравнение не проходило
+            ->count() + 1;
     }
-
-
 }
