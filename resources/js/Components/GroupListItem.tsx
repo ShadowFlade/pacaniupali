@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Link } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown, ChevronUp, PlusCircle } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function GroupListItem({
     group,
@@ -19,8 +19,15 @@ export default function GroupListItem({
     groups,
 }) {
     console.log(group, ' group');
-    const [userGroupUsers, setUserGroupUsers] = useState(group.users);
-    console.log(userGroupUsers, ' user group users');
+    const [userGroupUsers, setUserGroupUsers] = useState(group.users ?? []);
+    const memberIdsKey = (group.users ?? [])
+        .map((u) => u?.id)
+        .filter(Boolean)
+        .sort()
+        .join(',');
+    useEffect(() => {
+        setUserGroupUsers(group.users ?? []);
+    }, [group.id, memberIdsKey]);
     const AddGameButton = ({ groupId }: { groupId: number }) => {
         return (
             <Button

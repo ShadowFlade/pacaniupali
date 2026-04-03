@@ -22,8 +22,6 @@ import {
     useRef,
     useState,
 } from 'react';
-import { IPlayer } from '@/Components/Modals/AddUserToGroupModal/AddUserToGroupModal';
-
 const PAGE_SIZE = 20;
 
 type SearchUsersSelectProps = {
@@ -34,7 +32,6 @@ type SearchUsersSelectProps = {
     /** Called with the list of users; the selected user is appended to this list when one is chosen. */
     stateSetter: Dispatch<SetStateAction<UserSearchItem[]>>;
     className: string;
-    userGroupUsers: IPlayer[];
 };
 
 //todo[must-1]:rewrite it in react-query later
@@ -43,7 +40,6 @@ export function SearchUsersSelect({
     placeholder = 'Search users…',
     stateSetter,
     className,
-    userGroupUsers
 }: SearchUsersSelectProps) {
     const { props } = usePage<PageProps>();
     const [users, setUsers] = useState<UserSearchItem[]>([]);

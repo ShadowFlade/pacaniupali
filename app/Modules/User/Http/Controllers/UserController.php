@@ -36,6 +36,8 @@ class UserController extends \App\Http\Controllers\Controller
     /**
      * Display the specified resource.
      */
+    // 01.04.2026 - 500ms - kinda bad
+
     public function show(int $userId)
     {
         // todo:возможно надо переписать на Games::with(['player','winner'])
