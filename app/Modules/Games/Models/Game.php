@@ -4,6 +4,7 @@ namespace App\Modules\Games\Models;
 
 use App\Models\Player;
 use App\Models\Winner;
+use App\Modules\UserGroup\Models\Group;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -30,6 +31,10 @@ class Game extends Model
     public function player(): HasMany
     {
         return $this->hasMany(Player::class);
+    }
+    public function group(): HasOne
+    {
+        return $this->hasOne(Group::class);
     }
 
     public static function boot()

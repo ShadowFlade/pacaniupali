@@ -11,7 +11,7 @@ class UpdateGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return auth()->check();
     }
 
     /**
@@ -22,7 +22,9 @@ class UpdateGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'group_id'          => 'required|exists:groups,id',
+            'publicity'         => 'required',
+            'active_member_ids' => 'required|array',
         ];
     }
 }

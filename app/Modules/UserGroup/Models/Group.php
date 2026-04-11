@@ -21,6 +21,7 @@ class Group extends Model
         'description',
         'logo_path',
         'code',
+        'publicity',
     ];
 
     public function users(): BelongsToMany
@@ -29,9 +30,9 @@ class Group extends Model
     }
 
     //    #[Scope]//todo:uncomment when updated to laravel12
-    // public function scopePublic(EloquentBuilder $query): void
-    // {
-    //     $query->where('publicity', '=', UserGroupPublicity::PUBLIC);
-    // }
+     public function scopePublic(EloquentBuilder $query): void
+     {
+         $query->where('publicity', '=', UserGroupPublicity::PUBLIC);
+     }
 
 }

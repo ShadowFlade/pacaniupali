@@ -86,7 +86,8 @@ class GroupController extends Controller
             'name'        => $request['name'],
             'code'        => str_slug($request['name']),
             'description' => $request['description'],
-            'logo_path'   => '/storage/group_logos/' . $logoFilename
+            'logo_path'   => '/storage/group_logos/' . $logoFilename,
+            'publicity'   => $request['publicity'],
         ];
 
         $group = Group::create($newGroup);
@@ -153,9 +154,10 @@ class GroupController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateGroupRequest $request, Group $group)
+    public function update(\Illuminate\Http\Request $request)
     {
-        //
+        $data = $request->all();
+        unset($data['_method']);//weird thing, we have to do it bc of using method PATCH
     }
 
     /**

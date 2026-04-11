@@ -18,13 +18,18 @@ class UserGroupService
 
     public function getGroupWithUsersAndWinners(int $groupId)
     {
-        $group = Group::with(['users','users.wins'])
+        $group = Group::with(['users.wins.game'])
                       ->where('id', $groupId)
                       ->first()->toArray();
 
         foreach ($group['users'] as &$user) {
             $user['joined_group_at'] = $user['pivot']['created_at'];
             unset($user['pivot']);
+            foreach ($user['wins'] as $winKey => &$win) {
+                if (!is_null($win['game']) && $group['id'] != $win['game']['group_id']) {
+                    unset($user['wins'][$winKey]);
+                }
+            }
         }
         return $group;
     }
