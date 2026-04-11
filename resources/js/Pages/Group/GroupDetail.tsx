@@ -9,6 +9,19 @@ import { Link, router } from '@inertiajs/react';
 import { useState, ChangeEvent, useEffect } from 'react';
 import { ArrowLeft, ChevronDown, ChevronUp, Gamepad2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import './GroupDetail.css';
 
 type GroupUser = {
@@ -26,6 +39,8 @@ type Group = {
     name: string;
     description?: string | null;
     logo_path?: string | null;
+    /** UserGroupPublicity: PUBLIC = 1, PRIVATE = 2 */
+    publicity?: number;
     users?: GroupUser[];
 };
 
@@ -59,6 +74,13 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
         group.logo_path || null,
     );
     const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [publicity, setPublicity] = useState<1 | 2>(
+        group.publicity === 2 ? 2 : 1,
+    );
+
+    useEffect(() => {
+        setPublicity(group.publicity === 2 ? 2 : 1);
+    }, [group.id, group.publicity]);
 
     const originalMembers = group.users ?? [];
     const members = originalMembers.filter(
@@ -95,17 +117,31 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
     const handleToggleEdit = () => {
         // turning off edit mode -> send state to backend
         if (editMode) {
-            const payload = {
-                group_id: group.id,
-                active_member_ids: members.map((m) => m.id),
-                removed_member_ids: removedMemberIds,
-                active_game_ids: visibleGames.map((g) => g.id),
-                removed_game_ids: removedGameIds,
-            };
-
             const formData = new FormData();
             formData.append('_method', 'PATCH');
-            formData.append('data', JSON.stringify(payload));
+            formData.append('group_id', String(group.id));
+            formData.append('publicity', String(publicity));
+
+            const appendIds = (
+                key: string,
+                ids: Array<number | string>,
+            ) => {
+                for (const id of ids) {
+                    formData.append(`${key}[]`, String(id));
+                }
+            };
+
+            appendIds(
+                'active_member_ids',
+                members.map((m) => m.id),
+            );
+            appendIds('removed_member_ids', removedMemberIds);
+            appendIds(
+                'active_game_ids',
+                visibleGames.map((g) => g.id),
+            );
+            appendIds('removed_game_ids', removedGameIds);
+
             if (logoFile) {
                 formData.append('logo', logoFile);
             }
@@ -121,7 +157,7 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
     return (
         <General>
             <div className="container mx-auto max-w-3xl px-4 py-8">
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
                     <Link
                         href={route('group.index')}
                         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
@@ -154,9 +190,81 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                                 className="h-24 w-24 shrink-0 rounded-xl object-cover shadow-sm"
                             />
                             <div className="min-w-0 flex-1">
-                                <h1 className="text-2xl font-semibold tracking-tight">
-                                    {group.name}
-                                </h1>
+                                <div className="flex items-start justify-between gap-3">
+                                    <h1 className="min-w-0 flex-1 text-2xl font-semibold tracking-tight">
+                                        {group.name}
+                                    </h1>
+                                    <div className="flex shrink-0 items-start pt-0.5">
+                                        {editMode ? (
+                                            <div className="flex items-center gap-1.5">
+                                                <Select
+                                                    value={String(publicity)}
+                                                    onValueChange={(v) =>
+                                                        setPublicity(
+                                                            Number(v) as 1 | 2,
+                                                        )
+                                                    }
+                                                >
+                                                    <SelectTrigger
+                                                        id="group-detail-publicity"
+                                                        className="h-8 w-[148px] text-xs"
+                                                    >
+                                                        <SelectValue placeholder="Тип" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="1">
+                                                            Публичная
+                                                        </SelectItem>
+                                                        <SelectItem value="2">
+                                                            Приватная
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <TooltipProvider
+                                                    delayDuration={200}
+                                                >
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <button
+                                                                type="button"
+                                                                className="text-muted-foreground hover:text-foreground inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-current transition-colors"
+                                                                aria-label="Справка о публичности группы"
+                                                            >
+                                                                <span className="text-[10px] font-semibold leading-none">
+                                                                    i
+                                                                </span>
+                                                            </button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent
+                                                            side="bottom"
+                                                            className="max-w-xs text-pretty"
+                                                        >
+                                                            Публичные группы будут
+                                                            видны в списке групп
+                                                            всем пользователям, и
+                                                            все пользователи могут
+                                                            оставлять заявки на
+                                                            присоединение.
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            </div>
+                                        ) : (
+                                            <span
+                                                className="rounded-full border border-border bg-muted/40 px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                                                title={
+                                                    publicity === 2
+                                                        ? 'Приватная группа'
+                                                        : 'Публичная группа'
+                                                }
+                                            >
+                                                {publicity === 2
+                                                    ? 'Приватная'
+                                                    : 'Публичная'}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
                                 {group.description ? (
                                     <p className="mt-2 text-muted-foreground">
                                         {group.description}

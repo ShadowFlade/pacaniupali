@@ -8,7 +8,20 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import General from '@/Layouts/General';
 import { PageProps } from '@/types';
 import { useForm, usePage } from '@inertiajs/react';
@@ -35,10 +48,12 @@ export default function GroupList({ auth, groups: userGroups, games }) {
     const page = usePage<PageProps>();
     console.log(auth, ' auth');
 
-    const { setData, post, processing, reset } = useForm({
+    const { data, setData, post, processing, reset } = useForm({
         name: '',
         logo: '',
         description: '',
+        /** UserGroupPublicity: PUBLIC = 1, PRIVATE = 2 */
+        publicity: 1,
     });
 
     useEffect(() => {
@@ -103,6 +118,49 @@ export default function GroupList({ auth, groups: userGroups, games }) {
                     <p className="mt-2 text-sm text-muted-foreground">
                         Сюда вы можете записать свой лозунг!
                     </p>
+                </div>
+
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <Label htmlFor="publicity">Публичность</Label>
+                        <TooltipProvider delayDuration={200}>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button
+                                        type="button"
+                                        className="text-muted-foreground hover:text-foreground inline-flex size-5 items-center justify-center rounded-full border border-current transition-colors"
+                                        aria-label="Справка о публичности группы"
+                                    >
+                                        <span className="text-[10px] font-semibold leading-none">
+                                            i
+                                        </span>
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                    side="top"
+                                    className="max-w-xs text-pretty"
+                                >
+                                    Публичные группы будут видны в списке групп
+                                    всем пользователям, и все пользователи могут
+                                    оставлять заявки на присоединение.
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                    <Select
+                        value={String(data.publicity)}
+                        onValueChange={(v) =>
+                            setData('publicity', Number(v) as 1 | 2)
+                        }
+                    >
+                        <SelectTrigger id="publicity" className="w-full">
+                            <SelectValue placeholder="Выберите тип" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="1">Публичная</SelectItem>
+                            <SelectItem value="2">Приватная</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="flex gap-4">
