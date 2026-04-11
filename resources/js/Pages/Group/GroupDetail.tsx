@@ -31,7 +31,10 @@ type GroupUser = {
     picture?: string;
     created_at?: string | null;
     joined_at?: string | null;
+    joined_group_at?: string | null;
     wins_count?: number | null;
+    games?: unknown;
+    wins?: unknown;
 };
 
 type Group = {

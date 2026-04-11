@@ -3,11 +3,13 @@
 namespace App\Modules\UserGroup\Models;
 
 use App\Models\User;
+use App\Modules\Games\Models\Game;
 use App\Modules\UserGroup\Enums\UserGroupPublicity;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Group extends Model
 {
@@ -33,6 +35,11 @@ class Group extends Model
      public function scopePublic(EloquentBuilder $query): void
      {
          $query->where('publicity', '=', UserGroupPublicity::PUBLIC);
+     }
+
+     public function games(): HasMany
+     {
+         return $this->hasMany(Game::class);
      }
 
 }

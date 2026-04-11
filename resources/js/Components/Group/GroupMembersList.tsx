@@ -5,6 +5,13 @@ import { DATE_FORMAT, DEFAULT_AVATAR_PATH } from '@/utility/const';
 import { format } from 'date-fns';
 import { DATE_TIME_FORMAT } from '@/utility/const';
 
+function countKeyedOrArray(value: unknown): number {
+    if (value == null) return 0;
+    if (Array.isArray(value)) return value.length;
+    if (typeof value === 'object') return Object.keys(value as object).length;
+    return 0;
+}
+
 export type GroupMember = {
     id: number;
     username?: string;
@@ -12,7 +19,10 @@ export type GroupMember = {
     picture?: string;
     created_at?: string | null;
     joined_group_at?: string | null;
-    wins?: any[];
+    /** Победы в контексте текущей группы (с бэка) */
+    wins?: unknown;
+    /** Игры в текущей группе (с бэка, UserGroupService) */
+    games?: unknown;
 };
 
 type GroupMembersListProps = {
@@ -41,7 +51,9 @@ function MemberRow({
     onRemoveMember?: (id: number) => void;
 }) {
     const displayName = member.username ?? member.login ?? '—';
-    const wins = member.wins?.length ?? 0;
+    const gamesCount = countKeyedOrArray(member.games);
+    const winsCount = countKeyedOrArray(member.wins);
+    const winsLabel = gamesCount === 0 ? '—' : String(winsCount);
 
     return (
         <div className="border-border/60 flex flex-wrap items-center gap-4 border-b py-3 last:border-0">
@@ -57,11 +69,12 @@ function MemberRow({
                     {displayName}
                 </Link>
                 <dl className="text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-0 text-sm">
-                    <span>Создан: {formatDate(member.created_at)}</span>
                     <span>
-                        В группе с: {formatDate(member.joined_group_at)}
+                        Присоединился:{' '}
+                        {formatDate(member.joined_group_at)}
                     </span>
-                    <span>Побед: {wins}</span>
+                    <span>Игр: {gamesCount}</span>
+                    <span>Побед: {winsLabel}</span>
                 </dl>
             </div>
             {editable && (

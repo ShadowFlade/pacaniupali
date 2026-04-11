@@ -33,3 +33,7 @@
 
 # Архитектурные решения
 * почему я не ставлю winner_id в players?
+
+# GIT
+## Allowed tags
+* `[bugfix]`
