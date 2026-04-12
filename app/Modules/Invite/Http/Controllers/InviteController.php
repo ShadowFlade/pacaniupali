@@ -5,6 +5,7 @@ namespace App\Modules\Invite\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Invite\Http\Requests\InviteRequest;
 use App\Modules\Invite\Models\Invite;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
@@ -14,9 +15,9 @@ class InviteController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $userId = $request['userId'];
+        $userId = Auth::user()->id;
         $invites = Invite::query()->where('user_id', '=', $userId)->get()->all();
         return Inertia::render('Invites/List', ['$invites' => $invites]);
     }

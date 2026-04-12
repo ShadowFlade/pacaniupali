@@ -18,7 +18,7 @@ import { Link, usePage } from '@inertiajs/react';
 export function FloatingMenu({ username, userEmail, login, className }) {
     const page = usePage();
     const isLoggedIn = !!(username || login);
-    const onInvitesPage = page.url.startsWith('/invites');
+    const onInvitesPage = page.url.startsWith('/invites/list');
     console.log(isLoggedIn, ' is logge3d in ');
     return (
         <nav
@@ -97,7 +97,7 @@ export function FloatingMenu({ username, userEmail, login, className }) {
                                 <Inbox className="mr-2 h-4 w-4" />
                                 <NavLink
                                     className={'pl-0'}
-                                    href="/invites"
+                                    href="/invites/list"
                                     active={onInvitesPage}
                                 >
                                     Приглашения
@@ -126,28 +126,28 @@ export function FloatingMenu({ username, userEmail, login, className }) {
                             {isLoggedIn && (
                                 <DropdownMenuItem>
                                     <Users className="mr-2 h-4 w-4" />
-                                    <NavLink
-                                        className={'pl-0'}
-                                        href={route('logout')}
-                                        active={route().current('group.index')}
-                                    >
-                                        Выйти
-                                    </NavLink>
+                                    {/*<NavLink*/}
+                                    {/*    className={'pl-0'}*/}
+                                    {/*    href={route('logout')}*/}
+                                    {/*    active={route().current('group.index')}*/}
+                                    {/*>*/}
+                                    {/*    Выйти*/}
+                                    {/*</NavLink>*/}
                                 </DropdownMenuItem>
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
-                {username ? (
-                    <Link
-                        href={route('logout')}
-                        method="post"
-                        as="button"
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
-                    >
-                        Log Out
-                    </Link>
-                ) : null}
+                {/*{username ? (*/}
+                {/*    <Link*/}
+                {/*        href={route('logout')}*/}
+                {/*        method="post"*/}
+                {/*        as="button"*/}
+                {/*        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"*/}
+                {/*    >*/}
+                {/*        Log Out*/}
+                {/*    </Link>*/}
+                {/*) : null}*/}
             </div>
         </nav>
     );
