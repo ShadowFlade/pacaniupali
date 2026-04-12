@@ -1,5 +1,5 @@
 'use client';
-import { LayoutDashboard, Settings, User, Users } from 'lucide-react';
+import { Inbox, LayoutDashboard, Settings, User, Users } from 'lucide-react';
 
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import NavLink from '@/Components/NavLink';
@@ -13,10 +13,12 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 
 export function FloatingMenu({ username, userEmail, login, className }) {
+    const page = usePage();
     const isLoggedIn = !!(username || login);
+    const onInvitesPage = page.url.startsWith('/invites');
     console.log(isLoggedIn, ' is logge3d in ');
     return (
         <nav
@@ -89,6 +91,16 @@ export function FloatingMenu({ username, userEmail, login, className }) {
                                     active={route().current('group.index')}
                                 >
                                     Группа
+                                </NavLink>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                                <Inbox className="mr-2 h-4 w-4" />
+                                <NavLink
+                                    className={'pl-0'}
+                                    href="/invites"
+                                    active={onInvitesPage}
+                                >
+                                    Приглашения
                                 </NavLink>
                             </DropdownMenuItem>
                             <DropdownMenuItem>

@@ -54,7 +54,6 @@ Route::middleware('auth')->group(
 );
 
 
-
 Route::middleware('auth')->group(
     function () {
         Route::get('/game', [GameController::class, 'index'])->name('game.index');
@@ -87,4 +86,8 @@ Route::middleware('auth')->group(
     }
 );
 
-require __DIR__ . '/auth.php';
+Route::prefix('invites')->middleware(['auth'])->group(
+    function () {
+        Route::get('/list', [\App\Modules\Invite\Http\Controllers\InviteController::class, 'index'])->name('invite.index');
+    });
+
