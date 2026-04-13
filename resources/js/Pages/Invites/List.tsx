@@ -2,28 +2,16 @@
 
 import General from '@/Layouts/General';
 import { PageProps } from '@/types';
-import { Head, Link, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Mail, UserPlus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { GroupInviteRow } from '@/types/groupInvites';
 
-/** Соответствует `App\Modules\Invite\Models\Invite` (+ опционально `group` с бэкенда). */
-export type GroupInviteRow = {
-    id: number;
-    user_id: number;
-    group_id: number;
-    key: string;
-    created_at?: string;
-    updated_at?: string;
-    group?: {
-        id: number;
-        name: string;
-        code?: string;
-    };
-};
+export type { GroupInviteRow };
 
 /** Заготовка под будущие приглашения в друзья. */
 export type FriendInviteRow = {
@@ -59,6 +47,31 @@ function pickGroupInvites(props: InvitesPageProps): GroupInviteRow[] {
 
 function pickFriendInvites(props: InvitesPageProps): FriendInviteRow[] {
     return props.friendInvites ?? [];
+}
+
+function AcceptInviteButton({ invite }: { invite: GroupInviteRow }) {
+    const [busy, setBusy] = useState(false);
+
+    return (
+        <Button
+            type="button"
+            size="sm"
+            disabled={busy}
+            onClick={() => {
+                setBusy(true);
+                router.post(
+                    '/invites/accept',
+                    { invite_id: invite.id, key: invite.key },
+                    {
+                        preserveScroll: true,
+                        onFinish: () => setBusy(false),
+                    },
+                );
+            }}
+        >
+            Принять
+        </Button>
+    );
 }
 
 function CopyKeyButton({ inviteKey }: { inviteKey: string }) {
@@ -135,6 +148,24 @@ export default function InvitesList() {
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="space-y-4">
+                                        {invite.inviter ? (
+                                            <p className="text-sm text-muted-foreground">
+                                                Пригласил:{' '}
+                                                <span className="font-medium text-foreground">
+                                                    {invite.inviter.username ??
+                                                        invite.inviter.login ??
+                                                        `#${invite.inviter.id}`}
+                                                </span>
+                                            </p>
+                                        ) : null}
+                                        {invite.expires_at ? (
+                                            <p className="text-xs text-muted-foreground">
+                                                Действует до:{' '}
+                                                {new Date(
+                                                    invite.expires_at,
+                                                ).toLocaleString('ru-RU')}
+                                            </p>
+                                        ) : null}
                                         <div>
                                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                                                 Код приглашения
@@ -144,6 +175,7 @@ export default function InvitesList() {
                                             </p>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-2">
+                                            <AcceptInviteButton invite={invite} />
                                             <CopyKeyButton inviteKey={invite.key} />
                                             <Button variant="secondary" size="sm" asChild>
                                                 <Link

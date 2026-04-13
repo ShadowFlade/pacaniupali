@@ -129,7 +129,7 @@ function pickGroupFromGamePayload(
     }
 
     const gid = g?.group_id;
-    if (gid != null && gid !== '') {
+    if (gid != null && String(gid).length > 0) {
         const match = groups.find((x) => Number(x?.id) === Number(gid));
         if (match) {
             return toLegacyGroup(match) ?? fromScalar;

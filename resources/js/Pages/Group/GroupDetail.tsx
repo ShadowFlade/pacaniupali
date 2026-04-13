@@ -6,7 +6,13 @@ import { GroupMembersList } from '@/Components/Group/GroupMembersList';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import General from '@/Layouts/General';
 import { Link, router } from '@inertiajs/react';
-import { useState, ChangeEvent, useEffect } from 'react';
+import {
+    useState,
+    ChangeEvent,
+    useEffect,
+    type Dispatch,
+    type SetStateAction,
+} from 'react';
 import { ArrowLeft, ChevronDown, ChevronUp, Gamepad2, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +28,9 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GroupInvitesSettingsTab } from '@/Components/Group/GroupInvitesSettingsTab';
+import type { GroupOutgoingInviteRow } from '@/types/groupInvites';
 import './GroupDetail.css';
 
 type GroupUser = {
@@ -59,13 +68,26 @@ type Game = {
     winner?: { player_id: number };
 };
 
+/** После нормализации для списка игр на странице группы. */
+type GroupDetailGameRow = Game & {
+    group_id?: number | string;
+    players_count: number;
+};
+
 type GroupDetailProps = {
     auth: { user?: { id: number; username?: string } };
     group: Group;
     games?: Game[];
+    /** Исходящие приглашения (задаётся в GroupController::show). */
+    outgoingInvites?: GroupOutgoingInviteRow[];
 };
 
-export default function GroupDetail({ auth, group, games = [] }: GroupDetailProps) {
+export default function GroupDetail({
+    auth,
+    group,
+    games = [],
+    outgoingInvites = [],
+}: GroupDetailProps) {
     const [membersOpen, setMembersOpen] = useState(true);
     const [editMode, setEditMode] = useState(false);
     const [logoShake, setLogoShake] = useState(false);
@@ -90,10 +112,10 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
         (m) => !removedMemberIds.includes(m.id),
     );
 
-    const gamesWithGroupId = games.map((g) => ({
+    const gamesWithGroupId: GroupDetailGameRow[] = games.map((g) => ({
         ...g,
         group_id: g.group_id ?? group.id,
-        players_count: g.player.length
+        players_count: g.player?.length ?? 0,
     }));
     console.log(gamesWithGroupId,' game with group id');
 
@@ -295,6 +317,66 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                     </CardContent>
                 </Card>
 
+                <Tabs defaultValue="overview" className="mb-8 w-full">
+                    <TabsList className="grid w-full max-w-md grid-cols-2">
+                        <TabsTrigger value="overview">Обзор</TabsTrigger>
+                        <TabsTrigger value="invites">Приглашения</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="overview" className="mt-6 space-y-8">
+                        <GroupOverviewBody
+                            group={group}
+                            members={members}
+                            membersOpen={membersOpen}
+                            setMembersOpen={setMembersOpen}
+                            editMode={editMode}
+                            onRemoveMember={(id) =>
+                                setRemovedMemberIds((prev) =>
+                                    prev.includes(id)
+                                        ? prev
+                                        : [...prev, id],
+                                )
+                            }
+                            visibleGames={visibleGames}
+                            setRemovedGameIds={setRemovedGameIds}
+                        />
+                    </TabsContent>
+                    <TabsContent value="invites" className="mt-6">
+                        <GroupInvitesSettingsTab
+                            groupId={group.id}
+                            authUserId={auth.user?.id}
+                            members={members}
+                            outgoingInvites={outgoingInvites}
+                        />
+                    </TabsContent>
+                </Tabs>
+            </div>
+        </General>
+    );
+}
+
+type GroupOverviewBodyProps = {
+    group: Group;
+    members: GroupUser[];
+    membersOpen: boolean;
+    setMembersOpen: Dispatch<SetStateAction<boolean>>;
+    editMode: boolean;
+    onRemoveMember: (id: number) => void;
+    visibleGames: GroupDetailGameRow[];
+    setRemovedGameIds: Dispatch<SetStateAction<Array<number | string>>>;
+};
+
+function GroupOverviewBody({
+    group,
+    members,
+    membersOpen,
+    setMembersOpen,
+    editMode,
+    onRemoveMember,
+    visibleGames,
+    setRemovedGameIds,
+}: GroupOverviewBodyProps) {
+    return (
+        <>
                 {/* Статистика и участники */}
                 <div className="mb-8 grid gap-4 sm:grid-cols-2">
                     <Card>
@@ -354,13 +436,7 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                                 <GroupMembersList
                                     members={members}
                                     editable={editMode}
-                                    onRemoveMember={(id) =>
-                                        setRemovedMemberIds((prev) =>
-                                            prev.includes(id)
-                                                ? prev
-                                                : [...prev, id],
-                                        )
-                                    }
+                                    onRemoveMember={onRemoveMember}
                                 />
                             </CardContent>
                         )}
@@ -401,7 +477,6 @@ export default function GroupDetail({ auth, group, games = [] }: GroupDetailProp
                         )}
                     </CardContent>
                 </Card>
-            </div>
-        </General>
+        </>
     );
 }
