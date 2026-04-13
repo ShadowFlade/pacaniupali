@@ -3,6 +3,7 @@
 namespace App\Modules\Invite\Services;
 
 use App\Modules\Invite\Models\Invite;
+use Illuminate\Support\Facades\Auth;
 
 class InviteService
 {
@@ -24,5 +25,26 @@ class InviteService
             ]);
 
         return $createdInvite;
+    }
+
+    public function getPendingInvites(int $userId): array
+    {
+        $invites = Invite::query()
+                         ->whereColumn('current_successful_attempts', '>=', 'max_successful_attempts')
+                         ->orderBy('created_at', 'desc')
+                         ->where('user_id', '=', $userId)
+                         ->get();
+
+        return $invites;
+    }
+
+    public function getOutgoingInvites(int $groupId): array
+    {
+        $invites = Invite::query()
+                         ->where('group_id', '=', $groupId)
+                         ->orderBy('created_at', 'desc')
+                         ->get();
+
+        return $invites;
     }
 }
