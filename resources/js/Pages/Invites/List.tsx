@@ -166,6 +166,15 @@ export default function InvitesList() {
                                                 ).toLocaleString('ru-RU')}
                                             </p>
                                         ) : null}
+                                        {invite.max_successful_attempts !=
+                                        null ? (
+                                            <p className="text-xs text-muted-foreground">
+                                                Успешных принятий:{' '}
+                                                {invite.current_successful_attempts ??
+                                                    0}{' '}
+                                                / {invite.max_successful_attempts}
+                                            </p>
+                                        ) : null}
                                         <div>
                                             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                                                 Код приглашения
@@ -206,8 +215,7 @@ export default function InvitesList() {
                         {friendInvites.length === 0 ? (
                             <Card>
                                 <CardContent className="py-10 text-center text-sm text-muted-foreground">
-                                    Пока нет приглашений в друзья. Когда бэкенд
-                                    начнёт отдавать список, он появится здесь.
+                                    Пока нет приглашений в друзья.
                                 </CardContent>
                             </Card>
                         ) : (

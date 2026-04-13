@@ -6,16 +6,15 @@ export type GroupInviteRow = {
     key: string;
     created_at?: string;
     updated_at?: string;
-    /** Кто создал приглашение (после миграции / с бэкенда). */
-    invited_by_user_id?: number | null;
+    inviter_user_id?: number | null;
     inviter?: {
         id: number;
         username?: string;
         login?: string;
     };
     expires_at?: string | null;
-    max_uses?: number | null;
-    uses_count?: number | null;
+    max_successful_attempts?: number | null;
+    current_successful_attempts?: number | null;
     group?: {
         id: number;
         name: string;

@@ -87,7 +87,7 @@ export function GroupInvitesSettingsTab({
 }: GroupInvitesSettingsTabProps) {
     const [selected, setSelected] = useState<UserSearchItem[]>([]);
     const [expiresAt, setExpiresAt] = useState('');
-    const [maxUses, setMaxUses] = useState('1');
+    const [maxSuccessfulAttempts, setMaxSuccessfulAttempts] = useState('1');
     const [submitting, setSubmitting] = useState(false);
 
     const isMember = useMemo(() => {
@@ -112,7 +112,10 @@ export function GroupInvitesSettingsTab({
                 group_id: groupId,
                 user_id: inviteeId,
                 expires_at: expiresAt || null,
-                max_uses: maxUses === '' ? 1 : Number(maxUses),
+                max_successful_attempts:
+                    maxSuccessfulAttempts === ''
+                        ? 1
+                        : Number(maxSuccessfulAttempts),
             },
             {
                 preserveScroll: true,
@@ -134,9 +137,8 @@ export function GroupInvitesSettingsTab({
                             Новое приглашение по ссылке
                         </CardTitle>
                         <p className="text-sm text-muted-foreground">
-                            Укажите пользователя, срок действия и лимит
-                            переходов. После сохранения на сервере ему уйдёт
-                            уведомление; принять можно со страницы «Приглашения»
+                            Укажите пользователя, срок действия и лимит успешных
+                            принятий. Принять можно со страницы «Приглашения»
                             или по ссылке.
                         </p>
                     </CardHeader>
@@ -179,16 +181,18 @@ export function GroupInvitesSettingsTab({
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="invite-max-uses">
-                                        Макс. использований ссылки
+                                    <Label htmlFor="invite-max-successful">
+                                        Макс. успешных принятий
                                     </Label>
                                     <Input
-                                        id="invite-max-uses"
+                                        id="invite-max-successful"
                                         type="number"
                                         min={1}
-                                        value={maxUses}
+                                        value={maxSuccessfulAttempts}
                                         onChange={(ev) =>
-                                            setMaxUses(ev.target.value)
+                                            setMaxSuccessfulAttempts(
+                                                ev.target.value,
+                                            )
                                         }
                                     />
                                 </div>
@@ -209,11 +213,7 @@ export function GroupInvitesSettingsTab({
                                 )}
                             </Button>
                             <p className="text-xs text-muted-foreground">
-                                Ожидается{' '}
-                                <code className="rounded bg-muted px-1 py-0.5">
-                                    POST /invites
-                                </code>{' '}
-                                с полями{' '}
+                                Тело запроса:{' '}
                                 <code className="rounded bg-muted px-1 py-0.5">
                                     group_id
                                 </code>
@@ -227,9 +227,9 @@ export function GroupInvitesSettingsTab({
                                 </code>
                                 ,{' '}
                                 <code className="rounded bg-muted px-1 py-0.5">
-                                    max_uses
+                                    max_successful_attempts
                                 </code>
-                                ; ключ ссылки генерирует сервер.
+                                .
                             </p>
                         </form>
                     </CardContent>
@@ -242,12 +242,11 @@ export function GroupInvitesSettingsTab({
                         Активные приглашения этой группы
                     </CardTitle>
                     <p className="text-sm text-muted-foreground">
-                        Список заполняется, когда бэкенд передаёт в страницу
-                        группы массив{' '}
+                        Список приходит в пропе{' '}
                         <code className="rounded bg-muted px-1 py-0.5">
                             outgoingInvites
-                        </code>
-                        .
+                        </code>{' '}
+                        страницы группы.
                     </p>
                 </CardHeader>
                 <CardContent>
@@ -273,8 +272,8 @@ export function GroupInvitesSettingsTab({
                                                 Пригласил:{' '}
                                                 {row.inviter?.username ??
                                                     row.inviter?.login ??
-                                                    (row.invited_by_user_id
-                                                        ? `#${row.invited_by_user_id}`
+                                                    (row.inviter_user_id
+                                                        ? `#${row.inviter_user_id}`
                                                         : '—')}
                                             </p>
                                         </div>
@@ -300,12 +299,14 @@ export function GroupInvitesSettingsTab({
                                         </div>
                                         <div>
                                             <dt className="inline font-medium">
-                                                Использований:{' '}
+                                                Успешных принятий:{' '}
                                             </dt>
                                             <dd className="inline">
-                                                {row.uses_count ?? 0}
-                                                {row.max_uses != null
-                                                    ? ` / ${row.max_uses}`
+                                                {row.current_successful_attempts ??
+                                                    0}
+                                                {row.max_successful_attempts !=
+                                                null
+                                                    ? ` / ${row.max_successful_attempts}`
                                                     : ''}
                                             </dd>
                                         </div>
