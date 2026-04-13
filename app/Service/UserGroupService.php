@@ -32,19 +32,6 @@ class UserGroupService
 
         foreach ($group['users'] as &$user) {
             $user['joined_group_at'] = $user['pivot']['created_at'];
-//            unset($user['pivot']);
-//            foreach ($user['groups'] as $userGroupKey => $userGroup) {
-//                if ($group['id'] != $userGroup['id']) {
-//                    unset($user['groups'][$userGroupKey]);
-//                } else {
-//                    $user['games'] = $userGroup['games'];
-//                }
-//            }
-//            foreach ($user['wins'] as $winKey => &$win) {
-//                if (!is_null($win['game']) && $group['id'] != $win['game']['group_id']) {
-//                    unset($user['wins'][$winKey]);
-//                }
-//            }
         }
 
         return $group;

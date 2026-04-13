@@ -19,6 +19,9 @@
 * php artisan db:seed --class=GameSeeder
   (GameSeeder is the main seeder where all entities are created)
 
+## Freq. used commands
+* php artisan make:model Photo -cr
+
 
 # TODO
 * profile page - update all available fields

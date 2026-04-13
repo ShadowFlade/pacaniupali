@@ -88,6 +88,7 @@ Route::middleware('auth')->group(
 
 Route::prefix('invites')->middleware(['auth'])->group(
     function () {
-        Route::get('/list', [\App\Modules\Invite\Http\Controllers\InviteController::class, 'index'])->name('invite.index');
+        Route::get('/list', [\App\Modules\Invite\Http\Controllers\InviteController::class, 'index'])
+             ->name('invite.index');
     });
 

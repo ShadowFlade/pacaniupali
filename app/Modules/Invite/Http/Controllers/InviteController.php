@@ -18,8 +18,14 @@ class InviteController extends Controller
     public function index()
     {
         $userId = Auth::user()->id;
-        $invites = Invite::query()->where('user_id', '=', $userId)->get()->all();
-        return Inertia::render('Invites/List', ['$invites' => $invites]);
+        $groupInvites = Invite::query()->with(['group'])->where('user_id', '=', $userId)->get()->all();
+        return Inertia::render(
+            'Invites/List',
+            [
+                'groupInvites' => $groupInvites,
+                'friendRequests' => []
+            ]
+        );
     }
 
     /**
